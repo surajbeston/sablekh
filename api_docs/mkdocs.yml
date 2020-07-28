@@ -1,0 +1,9 @@
+site_name: Sablekh API Docs
+theme: readthedocs
+nav:
+    - Home: index.md
+    - Authentication & Authorization: auth.md
+    - User: user.md
+    - Library: library.md
+    - File: file.md
+    - Download: download.md
