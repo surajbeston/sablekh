@@ -19,6 +19,11 @@ import binascii
 from .misc import filter_text
 from os import system
 
+from django.conf import settings
+from whoosh.index import create_in, open_dir
+from whoosh.qparser import QueryParser
+from .models import WHOOSH_SCHEMA
+
 class UserView(APIView):
     def post(self, request):
         data = request.data        
@@ -225,3 +230,21 @@ def download_files(request):
             down_obj = DownloadLot(zip_name = zip_name, library = library, files = filenames)
         down_obj.save()
         return Response({"filename": "http://localhost/downloadable/"+zip_name, "by": "created"}, status = status.HTTP_201_CREATED)
+
+@api_view(['GET'])
+def search(request):
+    ix = open_dir("index")
+    query = request.data["query"]
+    if query is not None and query != "":
+        title_parser = QueryParser("title", schema=ix.schema)
+        descri_parser = QueryParser("description", schema=ix.schema)
+        try:
+            title_qry = title_parser.parse(query)
+            descri_qry = descri_parser.parse(query)
+        except:
+            return Response([])
+        searcher = ix.searcher()
+        results = searcher.search(title_qry, limit = 20)
+        descrip_results = searcher.search(descri_qry, limit = 20)
+        results.upgrade_and_extend(descrip_results)
+    return Response([ dict(result) for result in results])

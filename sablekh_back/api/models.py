@@ -2,8 +2,14 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 
-User._meta.get_field('email')._unique = True
+import os
+from django.db.models import signals
+from django.conf import settings
+from whoosh.index import create_in, open_dir
+from whoosh.fields import *
+from whoosh.analysis import StemmingAnalyzer
 
+User._meta.get_field('email')._unique = True
 
 class Visitor(User):
     hid = models.CharField(max_length = 56, primary_key= True)
@@ -35,3 +41,31 @@ class Like(models.Model):
     user = models.ForeignKey(Visitor, on_delete = models.CASCADE, blank = True, null = True)
     library = models.ForeignKey(Library, on_delete = models.CASCADE)
     datetime = models.DateTimeField(auto_now = True)
+
+stem_ana = StemmingAnalyzer()
+WHOOSH_SCHEMA = Schema(hid = KEYWORD(stored = True), title=TEXT(analyzer = stem_ana, stored=True), description=TEXT(analyzer = stem_ana, stored = True))
+
+def create_index(sender=None, **kwargs):
+    if not os.path.exists(settings.WHOOSH_INDEX):
+        os.mkdir(settings.WHOOSH_INDEX)
+        storage = store.FileStorage(settings.WHOOSH_INDEX)
+        ix = index.Index(storage, schema=WHOOSH_SCHEMA, create=True)
+
+create_index()
+
+def update_index(sender, instance, created, **kwargs):
+    # Code below is just for development.
+    all_libraries = Library.objects.all()
+    if len(all_libraries) <= 1:
+        ix = create_in("index", WHOOSH_SCHEMA)
+    else:
+        ix = open_dir("index")
+    writer = ix.writer()
+    if created:
+        writer.add_document(hid = instance.hid, title=instance.title, description=instance.description)
+        writer.commit()
+    else:
+        writer.update_document(hid = instance.hid, title=instance.title, description=instance.description)
+        writer.commit()
+
+signals.post_save.connect(update_index, sender=Library)
