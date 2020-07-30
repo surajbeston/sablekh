@@ -1,2 +1,4 @@
 /api_docs
-venv
+/venv
+/sablekh_back/api/migrations
+
