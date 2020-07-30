@@ -1,5 +1,5 @@
 # File 
- One needs to be authenticated to send file and also a library should be created to push files. Keep in mind to store the `library-hid` in localstorage or cookies.
+ One needs to be authenticated to send file and also a library should be created to push files. Keep in mind to store the `library-hid` in localstorage.
 
 ### Create File
 * Because we're sending files, you need to add `{"content-type": "multipart/form-data"}` to headers.

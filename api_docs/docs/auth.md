@@ -6,7 +6,6 @@
 
 *  First send `POST` request to `ip/users`. And it should be in this format: 
 `{
-	"username": "hari",
 	"email" : "hari@ktm.com.np",
 	"password": "password"
 }`

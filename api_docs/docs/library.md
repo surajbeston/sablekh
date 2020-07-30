@@ -14,6 +14,7 @@
   "hid": "491ae542fb36e33d46824bce48468e62fc6bf84dce0775eb3bdc95ca",
   "title": "History Notes",
   "description": "Contains brief notes about WWI and WWII",
+  "link_str": "History-Notes-wAsDr",
   "datetime": "2020-07-26T19:49:22.663912Z"
 }`
 
@@ -31,6 +32,7 @@
   "hid": "491ae542fb36e33d46824bce48468e62fc6bf84dce0775eb3bdc95ca",
   "title": "History Notes",
   "description": "Contains brief notes about WWI and WWII",
+  "link_str": "History-Notes-wAsDr",
   "datetime": "2020-07-26T19:49:22.663912Z"
 }`
 
@@ -47,6 +49,7 @@
 `{
   "hid": "491ae542fb36e33d46824bce48468e62fc6bf84dce0775eb3bdc95ca",
   "title": "History Notes",
+  "link_str": "History-Notes-wAsDr",
   "description": "Contains brief notes about WWI and WWII and also about their economic impacts.",
   "datetime": "2020-07-26T19:55:33.606052Z",
   "deleted": false
@@ -65,6 +68,7 @@
 `{
   "hid": "491ae542fb36e33d46824bce48468e62fc6bf84dce0775eb3bdc95ca",
   "title": "History Notes",
+  "link_str": "History-Notes-wAsDr",
   "description": "Contains brief notes about WWI and WWII and also about their economic impacts.",
   "datetime": "2020-07-26T19:55:33.606052Z",
   "deleted": true
@@ -79,7 +83,51 @@
   {
     "hid": "4d42c43296e22f397ac4d5e57eabcc9a99c8e49372f23ac71f01c23c",
     "title": "History Notes",
+    "link_str": "History-Notes-wAsDr",
     "description": "Contains brief notes about WWI and WWII",
     "datetime": "2020-07-26T19:47:53.353703Z"
   }
 ]`
+
+### Change library link
+
+* You can change library link string to something that user wants to keep, just send a `GET` request to `ip/change-link` whith data in following format:
+
+`{
+  "hid": "e815c9146fe738bb57484c8bdab3cd3be1ade2f9848528b1e41c5182",
+	"link_str": "wogH0o bhoo * lo"
+}`
+
+* This `hid` means `hid of library`.
+* You should get similar response:
+`{
+  "hid": "e815c9146fe738bb57484c8bdab3cd3be1ade2f9848528b1e41c5182",
+  "title": "this is title",
+  "description": "this is description",
+  "link_str": "wogH0o-bhoo-lo",
+  "datetime": "2020-07-30T08:52:18.034731Z",
+  "no_files": 0
+}`
+
+* This requires the user to be authenticated and the library should belog to the user.
+
+### Getting library from link
+
+* When user pushes a link you'd want to know fetch and display library according to that link.
+
+`{
+  "link_str": "wogH0o-bhoo-lo"
+}`
+
+* This will return correponding library like this:
+
+`{
+  "hid": "e815c9146fe738bb57484c8bdab3cd3be1ade2f9848528b1e41c5182",
+  "title": "this is title",
+  "description": "this is description",
+  "link_str": "wogH0o-bhoo-lo",
+  "datetime": "2020-07-30T08:52:18.034731Z",
+  "no_files": 0
+}`
+
+* Anyone can do this, even without authentication.
