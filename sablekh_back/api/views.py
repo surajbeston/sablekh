@@ -1,14 +1,17 @@
+from django.contrib.auth import authenticate
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .serializers import VisitorSerializer, LibrarySerializer, FileSerializer
 from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
 from rest_framework import generics
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import ParseError
 from rest_framework.parsers import FileUploadParser
-from .models import Library, File, DownloadLot, DownloadLot, Like, Visitor
+from .models import Library, File, DownloadLot, Like, Visitor
 import hashlib
 from datetime import datetime
 import mimetypes
@@ -16,8 +19,9 @@ from string import ascii_letters, digits, punctuation
 import zipfile 
 import random  
 import binascii
-from .misc import filter_text
+from .misc import filter_text, title_to_link
 from os import system
+import django
 
 from django.conf import settings
 from whoosh.index import create_in, open_dir
@@ -26,7 +30,15 @@ from .models import WHOOSH_SCHEMA
 
 class UserView(APIView):
     def post(self, request):
-        data = request.data        
+        data = request.data
+        supposed_username = data["email"].split("@")[0]
+        while True:
+            try:
+                user = Visitor.objects.get(username = supposed_username)
+                supposed_username += random.choice(digits)
+            except Visitor.DoesNotExist:
+                data["username"] = supposed_username
+                break
         hash_str = data["username"] + str(datetime.now())
         hashed = hashlib.sha224(hash_str.encode())
         data["hid"] = hashed.hexdigest()
@@ -39,7 +51,7 @@ class UserView(APIView):
 
     def get(self, request):
         try:
-            user = Visitor.objects.get(username = request.user.username)
+            user = Visitor.objects.get(email = request.user.email)
             serializer = VisitorSerializer(user)
             data = serializer.data
             return Response(data, status = status.HTTP_302_FOUND)
@@ -49,7 +61,7 @@ class UserView(APIView):
     def delete(self, request):
         hid = request.data["hid"]
         try:
-            user = Visitor.objects.get(username = request.user.username)
+            user = Visitor.objects.get(email = request.user.email)
             if user.hid != hid:
                 return Response({"error": "not authorized"}, status = status.HTTP_401_UNAUTHORIZED)
             serializer = VisitorSerializer(user)
@@ -67,9 +79,10 @@ class LibraryView(APIView):
         hash_str = data["title"] + data["description"] + str(datetime.now())
         hashed = hashlib.sha224(hash_str.encode())
         data["hid"] = hashed.hexdigest()
-        visitor = Visitor.objects.get(username = request.user.username)
+        visitor = Visitor.objects.get(email = request.user.email)
         data["user"] = visitor.hid
         serializer = LibrarySerializer(data =data)
+        data["link_str"] = title_to_link(data["title"], punctuation)
         if serializer.is_valid():
             print (serializer.validated_data)
             serializer.save()
@@ -82,9 +95,9 @@ class LibraryView(APIView):
         try:
             library = Library.objects.get(hid = hid)
             library.title = request.data["title"]
-            library.description = request.data["description"]
+            library.description = request.data["description"] 
             library.save()
-            serializer = LibrarySerializer(library)
+            serializer = LibrarySerializer(library) 
             data = serializer.data
             data["deleted"] = False
             return Response(data, status = status.HTTP_200_OK)
@@ -94,7 +107,7 @@ class LibraryView(APIView):
     def delete(self, request):
         hid = request.data["hid"]
         try:
-            library = Library.objects.get(username = request.user.username)
+            library = Library.objects.get(email = request.user.email)
             if library.hid != hid:
                 return Response({"error": "not authorized"}, status = status.HTTP_401_UNAUTHORIZED)
             serializer = LibrarySerializer(library)
@@ -115,7 +128,7 @@ class FileView(APIView):
         data = request.data
         try:
             library = Library.objects.get(hid = data["library"])
-            if library.user.username != request.user.username:
+            if library.user.email != request.user.email:
                 return Response({"error": "not authorized"}, status = status.HTTP_401_UNAUTHORIZED)
             if library.no_files >= 10:
                 return Response({"error": "library limit of 10 files reached"}, status = status.HTTP_403_FORBIDDEN)
@@ -139,7 +152,7 @@ class FileView(APIView):
     def delete(self, request):
         try:
             file = File.objects.get(hid = request.data["hid"])
-            if file.library.user.username == request.user.username:
+            if file.library.user.email == request.user.email:
                 serializer = FileSerializer(file)
                 data = serializer.data 
                 file.delete() 
@@ -150,6 +163,7 @@ class FileView(APIView):
                 return Response({"error": "not authorized"}, status = status.HTTP_401_UNAUTHORIZED)
         except File.DoesNotExist:
             return Response({"error":"file not found"}, status = status.HTTP_404_NOT_FOUND)
+
 
 @api_view(['GET'])
 def get_library(request):
@@ -166,7 +180,7 @@ def get_library(request):
 @permission_classes([IsAuthenticated])
 def all_libraries(request):
     try:
-        visitor = Visitor.objects.get(username = request.user.username)
+        visitor = Visitor.objects.get(email = request.user.email)
         print (visitor)
         libraries = Library.objects.filter(user = visitor)
         print (libraries) 
@@ -224,7 +238,7 @@ def download_files(request):
             system("rm "+filename)
         jungle_zip.close()
         if request.user.is_authenticated:
-            visitor = Visitor.objects.get(username = request.user.username)
+            visitor = Visitor.objects.get(email = request.user.email)
             down_obj = DownloadLot(zip_name = zip_name, visitor = visitor, library = library, files = filenames)
         else:
             down_obj = DownloadLot(zip_name = zip_name, library = library, files = filenames)
@@ -248,3 +262,51 @@ def search(request):
         descrip_results = searcher.search(descri_qry, limit = 20)
         results.upgrade_and_extend(descrip_results)
     return Response([ dict(result) for result in results])
+
+@api_view(['POST'])
+def auth_token(request):
+    email, password = request.data["email"], request.data["password"]
+    if email is not None and password is not None:
+        user = get_object_or_404(Visitor, email = email)
+        auth_user = authenticate(username= user.username, password = password)
+        if auth_user is not None:
+            try:
+                token = Token.objects.get(user = auth_user) 
+                return Response({"token": token.key}, status = status.HTTP_200_OK) 
+            except Token.DoesNotExist:
+                hash_str = ''.join(random.sample(ascii_letters + digits + str(datetime.now()), 13))
+                hashed = hashlib.sha256(hash_str.encode())
+                token = Token(user = auth_user, key = hashed.hexdigest())
+                token.save()
+                return Response({"token": hashed.hexdigest()}, status = status.HTTP_200_OK)
+    return Response({"error": "authentication failed"}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def change_link(request):
+    hid = request.data["hid"]
+    link_str = request.data["link_str"]
+    try:
+        library = Library.objects.get(hid = hid)
+        if library.user.email == request.user.email:
+            library.link_str = filter_text(link_str, punctuation, "-")
+            try:
+                library.save()
+            except django.db.utils.IntegrityError:
+                return Response({"error": "link string already exists"}, status = status.HTTP_403_FORBIDDEN)
+            serializer = LibrarySerializer(library)
+            return Response(serializer.data, status = status.HTTP_200_OK)
+        else:
+            return Response({"error": "user and library does not match"}, status = status.HTTP_401_UNAUTHORIZED)
+    except Library.DoesNotExist:
+        return Response({"error": "library not found"}, status = status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+def string_to_library(request):
+    link_str = request.data["link_str"]
+    try:
+        library = Library.objects.get(link_str = link_str)
+        serializer = LibrarySerializer(library)
+        return Response(serializer.data, status = status.HTTP_200_OK)
+    except Library.DoesNotExist:
+        return Response({"error": "library not found"}, status = status.HTTP_404_NOT_FOUND)

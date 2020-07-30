@@ -9,6 +9,8 @@ from whoosh.index import create_in, open_dir
 from whoosh.fields import *
 from whoosh.analysis import StemmingAnalyzer
 
+from django.db.models.signals import class_prepared
+
 User._meta.get_field('email')._unique = True
 
 class Visitor(User):
@@ -19,6 +21,7 @@ class Library(models.Model):
     title = models.CharField(max_length = 300)
     user = models.ForeignKey(Visitor, on_delete = models.CASCADE, blank = True, null = True)
     description = models.CharField(max_length = 1500)
+    link_str = models.CharField(max_length = 350, unique=True)
     datetime = models.DateTimeField(auto_now=True)
     no_files = models.IntegerField(default = 0)
 
@@ -48,8 +51,6 @@ WHOOSH_SCHEMA = Schema(hid = KEYWORD(stored = True), title=TEXT(analyzer = stem_
 def create_index(sender=None, **kwargs):
     if not os.path.exists(settings.WHOOSH_INDEX):
         os.mkdir(settings.WHOOSH_INDEX)
-        storage = store.FileStorage(settings.WHOOSH_INDEX)
-        ix = index.Index(storage, schema=WHOOSH_SCHEMA, create=True)
 
 create_index()
 
@@ -69,3 +70,10 @@ def update_index(sender, instance, created, **kwargs):
         writer.commit()
 
 signals.post_save.connect(update_index, sender=Library)
+
+def longer_token(sender, *args, **kwargs):
+
+    if sender.__name__ == "Token":
+        sender._meta.get_field("key").max_length = 70
+
+class_prepared.connect(longer_token)

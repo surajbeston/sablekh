@@ -1,8 +1,19 @@
-def filter_text(sent, punctuation):
+import random
+from string import ascii_letters, digits
+def filter_text(sent, punctuation, in_middle = "_"):
     punctuation += ' '
     filtered_sent = ''
-    for letter in sent:
+    for i, letter in enumerate(sent):
         if letter in punctuation:
-            letter = '_'
+            if i > 0 and sent[i-1] in punctuation:
+                letter = ''
+            else:
+                letter = in_middle
         filtered_sent += letter 
+    if filtered_sent[-1] == in_middle:
+        filtered_sent = filtered_sent[:-1]
     return filtered_sent
+
+def title_to_link(title, punctuation):
+    link_str = filter_text(title, punctuation, in_middle="-") +'-' +''.join(random.sample(ascii_letters+digits, 5))
+    return link_str
