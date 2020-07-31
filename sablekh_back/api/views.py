@@ -309,5 +309,4 @@ def string_to_library(request):
         serializer = LibrarySerializer(library)
         return Response(serializer.data, status = status.HTTP_200_OK)
     except Library.DoesNotExist:
-        print ("")
         return Response({"error": "library not found"}, status = status.HTTP_404_NOT_FOUND)
