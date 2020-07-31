@@ -30,7 +30,11 @@
 
 <script>
 
-import axios from "axios"
+import axios from "axios";
+import CryptoJS from "crypto-js";
+import { v4 as uuidv4 } from "uuid";
+
+import { setCookie, getCookie } from "@/extra/cookie.js";
 
 export default {
 
@@ -51,15 +55,63 @@ export default {
       })
       .then(res => {
         var token = res.data.token
-        console.log(token)
         window.localStorage.setItem("token", token)
-        // window.location.replace("/")
+
+        if (this.remember) {
+          this.cookie_setter(token)
+        }
+        window.location.replace("/login")
       })
       .catch(err => console.log(err))
+    },
+
+    cookie_setter(token) {
+      var id = uuidv4();
+      id = id.replace(/-/g, "")
+      var enc = CryptoJS.AES.encrypt(token, id).toString();
+      this.assembler(enc, id);
+
+    },
+
+
+    assembler(enc, id) {
+      var assembled = `${enc}+${id}`
+      setCookie("ikmrfs", assembled, 30)
+
+    },
+
+    disassembler(enc) {
+      let some_list = enc.split("+")
+      let cip = ""
+      let key = some_list[some_list.length - 1]
+
+      some_list.pop();
+
+      cip = some_list.join("+")
+
+      let bytes = CryptoJS.AES.decrypt(cip, key)
+
+      return bytes.toString(CryptoJS.enc.Utf8);
+
     }
+
   },
 
+  mounted() {
 
+      var enc = getCookie("ikmrfs")
+
+      if (window.localStorage.getItem('token')) {
+        window.location.replace("/")
+      }
+      else if (enc != "") {
+        let token = this.disassembler(enc)
+        window.localStorage.setItem("token", token)
+
+        window.location.replace("/")
+      }
+      
+  }
 
 
 }
