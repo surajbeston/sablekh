@@ -22,6 +22,7 @@ class Library(models.Model):
     user = models.ForeignKey(Visitor, on_delete = models.CASCADE, blank = True, null = True)
     description = models.CharField(max_length = 1500)
     link_str = models.CharField(max_length = 350, unique=True)
+    tags = ArrayField(models.CharField(max_length = 150))
     datetime = models.DateTimeField(auto_now=True)
     no_files = models.IntegerField(default = 0)
 
@@ -45,8 +46,12 @@ class Like(models.Model):
     library = models.ForeignKey(Library, on_delete = models.CASCADE)
     datetime = models.DateTimeField(auto_now = True)
 
+class Tag(models.Model):
+    title = models.CharField(max_length = 150)
+    datetime = models.DateTimeField(auto_now=True)
+
 stem_ana = StemmingAnalyzer()
-WHOOSH_SCHEMA = Schema(hid = KEYWORD(stored = True), title=TEXT(analyzer = stem_ana, stored=True), description=TEXT(analyzer = stem_ana, stored = True))
+WHOOSH_SCHEMA = Schema(hid = KEYWORD(stored = True), title=TEXT(analyzer = stem_ana), description=TEXT(analyzer = stem_ana))
 
 def create_index(sender=None, **kwargs):
     if not os.path.exists(settings.WHOOSH_INDEX):

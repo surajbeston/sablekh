@@ -11,7 +11,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import ParseError
 from rest_framework.parsers import FileUploadParser
-from .models import Library, File, DownloadLot, Like, Visitor
+from .models import Library, File, DownloadLot, Like, Visitor, Tag
 import hashlib
 from datetime import datetime
 import mimetypes
@@ -30,15 +30,14 @@ from .models import WHOOSH_SCHEMA
 
 class UserView(APIView):
     def post(self, request):
-        data = request.data
-        supposed_username = data["email"].split("@")[0]
+        supposed_username = data["email"].split("@")[0] 
         while True:
             try:
-                user = Visitor.objects.get(username = supposed_username)
-                supposed_username += random.choice(digits)
+                user = Visitor.objects.get(username = supposed_username) 
+                supposed_username += random.choice(digits) 
             except Visitor.DoesNotExist:
-                data["username"] = supposed_username
-                break
+                data["username"] = supposed_username 
+                break 
         hash_str = data["username"] + str(datetime.now())
         hashed = hashlib.sha224(hash_str.encode())
         data["hid"] = hashed.hexdigest()
@@ -47,7 +46,7 @@ class UserView(APIView):
             obj = serializer.save()
         else:
             return Response(serializer.errors, status = status.HTTP_303_SEE_OTHER) 
-        return Response(request.data)
+        return Response(serializer.data, status = status.HTTP_200_OK)
 
     def get(self, request):
         try:
@@ -66,7 +65,7 @@ class UserView(APIView):
                 return Response({"error": "not authorized"}, status = status.HTTP_401_UNAUTHORIZED)
             serializer = VisitorSerializer(user)
             data = serializer.data
-            user.delete()
+            user.delete() 
             return Response(data, status = status.HTTP_200_OK)
         except Visitor.DoesNotExist:
             return Response({"error": "not found"}, status = status.HTTP_404_NOT_FOUND)
@@ -96,6 +95,7 @@ class LibraryView(APIView):
             library = Library.objects.get(hid = hid)
             library.title = request.data["title"]
             library.description = request.data["description"] 
+            library.tags = request.data["tags"]
             library.save()
             serializer = LibrarySerializer(library) 
             data = serializer.data
@@ -106,14 +106,17 @@ class LibraryView(APIView):
 
     def delete(self, request):
         hid = request.data["hid"]
+        print (hid)
         try:
-            library = Library.objects.get(email = request.user.email)
-            if library.hid != hid:
+            library = Library.objects.get(hid = hid)
+            if library.user.email != request.user.email:
                 return Response({"error": "not authorized"}, status = status.HTTP_401_UNAUTHORIZED)
             serializer = LibrarySerializer(library)
             data = serializer.data
             data["deleted"] = True
             library.delete()
+            ix = open_dir("index")
+            ix.delete_by_term("hid", data["hid"])
             return Response(data, status = status.HTTP_200_OK)
         except Library.DoesNotExist:
             return Response({"error":"library not found"}, status = status.HTTP_404_NOT_FOUND)
@@ -175,15 +178,12 @@ def get_library(request):
     except Library.DoesNotExist:
         return Response({"error":"not found"}, status = status.HTTP_404_NOT_FOUND)
 
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def all_libraries(request):
     try:
         visitor = Visitor.objects.get(email = request.user.email)
-        print (visitor)
         libraries = Library.objects.filter(user = visitor)
-        print (libraries) 
         serialiers = [LibrarySerializer(library) for library in libraries]
         data = [serializer.data for serializer in serialiers]
         return Response(data, status = status.HTTP_200_OK)
@@ -212,7 +212,7 @@ def download_files(request):
         library = Library.objects.get(hid = library_hid)
     except Library.DoesNotExist:
         return Response({"error": "no library with following hid - "+library_hid}, status = status.HTTP_404_NOT_FOUND)
-    filenames = []
+    filenames = [    ]
     for hid in hids:
         try:    
             file_obj = File.objects.get(hid = hid)
@@ -249,6 +249,7 @@ def download_files(request):
 def search(request):
     ix = open_dir("index")
     query = request.data["query"]
+    tags = request.data["tags"]
     if query is not None and query != "":
         title_parser = QueryParser("title", schema=ix.schema)
         descri_parser = QueryParser("description", schema=ix.schema)
@@ -261,7 +262,32 @@ def search(request):
         results = searcher.search(title_qry, limit = 20)
         descrip_results = searcher.search(descri_qry, limit = 20)
         results.upgrade_and_extend(descrip_results)
-    return Response([ dict(result) for result in results])
+    result_objs = []
+    max_whoosh_score  = 0
+    max_tag_score = 0
+    for result in results:
+        try:
+            obj = Library.objects.get(hid = result["hid"])
+            tag_score = 0
+            obj_tags = obj.tags
+            for obj_tag in obj_tags:
+                if obj_tag in tags:
+                    tag_score += 1
+            if tag_score > max_tag_score:
+                max_tag_score = tag_score
+            if result.score > max_whoosh_score:
+                max_whoosh_score = result.score
+            result_objs.append((result.score, tag_score, obj))
+        except Library.DoesNotExist:
+            print ("reached here")
+            pass 
+    if max_tag_score > 0:
+        whoosh_per_tag = max_whoosh_score/max_tag_score
+    else:
+        whoosh_per_tag = 0 
+    tuple_data = [(whoosh_score+tag_score*whoosh_per_tag, LibrarySerializer(result_obj)) for whoosh_score, tag_score, result_obj in result_objs]
+    tuple_data.sort(key = lambda x: x[0], reverse = True) 
+    return Response([serializer.data for score, serializer in tuple_data], status = status.HTTP_200_OK)
 
 @api_view(['POST'])
 def auth_token(request):
@@ -310,3 +336,9 @@ def string_to_library(request):
         return Response(serializer.data, status = status.HTTP_200_OK)
     except Library.DoesNotExist:
         return Response({"error": "library not found"}, status = status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_tags(request):
+    tags = Tag.objects.all()
+    return Response([tag.title for tag in tags], status = status.HTTP_200_OK)
