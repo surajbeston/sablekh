@@ -51,7 +51,7 @@ export default {
 
 <style scoped>
     .search-component {
-        background-color: rgb(254, 80, 164);
+        background-color: rgb(254.0, 227, 200);
     }
     .search-wrapper1 {
         width: 100%;

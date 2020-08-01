@@ -5,7 +5,7 @@
         <img src="@/assets/login/login.png" alt="loading image" />
       </div>
       <div class="login1-each login12">
-        <h1>Login</h1>
+        <h1 class = "head1">Login</h1>
         <div class="input-section">
           <label for="email">E-mail</label>
           <input type="email" v-model="email" id="email" autofocus />
@@ -55,7 +55,9 @@ export default {
       })
       .then(res => {
         var token = res.data.token
-        window.localStorage.setItem("token", token)
+        if (token != undefined){
+                window.localStorage.setItem("token", token)
+        }
 
         if (this.remember) {
           this.cookie_setter(token)
@@ -165,7 +167,10 @@ export default {
   text-align: right;
 }
 
-
+  .head1{
+      font-family: 'Staatliches', cursive;
+      letter-spacing: 5px;
+  }
 
 #remember-me {
   position: relative;
