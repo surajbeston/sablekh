@@ -13,8 +13,8 @@
                     <input type="password" v-model="password1" id="password1">
                     <label for="confirm password">Confirm Password</label>
                     <input @keyup.enter="create_button" type="password" v-model="password2" id="password2">
-                    <span class="error-message" id="different-password" style="color:red;">Passwords aren't same</span>
-                    <span class="error-message" id="length-error" style="color:red;">Password should be at least 4 character long</span>
+                    <span class="none" id="different-password" style="color:red;">Passwords aren't same</span>
+                    <span class="none" id="length-error" style="color:red;">Password should be at least 4 character long</span>
                 </div>
                 <button @click="create_button" class="btn create-button">Create</button>
                 <div class="already-have-account">
@@ -42,8 +42,8 @@ export default {
 
   methods: {
       create_button() {
-          document.getElementById("different-password").setAttribute("class", "error-message")
-          document.getElementById("length-error").setAttribute("class", "error-message")
+          document.getElementById("different-password").setAttribute("class", "none")
+          document.getElementById("length-error").setAttribute("class", "none")
 
           if (!this.similarity_check) {
               document.getElementById("different-password").setAttribute("class", "")
@@ -61,7 +61,10 @@ export default {
                   console.log(res)
                   window.location.replace("/login")
               })
-              .catch(err => console.log(err))
+              .catch(err => {
+                  console.log(err)
+                  alert("some error please try again later!")
+              })
           }
       },
       
@@ -75,6 +78,11 @@ export default {
           return this.password1.length > 4 ? true : false ;
       }
   },
+
+  mounted() {
+      
+  },
+
 
 
 }
@@ -121,9 +129,6 @@ export default {
         border-radius: 5px;
         outline: none;
         background: none;
-    }
-    .error-message {
-        display: none;
     }
     .create-button {
         font-size: 18px;

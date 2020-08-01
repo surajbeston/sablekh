@@ -33,6 +33,10 @@ html {
 
 /* used in components  */
 
+.none {
+  display: none;
+}
+
 .mxw-100-mnh-100 {
   max-width: 100vw;
   min-height: 100vh;

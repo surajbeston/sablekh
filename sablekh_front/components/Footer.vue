@@ -23,7 +23,7 @@
         color:rgb(0, 0, 0)
     }
     .footer {
-        box-shadow: 0 -5px 10px rgb(223, 223, 223);
+        /* box-shadow: 0 -5px 10px rgb(223, 223, 223); */
         height: 200px;
         max-width:100vw;
         background-color: white;
