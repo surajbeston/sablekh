@@ -34,7 +34,7 @@ import axios from "axios";
 import CryptoJS from "crypto-js";
 import { v4 as uuidv4 } from "uuid";
 
-import { setCookie, getCookie } from "@/extra/cookie.js";
+import { setCookie, getCookie } from "@/extras/cookie";
 
 export default {
 
