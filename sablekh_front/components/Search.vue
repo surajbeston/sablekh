@@ -15,14 +15,14 @@
             <div class="search14">
                 <h2 @click="to_link" id="to">{{this.get_name}}</h2>
             </div>
-        </div>
-        <div v-if="is_searched" id="results-div" class="search-wrapper2 mxw-100-mnh-100">
-            <div v-bind:key="book.id" v-for="book in search_books" class="search-wrapper2-layer1">
-                <div class="search2-each">
-                    <h1>{{book.title}}</h1>
-                    <p>{{book.desc}}</p>
+            <div v-if="is_searched" id="results-div" class="search15">
+                <div v-bind:key="book.id" v-for="book in search_books" class="search151">
+                    <div class="search151-each">
+                        <h1>{{book.title}}</h1>
+                        <p>{{book.desc}}</p>
+                    </div>
                 </div>
-            </div>
+        </div>
         </div>
     </div>
 </template>
@@ -97,7 +97,7 @@ export default {
 
 <style scoped>
     .search-component {
-        background-color: rgb(255, 151, 255);
+        background-color: rgb(254, 227, 200);
     }
     .search-wrapper1 {
         position: relative;
@@ -116,7 +116,7 @@ export default {
         font-size: 16px;
     }
     .btn-logout:hover {
-        background-color: rgba(182, 57, 117, 0.13);
+        background-color: rgba(126, 113, 96, 0.13);
     }
     .search11 > img {
         width: 25vw;
@@ -134,7 +134,7 @@ export default {
         padding: 15px 20px;
         padding-right: 70px;
         border-radius: 50px;
-        box-shadow: 0 5px 10px rgb(128, 40, 82);
+        box-shadow: 0 5px 10px rgb(175, 157, 139);
         letter-spacing: 1px;
         outline: none;
         border: none;
@@ -147,27 +147,30 @@ export default {
         width: 40px;
     }
     .search14 > h2 {
-        color: rgb(94, 29, 59);
+        color: rgb(133, 117, 102);
         text-decoration: underline;
         cursor: pointer;
     }
     .search14 > h2:hover {
-        color: rgb(49, 16, 31)
+        color: rgb(71, 63, 55);
     }
 
     /* wrapper2  */
 
-    .search-wrapper2 {
+    .search15 {
         padding-top: 5vh;
         background-color: rgb(254, 227, 200);
     }
-    .search-wrapper1-layer1 {
+    .search151 {
         width: 100%;
     }
-    .search2-each {
+    .search151-each {
         margin: 0 auto;
         margin-top: 2vh;
-        width: 70vw;
-        border: 2px solid black;
+        width: 50vw;
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgb(201, 178, 157);
     }
 </style>
