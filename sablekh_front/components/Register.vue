@@ -30,6 +30,8 @@
 
 import axios from "axios";
 
+import {getCookie} from "@/extras/cookie"
+
 export default {
 
   data() {
@@ -93,7 +95,17 @@ export default {
   },
 
   mounted() {
-      
+      var enc = getCookie("ikmrfs")
+
+      if (window.localStorage.getItem('token')) {
+        window.location.replace("/")
+      }
+      else if (enc != "") {
+        let token = this.disassembler(enc)
+        window.localStorage.setItem("token", token)
+
+        window.location.replace("/")
+      }
   },
 
 
