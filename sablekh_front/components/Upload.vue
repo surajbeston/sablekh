@@ -42,7 +42,8 @@ export default {
 <style scoped>
     .upload-component {
         background-color: rgb(254, 227, 200);
-        color:rgb(51, 47, 43)
+        color:rgb(51, 47, 43);
+        padding-bottom: 2vh;
     }
     .upload-wrapper1 {
         display: flex;

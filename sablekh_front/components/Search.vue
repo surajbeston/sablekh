@@ -1,6 +1,6 @@
 <template>
-    <div class="search-component mxw-100-mnh-100">
-        <div class="search-wrapper1">
+    <div class="search-component">
+        <div class="search-wrapper1 mxw-100-mnh-100">
             <button @click="logout_button" v-if="get_link" class="btn btn-logout">logout</button>
             <div class="search11">
                 <img src="@/assets/search/top.png" alt="loading image">
@@ -10,10 +10,18 @@
             </div>
             <div class="search13">
                 <input @keyup.enter="search_button" type="text" v-model="search" id="search">
-                <img @click="search_button" src="@/assets/search/search.png" alt="loading image">
+                <a href="#results-div"><img @click="search_button" src="@/assets/search/search.png" alt="loading image"></a>
             </div>
             <div class="search14">
                 <h2 @click="to_link" id="to">{{this.get_name}}</h2>
+            </div>
+        </div>
+        <div v-if="is_searched" id="results-div" class="search-wrapper2 mxw-100-mnh-100">
+            <div v-bind:key="book.id" v-for="book in search_books" class="search-wrapper2-layer1">
+                <div class="search2-each">
+                    <h1>{{book.title}}</h1>
+                    <p>{{book.desc}}</p>
+                </div>
             </div>
         </div>
     </div>
@@ -28,12 +36,25 @@ export default {
     data() {
         return {
             search: "",
+            is_searched: false,
+            search_books: [
+                {
+                    id: 1,
+                    title: "physics",
+                    desc: "fjadfa asdfjasdf asd fadsf asdf asdfasdf asdfasdfasf"
+                },
+                {
+                    id: 2,
+                    title: "physics",
+                    desc: "fjadfa asdfjasdf asd fadsf asdf asdfasdf asdfasdfasf"
+                },
+            ]
         }
     },
 
     methods: {
         search_button() {
-            console.log("some")
+            this.is_searched = true;
         },
         to_link() {
             this.get_link ? window.location.replace("/upload") : window.location.replace("/login");
@@ -118,7 +139,7 @@ export default {
         outline: none;
         border: none;
     }
-    .search13 > img {
+    .search13 > a > img {
         cursor: pointer;
         position: absolute;
         top: 7px;
@@ -132,5 +153,21 @@ export default {
     }
     .search14 > h2:hover {
         color: rgb(49, 16, 31)
+    }
+
+    /* wrapper2  */
+
+    .search-wrapper2 {
+        padding-top: 5vh;
+        background-color: rgb(254, 227, 200);
+    }
+    .search-wrapper1-layer1 {
+        width: 100%;
+    }
+    .search2-each {
+        margin: 0 auto;
+        margin-top: 2vh;
+        width: 70vw;
+        border: 2px solid black;
     }
 </style>
