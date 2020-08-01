@@ -13,7 +13,7 @@
             </div>
             <div class="search14">
                 <h2 class="none" id="to-login"><NuxtLink to="/login">login to upload</NuxtLink></h2>
-                <h2 class="none" id="to-upload"><NuxtLink to="">upload</NuxtLink></h2>
+                <h2 class="none" id="to-upload"><NuxtLink to="/upload">upload</NuxtLink></h2>
             </div>
         </div>
     </div>
@@ -36,8 +36,6 @@ export default {
     }, 
 
     mounted() {
-        // document.getElementById("to-login").setAttribute("class", "none")
-        // document.getElementById("to-login").setAttribute("class", "none")
 
         if (window.localStorage.getItem("token")) {
           document.getElementById("to-upload").setAttribute("class", "")
