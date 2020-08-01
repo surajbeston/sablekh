@@ -8,9 +8,9 @@
                 <p>you have here</p>
                 <div class="input-section">
                     <label for="title">Title</label>
-                    <input class="input-box" type="text" name="title" id="title" autofocus >
+                    <input class="input-box" type="text" v-model="title" id="title" autofocus >
                     <label for="description">Description</label>
-                    <textarea class="input-box" name="description" id="description" cols="30" rows="5"></textarea>
+                    <textarea class="input-box" v-model="description" id="description" cols="30" rows="5"></textarea>
                     <label for="file">Add your File Here</label>
                     <input type="file" name="upload_file" id="file">
                 </div>
@@ -23,6 +23,13 @@
 
 <script>
 export default {
+
+    data() {
+        return{
+            title: "",
+            description: ""
+        }
+    },
     
     mounted() {
         if (!window.localStorage.getItem("token")) {

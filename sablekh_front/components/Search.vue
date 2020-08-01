@@ -1,7 +1,7 @@
 <template>
     <div class="search-component mxw-100-mnh-100">
-        <button @click="logout" v-if="get_link" class="btn btn-logout">logout</button>
         <div class="search-wrapper1">
+            <button @click="logout_button" v-if="get_link" class="btn btn-logout">logout</button>
             <div class="search11">
                 <img src="@/assets/search/top.png" alt="loading image">
             </div>
@@ -38,7 +38,7 @@ export default {
         to_link() {
             this.get_link ? window.location.replace("/upload") : window.location.replace("/login");
         },
-        logout() {
+        logout_button() {
             setCookie("ikmrfs", "", -1)
             window.localStorage.removeItem("token");
             window.location.reload()
@@ -56,15 +56,19 @@ export default {
         }
     },
 
-    // mounted() {
+    mounted() {
 
-    //     if (window.localStorage.getItem("token")) {
-    //       document.getElementById("to-upload").setAttribute("class", "")
-    //     }
-    //     else {
-    //         document.getElementById("to-login").setAttribute("class", "")
-    //     }
-    // }
+        setTimeout(() => {
+            console.clear()
+            }, 2000);
+        
+        // if (window.localStorage.getItem("token")) {
+        //   document.getElementById("to-upload").setAttribute("class", "")
+        // }
+        // else {
+        //     document.getElementById("to-login").setAttribute("class", "")
+        // }
+    }
 
 }
 
@@ -72,8 +76,14 @@ export default {
 
 <style scoped>
     .search-component {
-        position: relative;
         background-color: rgb(254, 80, 164);
+    }   
+    .search-wrapper1 {
+        position: relative;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
     .btn-logout {
         position: absolute;
@@ -86,12 +96,6 @@ export default {
     }
     .btn-logout:hover {
         background-color: rgba(182, 57, 117, 0.13);
-    }
-    .search-wrapper1 {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
     }
     .search11 > img {
         width: 25vw;
