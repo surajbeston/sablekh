@@ -6,7 +6,8 @@
 *  Library can be created with a `POST` request to `ip/library` with data in following format:
 `{
 	"title": "History Notes",
-	"description": "Contains brief notes about WWI and WWII"
+	"description": "Contains brief notes about WWI and WWII",
+  "tags": ["Tribhuvan University", "Anthropology", "Third Semester", "Social History"]
 }
 `
 *  This should result in following :
@@ -15,6 +16,7 @@
   "title": "History Notes",
   "description": "Contains brief notes about WWI and WWII",
   "link_str": "History-Notes-wAsDr",
+    "tags": ["Tribhuvan University", "Anthropology", "Third Semester", "Social History"],
   "datetime": "2020-07-26T19:49:22.663912Z"
 }`
 
@@ -33,6 +35,7 @@
   "title": "History Notes",
   "description": "Contains brief notes about WWI and WWII",
   "link_str": "History-Notes-wAsDr",
+    "tags": ["Tribhuvan University", "Anthropology", "Third Semester", "Social History"],
   "datetime": "2020-07-26T19:49:22.663912Z"
 }`
 
@@ -40,9 +43,10 @@
 
 *  Library can be changed with `PATCH` request to `ip/ibrary' with data in following format:
 `{
-    "hid": "491ae542fb36e33d46824bce48468e62fc6bf84dce0775eb3bdc95ca",    
+  "hid": "491ae542fb36e33d46824bce48468e62fc6bf84dce0775eb3bdc95ca",    
 	"title": "History Notes",
-	"description": "Contains brief notes about WWI and WWII and also about their economic impacts."
+	"description": "Contains brief notes about WWI and WWII and also about their economic impacts.",
+  "tags": ["Tribhuvan University", "Anthropology", "Third Semester", "Social History"],
 }
 `
 *  This should yield following json:
@@ -51,6 +55,7 @@
   "title": "History Notes",
   "link_str": "History-Notes-wAsDr",
   "description": "Contains brief notes about WWI and WWII and also about their economic impacts.",
+  "tags": ["Tribhuvan University", "Anthropology", "Third Semester", "Social History"],
   "datetime": "2020-07-26T19:55:33.606052Z",
   "deleted": false
 }`
@@ -70,6 +75,7 @@
   "title": "History Notes",
   "link_str": "History-Notes-wAsDr",
   "description": "Contains brief notes about WWI and WWII and also about their economic impacts.",
+  "tags": ["Tribhuvan University", "Anthropology", "Third Semester", "Social History"],
   "datetime": "2020-07-26T19:55:33.606052Z",
   "deleted": true
 }`
@@ -78,13 +84,14 @@
 
 *  For this, you'll have to send a `blank` `GET` request to `ip/all-libraries`.
 
-*  This will result an array of libraries:
+*  This will result an array of libraries from the authorized user:
 `[
   {
     "hid": "4d42c43296e22f397ac4d5e57eabcc9a99c8e49372f23ac71f01c23c",
     "title": "History Notes",
     "link_str": "History-Notes-wAsDr",
     "description": "Contains brief notes about WWI and WWII",
+    "tags": ["Tribhuvan University", "Anthropology", "Third Semester", "Social History"],
     "datetime": "2020-07-26T19:47:53.353703Z"
   }
 ]`
@@ -104,6 +111,7 @@
   "hid": "e815c9146fe738bb57484c8bdab3cd3be1ade2f9848528b1e41c5182",
   "title": "this is title",
   "description": "this is description",
+  "tags": ["Tribhuvan University", "Anthropology", "Third Semester", "Social History"],
   "link_str": "wogH0o-bhoo-lo",
   "datetime": "2020-07-30T08:52:18.034731Z",
   "no_files": 0
@@ -126,6 +134,7 @@
   "title": "this is title",
   "description": "this is description",
   "link_str": "wogH0o-bhoo-lo",
+  "tags": ["Tribhuvan University", "Anthropology", "Third Semester", "Social History"],
   "datetime": "2020-07-30T08:52:18.034731Z",
   "no_files": 0
 }`
