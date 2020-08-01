@@ -97,8 +97,8 @@ export default {
 
 <style scoped>
     .search-component {
-        background-color: rgb(254, 80, 164);
-    }   
+        background-color: rgb(255, 151, 255);
+    }
     .search-wrapper1 {
         position: relative;
         width: 100%;

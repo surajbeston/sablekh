@@ -22,7 +22,9 @@ export default {
       { hid: 'description', name: 'description', content: process.env.npm_package_description || '' }
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      {href: "https://fonts.googleapis.com/css2?family=Staatliches&display=swap", rel:"stylesheet"},
+      {href: "https://fonts.googleapis.com/css2?family=Comfortaa&family=Rajdhani&family=Staatliches&display=swap" , rel: "stylesheet"}
     ]
   },
   /*

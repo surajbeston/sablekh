@@ -5,7 +5,7 @@
                 <img src="@/assets/register/create_account.png" alt="loading image">
             </div>
             <div class="register1-each register12">
-                <h1>Create an Account</h1>
+                <h1 class = "head1">Create an Account</h1>
                 <div class="input-section">
                     <label for="email">E-mail</label>
                     <input type="email" v-model="email" id="email" autofocus>
@@ -13,12 +13,13 @@
                     <input type="password" v-model="password1" id="password1">
                     <label for="confirm password">Confirm Password</label>
                     <input @keyup.enter="create_button" type="password" v-model="password2" id="password2">
-                    <span class="none" id="different-password" style="color:red;">Passwords aren't same</span>
-                    <span class="none" id="length-error" style="color:red;">Password should be at least 4 character long</span>
+                    <span class="warning" v-show= "same_password">Passwords don't match.</span>
+                    <span class="warning" v-show= "small_password">Password should be at least 8 character long.</span>
+                    <span class = "warning" v-show = "wrong_email">Enter correct email address.</span>
                 </div>
                 <button @click="create_button" class="btn create-button">Create</button>
                 <div class="already-have-account">
-                    <NuxtLink to="/login">Already have an Account ?</NuxtLink>
+                    <NuxtLink to="/login">Already have an account?</NuxtLink>
                 </div>
             </div>
         </div>
@@ -39,34 +40,42 @@ export default {
         email: "",
         password1: "",
         password2: "",
+        same_password: false,
+        small_password: false,
+        wrong_email: false
     }
   },
 
   methods: {
       create_button() {
-          document.getElementById("different-password").setAttribute("class", "none")
-          document.getElementById("length-error").setAttribute("class", "none")
+        this.same_password = false
+        this.small_password = false
+        this.wrong_email = false
 
-          if (!this.similarity_check) {
-              document.getElementById("different-password").setAttribute("class", "")
-          }
-          else if (!this.length_check) {
-              document.getElementById("length-error").setAttribute("class", "")
-          }
+        console.log("shit")
 
-          else {
-              axios.post(`${this.server_address}/users`, {
-                  email: this.email,
-                  password: this.password1
-              })
-              .then(res => {
-                  console.log(res)
-                  window.location.replace("/login")
-              })
-              .catch(err => {
-                  console.log(err)
-                  alert("some error please try again later!")
-              })
+        if (!this.validate_email){
+            this.wrong_email = true
+        }
+        else if (!this.similarity_check) {
+            this.same_password = true
+        }
+        else if (!this.length_check) {
+            this.small_password = true
+        }
+        else {
+            axios.post(`${this.server_address}/users`, {
+                email: this.email,
+                password: this.password1
+            })
+            .then(res => {
+                console.log(res)
+                window.location.replace("/login")
+            })
+            .catch(err => {
+                console.log(err)
+                alert("some error please try again later!")
+            })
           }
       },
       
@@ -77,7 +86,11 @@ export default {
           return this.password1 === this.password2 ? true : false ;
       },
       length_check() {
-          return this.password1.length > 4 ? true : false ;
+          return this.password1.length > 7 ? true : false ;
+      },
+      validate_email(){
+        const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(String(this.email).toLowerCase());
       }
   },
 
@@ -124,16 +137,20 @@ export default {
         text-align: center;
         margin-bottom: 5vh;
     }
+    .input-section{
+        font-family: 'Rajdhani', sans-serif;
+
+    }
     .register12 > .input-section {
         display: flex;
         flex-direction: column;
     }
     .register12 > .input-section > label {
-        font-size: 18px;
+        font-size: 130%;
         font-weight: 600;
     }
     .register12 > .input-section > input {
-        font-size: 18px;
+        font-size: 110%;
         margin: 20px 0;
         padding: 10px 10px;
         letter-spacing: 1px;
@@ -149,9 +166,28 @@ export default {
         color: rgb(255, 239, 223);
         border-radius: 5px;
         margin-top: 5vh;
+        font-family: 'Rajdhani', sans-serif;
     }
     .already-have-account {
         text-align: right;
+        font-family: 'Comfortaa', cursive;
+    }
+
+    .already-have-account:hover{
+        font-weight: bolder;
+    }
+
+    .head1{
+        font-family: 'Staatliches', cursive;
+        letter-spacing: 5px;
+        font-size: 135%;
+    }
+
+    .warning{
+        color: red;
+        font-size: 130%;
+        font-weight: bolder;
+        
     }
 
     @media screen and (max-width: 1500px){

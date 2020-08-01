@@ -289,9 +289,10 @@ def search(request):
     tuple_data.sort(key = lambda x: x[0], reverse = True) 
     return Response([serializer.data for score, serializer in tuple_data], status = status.HTTP_200_OK)
 
-@api_view(['POST'])
+@api_view(['GET', 'POST'])
 def auth_token(request):
     email, password = request.data["email"], request.data["password"]
+    print ("reahed here")
     if email is not None and password is not None:
         user = get_object_or_404(Visitor, email = email)
         auth_user = authenticate(username= user.username, password = password)
@@ -342,3 +343,7 @@ def string_to_library(request):
 def get_tags(request):
     tags = Tag.objects.all()
     return Response([tag.title for tag in tags], status = status.HTTP_200_OK)
+
+@api_view(['GET', 'POST'])
+def hawa(request):
+    return Response({"hawa": "hawa"})
