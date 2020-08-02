@@ -4,11 +4,11 @@
       <div class="login1-each login11">
         <img src="@/assets/login/login.png" alt="loading image" />
       </div>
-      <div class="login1-each login12">
-        <h1 class = "head1">Login</h1>
-        <div class="input-section">
-          <label for="email">E-mail</label>
-          <input type="email" v-model="email" id="email" autofocus />
+      <div class="login1-each login12"> 
+        <h1 class = "head1">Login</h1> 
+        <div class="input-section"> 
+          <label for="email">E-mail</label> 
+          <input type="email" v-model="email" id="email" autofocus /> 
           <label for="password">Password</label>
           <input @keyup.enter="login_button" type="password" v-model="password" id="password" />
           <span class="forget-password">
@@ -140,20 +140,21 @@ export default {
 }
 .login12 > h1 {
   font-weight: 200;
-  font-size: 35px;
   text-align: center;
-  margin-bottom: 5vh;
+  margin-bottom: 20%;
 }
 .login12 > .input-section {
   display: flex;
   flex-direction: column;
+  font-family: 'Rajdhani', sans-serif;
 }
 .login12 > .input-section > label {
-  font-size: 18px;
+  font-size: 130%;
   font-weight: 600;
 }
+
 .login12 > .input-section > input {
-  font-size: 18px;
+  font-size: 110%;
   margin: 20px 0;
   padding: 10px 10px;
   letter-spacing: 1px;
@@ -163,13 +164,33 @@ export default {
   background: none;
 }
 
+.login-button{
+  font-size: 150%;
+  letter-spacing: .8px;
+  background-color: rgb(40, 43, 42);
+  color: rgb(255, 239, 223);
+  border-radius: 5px;
+  margin-top: 5vh;
+  font-family: 'Rajdhani', sans-serif;
+}
+
 .forget-password {
   text-align: right;
 }
 
-  .head1{
-      font-family: 'Staatliches', cursive;
-      letter-spacing: 5px;
+  .dont-have-account {
+      text-align: right;
+      font-family: 'Comfortaa', cursive;
+  }
+
+  .dont-have-account:hover{
+      font-weight: bolder;
+  }
+
+.head1{
+  font-family: 'Staatliches', cursive;
+  letter-spacing: 5px;
+  font-size: 250%;
   }
 
 #remember-me {
@@ -187,8 +208,16 @@ export default {
   border-radius: 5px;
   margin-top: 5vh;
 }
-.dont-have-account {
-  text-align: right;
-}
+
+  @media screen and (max-width: 1200px){
+      .login-wrapper1 {
+          grid-template-columns: auto;
+      }
+
+      .login11{
+        display: none;
+      }
+
+  }
 
 </style>

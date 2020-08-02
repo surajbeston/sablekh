@@ -1,29 +1,31 @@
 <template>
     <div class="footer">
         <div class="footer-wrapper1">
-            <a href="#">Dashboard</a>
-            <a href="#">Upload</a>
-            <img src="@/assets/sablekh.png" alt="loading image">
-            <a href="#">Search</a>
-            <a href="#">Download</a>
+            <NuxtLink class = "foot-link" to="/libraries">My Libraries</NuxtLink>
+            <NuxtLink class = "foot-link" to="/upload">Upload</NuxtLink>
+            <img src="@/assets/sablekh.png" alt="loading image" id = "main-img">
+            <NuxtLink class = "foot-link" to="/search">Search</NuxtLink>
+            <NuxtLink class = "foot-link" to="/about">About Us</NuxtLink>
         </div>
     </div>
 </template>
 
 <style scoped>
-    a {
+    .foot-link{
         text-decoration: none;
         color: rgb(66, 62, 55);
         font-weight: 600;
-        font-size: 20px;
+        font-size: 140%;
         margin: 0 3vw;
+        font-family: 'Staatliches', cursive;
+        letter-spacing: 2px;
     }
-    a:hover {
+
+    .foot-link:hover {
         text-decoration: underline;
         color:rgb(0, 0, 0)
     }
     .footer {
-        /* box-shadow: 0 -5px 10px rgb(223, 223, 223); */
         height: 200px;
         max-width:100vw;
         background-color: white;
@@ -35,4 +37,55 @@
         justify-content: center;
         align-items: center;
     }
+
+    @media screen and (max-width: 1500px){
+       .footer{
+            height: 170px;
+       }
+       #main-img{
+           height: 50%;
+       }
+        .foot-link{
+            font-size: 130%;
+        }
+    }
+
+    @media screen and (max-width: 1200px){
+       .footer{
+            height: 150px;
+       }
+       #main-img{
+           height: 45%;
+       }
+        .foot-link{
+            font-size: 120%;
+        }
+    }
+
+    @media screen and (max-width: 700px){
+       .footer{
+            height: 135px;
+       }
+       #main-img{
+           height: 35%;
+       }
+        .foot-link{
+            font-size: 100%;
+            font-weight: bold;
+        }
+    }
+
+    @media screen and (max-width: 500px){
+       .footer{
+            height: 110px;
+       }
+       #main-img{
+           height: 40%;
+       }
+        .foot-link{
+            font-size: 90%;
+            font-weight: bold;
+        }
+    }
+
 </style>

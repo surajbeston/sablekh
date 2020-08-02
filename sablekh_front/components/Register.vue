@@ -4,6 +4,10 @@
             <div class="register1-each register11">
                 <img src="@/assets/register/create_account.png" alt="loading image">
             </div>
+            <div class = "community">
+                <img src = "@/assets/logo1.png" id = "small-logo">
+                <img src = "@/assets/register/community_half.png" id = "community" alt = "loading image">
+            </div>
             <div class="register1-each register12">
                 <h1 class = "head1">Create an Account</h1>
                 <div class="input-section">
@@ -133,9 +137,8 @@ export default {
     }
     .register12 > h1 {
         font-weight: 200;
-        font-size: 35px;
         text-align: center;
-        margin-bottom: 5vh;
+        margin-bottom: 20%;
     }
     .input-section{
         font-family: 'Rajdhani', sans-serif;
@@ -160,7 +163,7 @@ export default {
         background: none;
     }
     .create-button {
-        font-size: 18px;
+        font-size: 150%;
         letter-spacing: .8px;
         background-color: rgb(40, 43, 42);
         color: rgb(255, 239, 223);
@@ -168,6 +171,7 @@ export default {
         margin-top: 5vh;
         font-family: 'Rajdhani', sans-serif;
     }
+
     .already-have-account {
         text-align: right;
         font-family: 'Comfortaa', cursive;
@@ -180,7 +184,7 @@ export default {
     .head1{
         font-family: 'Staatliches', cursive;
         letter-spacing: 5px;
-        font-size: 135%;
+        font-size: 250%;
     }
 
     .warning{
@@ -189,6 +193,9 @@ export default {
         font-weight: bolder;
         
     }
+    .community{
+        display: none;
+    }
 
     @media screen and (max-width: 1500px){
         .register11 {
@@ -196,9 +203,43 @@ export default {
         }
     }
 
-    @media screen and (max-width: 1300px){
+    @media screen and (max-width: 1200px){
         .register-wrapper1 {
             grid-template-columns: auto;
+        }
+
+        .community{
+        display: block;
+        }
+
+        #small-logo{
+            margin-left: 45%;
+            margin-bottom: 5%;
+            width: 10%;
+        }
+
+        #community{
+            width: 100%;
+
+        }
+        .register11{
+            display: none;
+        }
+
+        .head1{
+            font-size: 200%;
+        }
+    } 
+
+    @media screen and (max-width: 700px){
+        /* .head1{
+            font-size: 150%;
+        } */
+
+        #small-logo{
+            margin-left: 40%;
+            margin-bottom: 5%;
+            width: 20%;
         }
     }
     

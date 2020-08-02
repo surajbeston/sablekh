@@ -76,13 +76,9 @@ export default {
 
 <style scoped>
     .search-component {
-<<<<<<< HEAD
         background-color: rgb(254.0, 227, 200);
     }
-=======
-        background-color: rgb(254, 80, 164);
-    }   
->>>>>>> 9e38f00d9dbfb3333df0d2b76d09fbedccd0aa6d
+
     .search-wrapper1 {
         position: relative;
         width: 100%;

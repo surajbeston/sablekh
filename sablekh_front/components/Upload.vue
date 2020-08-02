@@ -3,9 +3,8 @@
         <div class="upload-wrapper1">
             <img src="@/assets/upload/upload-top.png" alt="loading image" class="upload11">
             <div class="upload12">
-                <h1>Upload</h1>
-                <p>You can upload the PDFs</p>
-                <p>you have here</p>
+                <h1 class = "head1">Upload</h1>
+                <p class = "description">Create your small library and share it with the world. You can add upto 10 files, each not exceeding 30MB in size.</p>
                 <div class="input-section">
                     <label for="title">Title</label>
                     <input class="input-box" type="text" v-model="title" id="title" autofocus >
@@ -62,7 +61,6 @@ export default {
     }
     .upload12 > p {
         color: rgb(90, 81, 72);
-        font-size: 25px;
         font-weight: 400;
         margin: 1vh 0;
     }
@@ -75,9 +73,9 @@ export default {
         letter-spacing: 1px;
     }
     .input-section > label {
-
+        font-family: 'Rajdhani', sans-serif;
         margin-top: 1vh;
-        font-size: 20px;
+        font-size: 170%;
     }
     .input-section > [type="file"] {
         width: .1px;
@@ -101,6 +99,18 @@ export default {
         position: absolute;
         right: 2vw;
         top: 2vh;
+    }
+
+    .head1{
+        font-family: 'Staatliches', cursive;
+        letter-spacing: 5px;
+        font-size: 250%;
+    }
+
+    .description{
+        font-family: 'Comfortaa', cursive;
+        padding-right: 20%;
+        font-size: 120%;
     }
 
     /* extras  */
