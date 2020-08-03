@@ -102,7 +102,7 @@ export default {
 
 <style scoped>
     .search-component {
-
+        padding-bottom: 5vh;
         background-color: rgb(254, 227, 200);
     }
     .search-wrapper1 {
@@ -128,6 +128,7 @@ export default {
         width: 25vw;
     }
     .search12 > h1 {
+        padding: 0 10px;
         font-size: 2.5vw;
     }
     .search13 {
@@ -187,5 +188,34 @@ export default {
     .search1512 > p {
         font-size: 20px;
         margin-top: 10px;
+    }
+
+    @media screen and (max-width: 1200px) {
+        .search11 > img {
+            width: 70vw;
+        }
+        .search12 > h1 {
+            font-size: 40px;
+        }
+        .search13 > input {
+            width: 90vw;
+        }
+        .search151-each {
+            width: 90vw;
+        }
+    }
+    @media screen and (max-width: 500px) {
+        .search12 > h1 {
+            font-size: 24px;
+        }
+        .search151-each > img {
+            width: 70px;
+        }
+        .search1512 > h1 {
+            font-size: 20px;
+        }
+        .search1512 > p {
+            font-size: 15px;
+        }
     }
 </style>
