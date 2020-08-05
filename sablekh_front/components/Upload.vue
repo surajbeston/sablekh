@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="upload-component mxw-100-mnh-100" >
+        <div class="upload-component mxw-100-mnh-100">
             <div class="upload-wrapper1" ref = "fileform" > 
                 <img src="@/assets/upload/upload-top.png" alt="loading image" class="upload11" >
                 <div class="upload12" >
@@ -8,7 +8,7 @@
                         <h1 class = "head1">Upload</h1>
                         <p class = "description">Create your small library and share it with the world. You can add upto 10 files, each not exceeding 30MB in size.</p>
                         <div class="input-section" v-bind:class="{alternative: activate}">
-                            <div id = "errorBox" v-show="showError" ><p id = "errorTxt">Error: {{error}}<img src = "@/assets/cancel.png" @click="showError =!showError" class = "cancelError"></p></div>
+                            <div id = "errorBox" v-show="hasError" ><p id = "errorTxt">Error: {{error}}<img src = "@/assets/cancel.png" @click="hasError =!hasError" class = "cancelError"></p></div>
                             <label for="title">Title</label>
                             <input class="input-box" type="text" v-model="title" id="title" autofocus >
                             <label for="description">Description</label>
@@ -18,38 +18,55 @@
                             <div class = "files-wrap"> 
                                 <div class = "file-box" v-for="file in files" :key = "file.random_id">
                                     <img :src = "file.filename" class = "extension-image"> 
-                                    <div class = "middle-collection">
+                                    <div class = "middle-collection"> 
                                         <div>
                                             <div class = "download-filename">{{file.name}}</div>
                                             <div class = "right-box">
-                                                <img src = "@/assets/upload/upload.png" class = "upload-img">
+                                                <img src = "@/assets/upload/upload.png" class = "upload-img" v-show = "!file.uploaded" ><img src = "@/assets/upload/upload-green1.png" class = "upload-img" v-show = "file.uploaded">
                                                 <div class = "file-size"> {{file.uploadedsize}}MB of {{file.totalsize}}MB</div>
-                                            </div>
+                                            </div> 
                                         </div>
-                                        <div class = "progressbar" ><div class = "progress" :id = "file.random_id"></div></div> 
+                                        <div class = "progressbar" ><div class = "progress" v-bind:style= "{width: file.progress}"></div></div> 
                                     </div>
-                                    <img src = "@/assets/cancel.png" class = "cancelDownload" @click="cancelUpload(file.random_id)">                                    
+                                    <img src = "@/assets/cancel.png" class = "cancelDownload" @click="cancelUpload(file.random_id)" :class = "{invisible: !file.uploaded}">                                  
+                                </div>
+                            </div>
+                            <div>
+                                <div class = "tag-box">
+                                    <div class = "tag-capsule" v-for = "tag in tags" :key="tag">{{tag}} <img src = "@/assets/cancel.png" class = "cancelTag" @click= "cancelTag(tag)"></div> 
                                 </div> 
-                            </div> 
+                                <div class = "tag-search"> 
+                                    <div class = "tagsearchcapsule" v-bind:class="{  removeRadius: show_suggestions  }">
+                                        <input class = "tag-search-input" v-model="tag_search" @click = "check_and_show"><img src = "@/assets/cancel.png" class = "addTag"  v-bind:class = "{ rotate: show_suggestions }" @click = "closeSuggestions"> 
+                                    </div> 
+                                    <div class = "tag-search-box" v-show = "show_suggestions">
+                                        <div v-for = "suggestion in suggestions" :key = "suggestion">
+                                            <hr><div class = "tag-search-suggestion" @click = "addTag(suggestion)" >{{suggestion}}</div>
+                                        </div>
+                                            
+                                    </div>
+                                </div> 
+                            </div>
                         </div>
                     </div>
-                    <button class="btn" >Upload</button>
+                    <button class="btn" @click = "final_finish">{{finish}}</button>
                 </div>
                 <img src="@/assets/logo1.png" alt="loading image" class="upload13">
-            </div>
+            </div> 
         </div>
     </div>
 </template>
 
 <script>
 import axios from "axios"
+import Fuse from 'fuse.js'
 
 export default {
 
     data() {
         return{
-            title: "dsakjfh",
-            description: "sadjfhasldf",
+            title: "",
+            description: "",
             // files: [{"name": "something.pdf", "filename": "/filenames/pdf.png", "uploadedsize": "12", "totalsize": "25"}, {"name": "something.txt", "filename": "/filenames/text.png", "uploadedsize": "12", "totalsize": "25"}],
             files: [],
             url: "http://164.90.217.64/",
@@ -58,25 +75,38 @@ export default {
             last_title: "",
             last_description: "",
             headers: "",
-            showError: false,
+            hasError: false,
             error: "This is error.",
             onDrag: true,
-            fileLabel: "Drop/click to add file",
+            fileLabel: "Drag & drop/click to add file",
             activate: false,
             file_hids: [],
-
+            tags: [],
+            suggest_tags: [],
+            tag_search: "Add tags for your library",
+            show_suggestions: false,
+            finish: "Finish",
+            to_search: ["Tribhuvan University", "Purwanchal University", "First Semester", "Second Semester", "Third Semester", "Fourth Semester", "First Year", "Second Year", "Third Year", "Fourth Year", "Pokhara University", "Kathmandu University", "Economics", "Mechanical Engineering", "Social Engineering", "Socialogy"]
         }
     },
 
     methods: {
         filesChange(files){
             if (this.library === ""){
+                if (this.title == "" || this.description == ""){
+                    var title = String(Math.random()*10**17)
+                    var description = String(Math.random()*10**17)
+                }
+                else{
+                    var title = this.title
+                    var description= this.description
+                }
                 console.log(this.auth_token)
                 axios({
                     url: this.url+"library",
                     method: "post",
                     headers: {"Content-Type": "application/json", "Authorization": "Token "+this.auth_token},
-                    data: {"title": this.title, "description": this.description, "tags": ["mu"]}
+                    data: {"title": title, "description": description, "tags": this.tags}
                 }).then(res => {
                     this.library = res.data.hid
                     console.log(this.library)
@@ -87,8 +117,7 @@ export default {
                 })
                 .catch(err => {
                     console.log(err)
-                    this.showError = true
-                    this.error = err.data.error
+                    this.displayError("Problem uploading file, please try again.")
                 })
             }
             else{
@@ -98,13 +127,11 @@ export default {
             },
             send_files(files){
                 if (this.files.length >= 10){
-                    this.showError = true 
-                    this.error = "Already 10 files in the library." 
+                    this.displayError("To make library compact, we only allow 10 files per library." )
                 }
                 for (var file of files){
                         if (file === undefined){
-                            this.showError = true
-                            this.error = "Problem uploading file. Please try again."
+                            this.displayError("Problem uploading file. Please try again.")
                             continue
                         }
                         var already_uploaded = false
@@ -115,14 +142,12 @@ export default {
                             console.log(file.size)
                             if (already_file.size_bytes == file.size){
                                 console.log("already reaced here")
-                                this.showError = true
-                                this.error = file.name + " already uploaded/in queue."
+                                this.displayError(file.name + " already uploaded/in queue.")
                                 already_uploaded = true
                                 break
                             } 
                         }
                         if (already_uploaded){continue}
-
                         if (file.size/1024/1024 <=30){
                         console.log(file.size)
                         var dom_file_name = file.name;
@@ -131,7 +156,7 @@ export default {
                         }
                         var totalsize = (file.size/1024/1024).toFixed(2)
                         if (totalsize == 0){totalsize = 0.01} 
-                        this.files.push({"name": dom_file_name, "totalsize": totalsize, "uploadedsize": 0, "filename": "/filenames/" + this.get_filename(file.type), "progress": "0", "size_bytes": file.size, "random_id": String(Math.random()*10**17)})
+                        this.files.push({"name": dom_file_name, "totalsize": totalsize, "uploadedsize": 0, "filename": "/filenames/" + this.get_filename(file.type), "progress": "0", "size_bytes": file.size, "random_id": String(Math.random()*10**17), "uploaded": false, "hid": ""})
                         var file_index = this.files.length - 1
                         var formData = new FormData()
                         formData.append("_file", file) 
@@ -143,12 +168,11 @@ export default {
                             data: formData,
                             onUploadProgress: (e) => {
                                 for (var file of this.files){
-                                    console.log(Math.round(file.size_bytes/1024))
-                                    console.log(Math.round(e.total/1024))
-                                    if (Math.round(file.size_bytes/1024) - Math.round(e.total/1024) <= 5 ){
+
+                                    if (Math.abs(file.size_bytes/1024 - e.total/1024) <= 5 ){
+                                        console.log("reached here")
                                         file.uploadedsize = (e.loaded/1024/1024).toFixed(2);
-                                        document.getElementById(String(file.random_id)).style.width = Math.round(e.loaded/e.total) + "%";
-                                        console.log("File sie", file.uploadedsize)
+                                        file.progress = Math.round(e.loaded/e.total*100) + "%";
                                     } 
                                 } 
                             }
@@ -158,20 +182,22 @@ export default {
                                 }
                                 for (var file of this.files){
 
-                                        if (Math.round(file.size_bytes/1024) - res.data.size <= 5){
+                                        if (Math.abs(file.size_bytes/1024 - res.data.size) <= 5){
                                             file.uploadedsize = file.totalsize
-                                            document.getElementById(String(file.random_id)).style.width = 100+ "%"
+                                            file.progress = 100+ "%"
+                                            file.uploaded = true
+                                            file.hid = res.data.hid
+                                            console.log("finished id", file.random_id)
                                         }
                                     }
-                                console.log(res.data) 
+                                console.log(res.data)
                             })
                             .catch(err => {
                                 console.log(err)
                             });
                     }
                     else {
-                        this.showError = true
-                        this.error = file.name + " exceeds file size limit of 30MB."
+                        this.displayError(file.name + " exceeds file size limit of 30MB.")
                     }
                 }
             },
@@ -232,28 +258,118 @@ export default {
                         return filename
             },
             final_finish(){
-                if (this.last_title != this.title || this.last_description != this.description || this.tags != this.last_tags){
+                if (this.finish == "Finish"){
+                    if (this.files.length > 0){
+                        if (this.description == "" || this.title == ""){
+                            this.displayError("Title and Description fields are required to create a library.")
+                        }
+                        else{
+                            var continue_on = true
+                            console.log("there is title iand description")
+                            for (var file of this.files){
+                                if (!file.uploaded){
+                                    this.displayError("Please wait until file upload is completed.")
+                                    continue_on = false
+                                    break
+                                }
+                            }
+                            console.log(continue_on)
+                            if (continue_on){
+                                console.log("no remaining upload, started axios")
+                                axios({
+                                    url: this.url + "library",
+                                    method: "patch",
+                                    headers: {"Content-Type": "application/json", "Authorization": "Token "+this.auth_token},
+                                    data: {"hid": this.library, "title": this.title, "description": this.description, "tags": this.tags}
+                                }).then(res => {
+                                    this.finish = "Just a second"
+                                    console.log(res.data)
+                                })
+                                .catch(err => {
+                                    console.log(err)
+                                });
+                                
+                            }
+                        }
+                    }
+                    else {
+                        this.displayError("Please upload something to finish creating library.")
+                    }
+                }
+            },
+            displayError(errorText){
+                this.hasError = true
+                this.error = errorText
+            },
+        cancelUpload(random_id){
+            console.log(random_id)
+            for (var i in this.files){
+                if (this.files[i].random_id == random_id){
+                    var hid = this.files[i].hid
+                    console.log(hid)
+                    this.files.splice(i, 1)
                     axios({
-                        url: this.url+"library",
-                        method: "patch",
+                        url: this.url + "file",
+                        method: "delete",
                         headers: {"Content-Type": "application/json", "Authorization": "Token "+this.auth_token},
-                        data: {"title": this.title, "description": this.description, "tags": ["mu"]}
+                        data: {"hid": hid}
                     }).then( res => {
-                        this.library = res.data.hid
-                        console.log(res.data)
-                    }).catch( res => {
                         console.log(res.data)
                     })
                 }
+            }
         },
-        cancelUpload(random_id){
-            for (var i in this.files){
-                if (this.files[i].random_id == random_id){
-                    this.files.splice(i, 1) 
+        cancelTag(tag){
+            var index = this.tags.indexOf(tag)
+            this.tags.splice(index, 1)
+        },
+        addTag(tag){
+            this.tags.push(tag)
+            this.show_suggestions = false
+        },
+        check_and_show(){
+            if (this.tag_search == "Add tags for your library"){
+                this.tag_search = ""
+            }
+            if (this.suggestions != undefined){
+                if (this.suggestions.length > 0){
+                    this.show_suggestions = true
                 }
             }
-        }
+        },
+        closeSuggestions(){
+            if (this.show_suggestions){
+                this.show_suggestions = false
+            }
 
+        }
+    },
+    computed: {
+        suggestions(){
+            if (this.tag_search == "" || this.tag_search == "Add tags for your library"){
+                this.show_suggestions = false
+                
+            }
+            else{
+                var options = {}
+
+                var fuse = new Fuse(this.to_search, options)
+                var results = fuse.search(this.tag_search)
+
+                var suggestion_list = []
+
+                for (var result of results){
+                    if (!this.tags.includes(result.item)){suggestion_list.push(result.item)}
+                }
+                console.log(suggestion_list)
+                if (suggestion_list.length > 0){
+                    this.show_suggestions = true
+                    return suggestion_list.slice(0, 5)
+                }
+                this.show_suggestions = false
+
+            }
+        }
     },
     mounted() {
         this.auth_token = window.localStorage.getItem('token')
@@ -275,18 +391,19 @@ export default {
                 e.preventDefault();
                 e.stopPropagation();
                 this.activate = false
-                this.fileLabel = "Drop/click to add file"
+                this.fileLabel = "Drag & drop/click to add file"
                 }.bind(this), false);
         }.bind(this));
 
         this.$refs.fileform.addEventListener('drop', function(e){
 
             this.activate = false
-            this.fileLabel = "Drop/click to add file"
+            this.fileLabel = "Drag & drop/click to add file"
             document.getElementById("file").style.backgroundColor = "sky-blue";
             this.filesChange(e.dataTransfer.files)
             
         }.bind(this));
+
     }
 }
 </script>
@@ -495,9 +612,107 @@ export default {
         top: -5px;
         left: 10px;
     }
+    .invisible{
+        display: none;
+    }
+
     .cancelDownload:hover{
         cursor: pointer;
     }
+
+    .tag-box{
+        display: inline-block;
+        font-family: 'Comfortaa', cursive;
+        font-size: 100%;
+    }
+
+    .tag-capsule{
+        display: inline-block;
+        border: 3px solid rgb(255, 176, 98);
+        border-radius: 5px;
+        padding: 5px 5px 0 5px;
+        margin: 5px;
+        font-weight: bolder;
+    }
+
+    .tag-search{
+        display: inline-block;
+        font-family: 'Comfortaa', cursive;
+        font-size: 100%;
+        font-weight: bolder;
+        vertical-align: top;
+        
+    }
+    .tag-search-box{
+        font-family: 'Comfortaa', cursive;
+        font-size: 100%;
+        font-weight: bolder;
+        padding: 5px;
+        text-align: center;
+        background-color: rgb(255, 176, 98);
+        border-bottom-right-radius: 20px;
+        border-bottom-left-radius: 20px;
+    }
+
+    .tag-search-input{
+        background-color: rgb(255, 176, 98);
+        border: none;
+        margin-left: 15px;
+        padding: 10px;
+        min-width: 10vw;
+        font-family: 'Comfortaa', cursive;
+        font-size: 100%;
+        font-weight: bolder;
+        text-align: center;
+        outline: none;
+    }
+
+    .tagsearchcapsule{
+        background-color: rgb(255, 176, 98);
+        border-radius: 20px;
+    }
+
+    .tag-search-suggestion{
+        margin: 5px;
+        padding: 5px;
+        border-radius: 10px;
+    }
+
+    .tag-search-suggestion:hover{
+        background-color: rgb(230, 114, 0);
+        cursor:pointer;
+    }
+
+    .removeRadius{
+        border-bottom-left-radius: 0px;
+        border-bottom-right-radius: 0px;
+    }
+
+    .addTag{
+        position: relative;
+        top: 5px;
+        margin-left:5px;
+        margin-right: 5px;
+        transform: rotate(45deg);
+    }
+
+    .rotate{
+        transform: rotate(0deg);
+    }
+
+    .cancelTag{
+        width: 20px;
+        height: 20px;
+        margin-left: 10px;
+        margin-bottom: 0;
+    }
+    .cancelTag:hover{
+        cursor: pointer;
+    }
+
+
+
+
 
     @media screen and (max-width: 1500px){
         .progressbar{

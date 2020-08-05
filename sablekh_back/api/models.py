@@ -22,7 +22,8 @@ class Library(models.Model):
     user = models.ForeignKey(Visitor, on_delete = models.CASCADE, blank = True, null = True)
     description = models.CharField(max_length = 1500)
     link_str = models.CharField(max_length = 350, unique=True)
-    tags = ArrayField(models.CharField(max_length = 150))
+    tags = ArrayField(models.CharField(max_length = 150), blank = True, null = True)
+    finished = models.BooleanField(default=False)
     datetime = models.DateTimeField(auto_now=True)
     no_files = models.IntegerField(default = 0)
 
