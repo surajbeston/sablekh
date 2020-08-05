@@ -30,6 +30,7 @@ from .models import WHOOSH_SCHEMA
 
 class UserView(APIView):
     def post(self, request):
+        data = request.data
         supposed_username = data["email"].split("@")[0] 
         while True:
             try:
@@ -127,8 +128,10 @@ class FileView(APIView):
 
     def post(self, request):
         if '_file' not in request.data:
+            print (request.data)
             raise ParseError("Empty content")
         data = request.data
+        print (request.data)
         try:
             library = Library.objects.get(hid = data["library"])
             if library.user.email != request.user.email:
@@ -139,6 +142,7 @@ class FileView(APIView):
             return Response({"error":"library not found"}, status = status.HTTP_404_NOT_FOUND)
         data["size"] = data["_file"].size // 1024
         if data["size"] > 31000:
+            print (data["size"]/1024)
             return Response({"error": "file size larger than 30MB"}, status = status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
         data["title"] = data["_file"].name
         hash_str = data["title"] + str(datetime.now())
@@ -292,7 +296,6 @@ def search(request):
 @api_view(['GET', 'POST'])
 def auth_token(request):
     email, password = request.data["email"], request.data["password"]
-    print ("reahed here")
     if email is not None and password is not None:
         user = get_object_or_404(Visitor, email = email)
         auth_user = authenticate(username= user.username, password = password)

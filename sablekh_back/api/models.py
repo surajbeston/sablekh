@@ -29,7 +29,7 @@ class Library(models.Model):
 class File(models.Model):
     hid = models.CharField(max_length = 56, primary_key= True)
     title = models.CharField(max_length = 300)
-    library = models.ForeignKey(Library, on_delete = models.CASCADE)
+    library = models.ForeignKey(Library, on_delete = models.CASCADE, blank = "true", null = "true")
     _file  = models.FileField(upload_to="files")
     size = models.IntegerField(default = 0)
 

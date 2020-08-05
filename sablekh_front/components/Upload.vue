@@ -1,39 +1,292 @@
 <template>
-    <div class="upload-component mxw-100-mnh-100">
-        <div class="upload-wrapper1">
-            <img src="@/assets/upload/upload-top.png" alt="loading image" class="upload11">
-            <div class="upload12">
-                <h1 class = "head1">Upload</h1>
-                <p class = "description">Create your small library and share it with the world. You can add upto 10 files, each not exceeding 30MB in size.</p>
-                <div class="input-section">
-                    <label for="title">Title</label>
-                    <input class="input-box" type="text" v-model="title" id="title" autofocus >
-                    <label for="description">Description</label>
-                    <textarea class="input-box" v-model="description" id="description" cols="30" rows="5"></textarea>
-                    <label for="file">Add your File Here</label>
-                    <input type="file" name="upload_file" id="file">
+    <div>
+        <div class="upload-component mxw-100-mnh-100" >
+            <div class="upload-wrapper1" ref = "fileform" > 
+                <img src="@/assets/upload/upload-top.png" alt="loading image" class="upload11" >
+                <div class="upload12" >
+                    <div class = "content">
+                        <h1 class = "head1">Upload</h1>
+                        <p class = "description">Create your small library and share it with the world. You can add upto 10 files, each not exceeding 30MB in size.</p>
+                        <div class="input-section" v-bind:class="{alternative: activate}">
+                            <div id = "errorBox" v-show="showError" ><p id = "errorTxt">Error: {{error}}<img src = "@/assets/cancel.png" @click="showError =!showError" class = "cancelError"></p></div>
+                            <label for="title">Title</label>
+                            <input class="input-box" type="text" v-model="title" id="title" autofocus >
+                            <label for="description">Description</label>
+                            <textarea class="input-box" v-model="description" id="description" cols="30" rows="5"></textarea>
+                            <label for="file" >{{fileLabel}}</label>
+                            <input type="file" name="upload_file" id="file" @change="filesChange($event.target.files)" multiple class = "hamro">
+                            <div class = "files-wrap"> 
+                                <div class = "file-box" v-for="file in files" :key = "file.random_id">
+                                    <img :src = "file.filename" class = "extension-image"> 
+                                    <div class = "middle-collection">
+                                        <div>
+                                            <div class = "download-filename">{{file.name}}</div>
+                                            <div class = "right-box">
+                                                <img src = "@/assets/upload/upload.png" class = "upload-img">
+                                                <div class = "file-size"> {{file.uploadedsize}}MB of {{file.totalsize}}MB</div>
+                                            </div>
+                                        </div>
+                                        <div class = "progressbar" ><div class = "progress" :id = "file.random_id"></div></div> 
+                                    </div>
+                                    <img src = "@/assets/cancel.png" class = "cancelDownload" @click="cancelUpload(file.random_id)">                                    
+                                </div> 
+                            </div> 
+                        </div>
+                    </div>
+                    <button class="btn" >Upload</button>
                 </div>
-                <button class="btn" >Upload</button>
+                <img src="@/assets/logo1.png" alt="loading image" class="upload13">
             </div>
-            <img src="@/assets/logo1.png" alt="loading image" class="upload13">
         </div>
     </div>
 </template>
 
 <script>
+import axios from "axios"
+
 export default {
 
     data() {
         return{
-            title: "",
-            description: ""
+            title: "dsakjfh",
+            description: "sadjfhasldf",
+            // files: [{"name": "something.pdf", "filename": "/filenames/pdf.png", "uploadedsize": "12", "totalsize": "25"}, {"name": "something.txt", "filename": "/filenames/text.png", "uploadedsize": "12", "totalsize": "25"}],
+            files: [],
+            url: "http://164.90.217.64/",
+            library: "",
+            auth_token: "",
+            last_title: "",
+            last_description: "",
+            headers: "",
+            showError: false,
+            error: "This is error.",
+            onDrag: true,
+            fileLabel: "Drop/click to add file",
+            activate: false,
+            file_hids: [],
+
         }
     },
-    
-    mounted() {
-        if (!window.localStorage.getItem("token")) {
-            window.location.replace("/login")
+
+    methods: {
+        filesChange(files){
+            if (this.library === ""){
+                console.log(this.auth_token)
+                axios({
+                    url: this.url+"library",
+                    method: "post",
+                    headers: {"Content-Type": "application/json", "Authorization": "Token "+this.auth_token},
+                    data: {"title": this.title, "description": this.description, "tags": ["mu"]}
+                }).then(res => {
+                    this.library = res.data.hid
+                    console.log(this.library)
+                    this.last_title = res.data.title
+                    this.last_description = res.data.description
+                    this.last_tags = res.data.tags
+                    this.send_files(files)
+                })
+                .catch(err => {
+                    console.log(err)
+                    this.showError = true
+                    this.error = err.data.error
+                })
+            }
+            else{
+                console.log(files)
+                this.send_files(files)
+                }
+            },
+            send_files(files){
+                if (this.files.length >= 10){
+                    this.showError = true 
+                    this.error = "Already 10 files in the library." 
+                }
+                for (var file of files){
+                        if (file === undefined){
+                            this.showError = true
+                            this.error = "Problem uploading file. Please try again."
+                            continue
+                        }
+                        var already_uploaded = false
+                        console.log("reached here")
+                        for (var already_file of this.files){
+                            console.log("reached here")
+                            console.log(already_file.size_bytes)
+                            console.log(file.size)
+                            if (already_file.size_bytes == file.size){
+                                console.log("already reaced here")
+                                this.showError = true
+                                this.error = file.name + " already uploaded/in queue."
+                                already_uploaded = true
+                                break
+                            } 
+                        }
+                        if (already_uploaded){continue}
+
+                        if (file.size/1024/1024 <=30){
+                        console.log(file.size)
+                        var dom_file_name = file.name;
+                        if (dom_file_name.length > 20){
+                            dom_file_name = dom_file_name.slice(0, 17)+ "..."
+                        }
+                        var totalsize = (file.size/1024/1024).toFixed(2)
+                        if (totalsize == 0){totalsize = 0.01} 
+                        this.files.push({"name": dom_file_name, "totalsize": totalsize, "uploadedsize": 0, "filename": "/filenames/" + this.get_filename(file.type), "progress": "0", "size_bytes": file.size, "random_id": String(Math.random()*10**17)})
+                        var file_index = this.files.length - 1
+                        var formData = new FormData()
+                        formData.append("_file", file) 
+                        formData.append("library", this.library) 
+                        axios({
+                            url: this.url+"file",
+                            method: "post",
+                            headers: {"Content-Type": "application/json", "Authorization": "Token "+this.auth_token},
+                            data: formData,
+                            onUploadProgress: (e) => {
+                                for (var file of this.files){
+                                    console.log(Math.round(file.size_bytes/1024))
+                                    console.log(Math.round(e.total/1024))
+                                    if (Math.round(file.size_bytes/1024) - Math.round(e.total/1024) <= 5 ){
+                                        file.uploadedsize = (e.loaded/1024/1024).toFixed(2);
+                                        document.getElementById(String(file.random_id)).style.width = Math.round(e.loaded/e.total) + "%";
+                                        console.log("File sie", file.uploadedsize)
+                                    } 
+                                } 
+                            }
+                            }).then(res => {
+                                if (this.library != ""){ 
+                                    this.file_hids.push(res.data.hid) 
+                                }
+                                for (var file of this.files){
+
+                                        if (Math.round(file.size_bytes/1024) - res.data.size <= 5){
+                                            file.uploadedsize = file.totalsize
+                                            document.getElementById(String(file.random_id)).style.width = 100+ "%"
+                                        }
+                                    }
+                                console.log(res.data) 
+                            })
+                            .catch(err => {
+                                console.log(err)
+                            });
+                    }
+                    else {
+                        this.showError = true
+                        this.error = file.name + " exceeds file size limit of 30MB."
+                    }
+                }
+            },
+            get_filename(fileType){
+                    console.log(fileType)
+                    var filename;
+                    if (file.size/1024/1024 <= 30)
+                        var category = fileType.split("/")[0]
+                        var extension = fileType.split("/")[1]
+                         if ( category == "application"){
+                             if (extension == "pdf"){
+                                 filename = "pdf.png"
+                             }
+                             else if (extension == "msword"){
+                                 filename = "word.png"
+                             }
+                             else if (extension == "vnd.ms-excel"){
+                                 fiename = "excel.png"
+                             }
+                             else if (extension == "vnd.ms-powerpoint"){
+                                 filename = "powerpoint.png"
+                             }
+                             else if (extension == "zip"){
+                                 filename = "zip.png"
+                             }
+                             else if (extension == "x-tar"){
+                                 filename = "zip.png"
+                             }
+                             else if (extension == "octet-stream"){
+                                 filename = "binary.png"
+                             }
+                             else if (extension == "vnd.openxmlformats-officedocument.spreadsheetml.sheet"){
+                                 filename = "excel.png"
+                             }
+                             else{
+                                 console.log("reached here")
+                                 filename == "text.png"
+                             }
+                         }
+                         else if (category == "audio"){
+                             filename = "audio.png"
+                         }
+                         else if (category == "image"){
+                             filename = "image.png"
+                         }
+                         else if (category == "text"){
+                             filename = "text.png"
+                         }
+                         else if (category == "video"){
+                             filename = "video.png"
+                         }
+                         else{
+                             filename = "text.png"
+                            }
+                        if (filename === undefined){
+                            filename = "text.png"
+                        } 
+                        return filename
+            },
+            final_finish(){
+                if (this.last_title != this.title || this.last_description != this.description || this.tags != this.last_tags){
+                    axios({
+                        url: this.url+"library",
+                        method: "patch",
+                        headers: {"Content-Type": "application/json", "Authorization": "Token "+this.auth_token},
+                        data: {"title": this.title, "description": this.description, "tags": ["mu"]}
+                    }).then( res => {
+                        this.library = res.data.hid
+                        console.log(res.data)
+                    }).catch( res => {
+                        console.log(res.data)
+                    })
+                }
+        },
+        cancelUpload(random_id){
+            for (var i in this.files){
+                if (this.files[i].random_id == random_id){
+                    this.files.splice(i, 1) 
+                }
+            }
         }
+
+    },
+    mounted() {
+        this.auth_token = window.localStorage.getItem('token')
+        if (this.auth_token === undefined) {
+            window.location.replace("/login")
+            }
+
+        ['drag', 'dragstart', 'dragend', 'dragover', 'dragenter', 'drop'].forEach( function( evt ) {
+            this.$refs.fileform.addEventListener(evt, function(e){
+                e.preventDefault();
+                e.stopPropagation();
+                this.activate = true
+                this.fileLabel = "Drop it!"
+                }.bind(this), false);
+        }.bind(this));
+
+        ['dragleave'].forEach( function( evt ) {
+            this.$refs.fileform.addEventListener(evt, function(e){
+                e.preventDefault();
+                e.stopPropagation();
+                this.activate = false
+                this.fileLabel = "Drop/click to add file"
+                }.bind(this), false);
+        }.bind(this));
+
+        this.$refs.fileform.addEventListener('drop', function(e){
+
+            this.activate = false
+            this.fileLabel = "Drop/click to add file"
+            document.getElementById("file").style.backgroundColor = "sky-blue";
+            this.filesChange(e.dataTransfer.files)
+            
+        }.bind(this));
     }
 }
 </script>
@@ -55,7 +308,7 @@ export default {
     }
     .upload12 {
         width: 60%;
-        margin: 10vh 5vw 0 5vw;
+        margin: 10vh 0 0 5vw;
     }
     .upload12 > h1 {
         margin-bottom: 2vh;
@@ -94,6 +347,10 @@ export default {
         border-radius: 10px;
         margin-top: 2vh;
         cursor: pointer;
+
+    }
+    .alternative > [for="file"]{
+        background-color: rgb(248, 165, 82);
     }
     .upload13 {
         width: 10%;
@@ -114,7 +371,6 @@ export default {
         font-size: 120%;
     }
 
-    /* extras  */
 
     .btn {
         background-color: rgb(255, 176, 98);
@@ -133,4 +389,159 @@ export default {
         border: 2px solid rgb(87, 77, 66);
         border-radius: 10px;
     }
+
+    #errorBox{
+        background-color: rgba(255, 0, 0, 0.4);
+        color: rgb(51, 47, 43);
+        border: 1px black solid;
+        border-radius: 5px;
+        padding : 2%;
+        font-size: 110%;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 200;
+
+        animation-name: fadein;
+        animation: fadein 1s;
+    }
+
+    @keyframes fadein {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+
+    .darken{
+        background-color: black;
+        opacity: 0.4;
+        position: absolute;
+        top: 0;
+        height: 100%;
+        width: 100%;
+    }
+
+    .cancelError{
+        cursor: pointer;
+        right: 0;
+        float: right;
+    }
+
+    .file-box{
+        width: 100%;
+        border-radius: 5px;
+        background-color: #fee3c8;
+        border: 2px solid rgba(87, 77, 66, 0);
+        box-shadow: 0px 0px 6px rgba(87, 77, 66, 0.5);
+        margin-bottom: 5%;
+    }
+
+
+    .files-wrap{
+        padding-top: 5%;
+        padding-bottom: 5%;
+    }
+
+    .extension-image{
+        height: 60px;
+        display: inline-block;
+    }
+
+    .middle-collection{
+        display: inline-block;
+        position: relative;
+        top: -30px;
+        font-family: 'Ubuntu', sans-serif;
+    }
+
+    .progressbar{
+        width: 42vw;
+        height: 10px;
+        background-color: rgba(188, 182, 216, 0.8);
+        position: relative;
+        border-radius: 5px;
+    }
+
+    .progress{
+        background-color: rgb(17, 15, 14);
+        border-radius: inherit;
+        width: 99%;
+        height: 100%;
+        position: relative;
+        left: 0;
+    }
+
+    .download-filename{
+        display: inline-block;
+        width: 29%;
+    }
+
+    .upload-img{
+        display: inline-block;
+        position: relative;
+        bottom: -5px;
+    }
+    
+    .file-size{
+        display: inline-block;
+    }
+
+    .right-box{
+        display: inline-block;
+        width: 70%;
+        text-align: right;
+        margin-bottom: 10px;
+
+    }
+    .cancelDownload{
+        position: relative;
+        top: -5px;
+        left: 10px;
+    }
+    .cancelDownload:hover{
+        cursor: pointer;
+    }
+
+    @media screen and (max-width: 1500px){
+        .progressbar{
+            width: 40vw;
+        }
+        .right-box{
+            width: 70%;
+        }
+    }
+
+    @media screen and (max-width: 1200px){
+        .progressbar{
+            width: 47vw;
+        }
+        .upload13{
+            display: none;
+        }
+        
+        .upload12{
+            width: 80%;
+        }
+
+        .right-box{
+            width: 60%;
+        }
+
+        
+    }
+
+    @media screen and (max-width: 700px){
+
+        .upload11{
+            display:none;
+        }
+    }
+
+    @media screen and (max-width: 700px){
+
+
+    }
+
+
+
+
+
+
 </style>
