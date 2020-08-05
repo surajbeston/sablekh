@@ -173,6 +173,7 @@ export default {
     }
 
     .already-have-account {
+        margin-top: 1vh;
         text-align: right;
         font-family: 'Comfortaa', cursive;
     }

@@ -1,5 +1,6 @@
 <template>
   <div class="login-component">
+    <img src="@/assets/login/vector1.png" alt="loading image" class="mobile-view-img">
     <div class="login-wrapper1">
       <div class="login1-each login11">
         <img src="@/assets/login/login.png" alt="loading image" />
@@ -127,6 +128,15 @@ export default {
   max-width: 100vw;
   background-color: rgb(254, 227, 200);
   color: rgb(82, 71, 62);
+  position: relative;
+  overflow: hidden;
+}
+.mobile-view-img {
+  display: none;
+  position: absolute;
+  top: 10vh;
+  right: -50px;
+  opacity: 50%;
 }
 .login-wrapper1 {
   display: grid;
@@ -179,6 +189,7 @@ export default {
 }
 
   .dont-have-account {
+    margin-top: 1vh;
       text-align: right;
       font-family: 'Comfortaa', cursive;
   }
@@ -213,9 +224,11 @@ export default {
       .login-wrapper1 {
           grid-template-columns: auto;
       }
-
       .login11{
         display: none;
+      }
+      .mobile-view-img {
+        display: block;
       }
 
   }
