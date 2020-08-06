@@ -32,8 +32,8 @@
                         <span>{{tag}}</span>
                         <img src="@/assets/cancel.png" alt="loading image" :id="tag" @click="cancel_button">
                     </div>
+                    <input  type="text" v-model="current_tag" id="current-tag" @input="current_tag_changed" placeholder="Add tags here">
                 </div>
-                <input  type="text" v-model="current_tag" id="current-tag" @input="current_tag_changed" placeholder="Add tags here">
             </div>
             <div v-show="show_suggessions" class="input-options">
                 <span :key="option.item" v-for="option in avialable_tags" @click="options_clicked">
@@ -69,7 +69,7 @@ export default {
 
     data() {
         return {
-            server_address: "http://164.90.217.64",
+            server_address: "https://42283b29070f.ngrok.io",
             show_suggessions: false,
             off_width: 0,
             current_tag: "",
@@ -149,11 +149,11 @@ export default {
     }, 
 
     computed: {
-        dynamic_padding() {
-            return {
-                paddingLeft: `${this.off_width + 10}px`
-            }
-        },
+        // dynamic_padding() {
+        //     return {
+        //         paddingLeft: `${this.off_width + 10}px`
+        //     }
+        // },
         get_link() {
             if (process.browser) {
                 return window.localStorage.getItem("token") ? true : false; 
@@ -229,33 +229,35 @@ export default {
         min-width: 30vw;
         display: flex;
         justify-content: center;
-    }
-    .search14 > input {
-        max-width: 100%;
-        font-size: 20px;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 0 10px 10px 0 ;
-        outline: none;
-    }
+    } 
     .all-tags {
         min-width: 10px;
         background-color: white;
-        border-radius: 10px 0 0 10px;
+        /* border-radius: 10px; */
         display: grid;
         grid-template-columns: auto auto auto auto;
+        margin: 0 1vw;
+    }
+    .all-tags > input {
+        min-width: 30vw;
+        font-size: 20px;
+        padding: 10px 20px;
+        border: none;
+        outline: none;
     }
     .each-tag {
+        position: relative;
         background-color: rgb(238, 177, 97);
         margin: 5px;
-        padding: 5px 20px 5px 10px;
-        border-radius: 10px;
+        padding: 5px 30px 5px 10px;
+        border-radius: 5px;
         font-size: 18px;
     }
+
     .each-tag > img {
-        position: relative;
-        left: 5px;
-        top: 2px;
+        position: absolute;
+        right: 5px;
+        top: 7px;
         width: 16px;
     }
     .input-options {
@@ -328,10 +330,42 @@ export default {
         .search151-each {
             width: 90vw;
         }
+        .all-tags {
+            grid-template-columns: auto auto auto;
+        }
     }
-    @media screen and (max-width: 500px) {
+    @media screen and (max-width: 900px) {
+        .all-tags {
+            grid-template-columns: auto auto;
+        }
+          .input-options {
+              width: 300px;
+          }
+    }
+    @media screen and (max-width: 600px) {
+        .search-wrapper1 {
+            padding-top: 70px;
+        }
+        .input-options {
+            width: 90vw;
+        }
+        .all-tags {
+            margin: 0 5vw;
+            grid-template-columns: auto;
+        }
+        .all-tags > input {
+            max-width: 80%;
+        }
         .search12 > h1 {
             font-size: 24px;
+        }
+        .search13 > input {
+            width: 90vw;
+            padding: 10px 10px;
+            font-size: 16px;
+        }
+        .search13 > a > img {
+            width: 22px;
         }
         .search151-each > img {
             width: 70px;

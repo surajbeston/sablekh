@@ -1,7 +1,8 @@
 <template>
     <div>
         <div class="upload-component mxw-100-mnh-100">
-            <div class="upload-wrapper1" ref = "fileform" > 
+            <div class="upload-wrapper1" ref = "fileform" >
+                <img src="@/assets/back-arrow.png" alt="loading image" class='back-arrow'>
                 <img src="@/assets/upload/upload-top.png" alt="loading image" class="upload11" >
                 <div class="upload12" >
                     <div class = "content">
@@ -49,7 +50,7 @@
                             </div>
                         </div>
                     </div>
-                    <button class="btn" @click = "final_finish">{{finish}}</button>
+                    <button style="margin-top: 10px;" class="btn" @click = "final_finish">{{finish}}</button>
                 </div>
                 <img src="@/assets/logo1.png" alt="loading image" class="upload13">
             </div> 
@@ -69,7 +70,7 @@ export default {
             description: "",
             // files: [{"name": "something.pdf", "filename": "/filenames/pdf.png", "uploadedsize": "12", "totalsize": "25"}, {"name": "something.txt", "filename": "/filenames/text.png", "uploadedsize": "12", "totalsize": "25"}],
             files: [],
-            url: "http://164.90.217.64/",
+            url: "https://42283b29070f.ngrok.io",
             library: "",
             auth_token: "",
             last_title: "",
@@ -283,7 +284,7 @@ export default {
                                     data: {"hid": this.library, "title": this.title, "description": this.description, "tags": this.tags}
                                 }).then(res => {
                                     this.finish = "Just a second"
-                                    console.log(res.data)
+                                    window.location.replace("/library/" + res.data.hid)
                                 })
                                 .catch(err => {
                                     console.log(err)
@@ -418,6 +419,14 @@ export default {
         display: flex;
         position: relative;
         width: 100%;
+    }
+    .back-arrow {
+        display: none;
+        position: absolute;
+        top: 60px;
+        left: 5px;
+        width: 40px;
+        height: 30px;
     }
     .upload11 {
         width: 25%;
@@ -727,9 +736,9 @@ export default {
         .progressbar{
             width: 47vw;
         }
-        .upload13{
+        /* .upload13{
             display: none;
-        }
+        } */
         
         .upload12{
             width: 80%;
@@ -741,17 +750,59 @@ export default {
 
         
     }
-
+/* 
     @media screen and (max-width: 700px){
-
+        
         .upload11{
             display:none;
         }
-    }
+    } */
 
     @media screen and (max-width: 700px){
-
-
+        .upload-component {
+            background-color: white;
+        }
+        .upload-wrapper1 {
+            width: 98%;
+        }
+        .back-arrow {
+            display: block;
+        }
+        .upload11 {
+            position: absolute;
+            top: 100px;
+            height: 150px;
+            width: 150px;
+            /* display: none; */
+        }
+        .head1 {
+            margin-top: 20px;
+            margin-left: 10px;
+        }
+        .upload13 {
+            width: 100px;
+        }
+        .upload12 {
+            width: 100%;
+            margin: 5px;
+            margin-top: 250px;
+        }
+        .description{
+            padding-right: 0;
+            font-size: 90%;
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+        .input-section {
+            margin: 0;
+        }
+        .input-section > label {
+            font-size: 120%;
+        }
+        .input-box {
+            font-size: 16px;
+            padding: 5px 10px;
+        }
     }
 
 
