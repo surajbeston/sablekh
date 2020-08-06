@@ -178,6 +178,7 @@ export default {
         background-color: rgb(254, 227, 200);
     }
     .search-wrapper1 {
+        padding-top: 10vh;
         position: relative;
         width: 100%;
         display: flex;
@@ -234,8 +235,8 @@ export default {
         min-width: 10px;
         background-color: white;
         /* border-radius: 10px; */
-        display: grid;
-        grid-template-columns: auto auto auto auto;
+        display: flex;
+        flex-wrap: wrap;
         margin: 0 1vw;
     }
     .all-tags > input {
@@ -331,13 +332,14 @@ export default {
             width: 90vw;
         }
         .all-tags {
-            grid-template-columns: auto auto auto;
+            margin: 0 5vw;
+            /* grid-template-columns: auto auto auto; */
         }
     }
     @media screen and (max-width: 900px) {
-        .all-tags {
+        /* .all-tags {
             grid-template-columns: auto auto;
-        }
+        } */
           .input-options {
               width: 300px;
           }
@@ -349,9 +351,12 @@ export default {
         .input-options {
             width: 90vw;
         }
+        .search14 {
+            width: 98%;
+        }
         .all-tags {
             margin: 0 5vw;
-            grid-template-columns: auto;
+            /* grid-template-columns: auto; */
         }
         .all-tags > input {
             max-width: 80%;
