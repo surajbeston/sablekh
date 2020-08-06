@@ -423,7 +423,7 @@ export default {
     .back-arrow {
         display: none;
         position: absolute;
-        top: 60px;
+        top: 50px;
         left: 5px;
         width: 40px;
         height: 30px;
@@ -790,6 +790,7 @@ export default {
         .description{
             padding-right: 0;
             font-size: 90%;
+            margin-right: 10px;
             margin-left: 20px;
             margin-bottom: 20px;
         }
