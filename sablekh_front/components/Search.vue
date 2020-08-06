@@ -8,11 +8,12 @@
             <div class="search12">
                 <h1>Search any PDFs here</h1>
             </div>
-            <div class="search13">
+            <div class="search13"></div>
+            <div class="search14">
                 <input @keyup.enter="search_button" type="text" v-model="search" id="search">
                 <a href="#results-div"><img @click="search_button" src="@/assets/search/search.png" alt="loading image"></a>
             </div>
-            <div class="search14">
+            <div class="search15">
                 <h2 @click="to_link" id="to">{{this.get_name}}</h2>
             </div>
             <div v-show="is_searched" id="results-div" class="search15">
@@ -131,11 +132,11 @@ export default {
         padding: 0 10px;
         font-size: 2.5vw;
     }
-    .search13 {
+    .search14 {
         position: relative;
         margin: 2vh 0;
     }
-    .search13 > input {
+    .search14 > input {
         width: 40vw;
         font-size: 20px;
         padding: 15px 20px;
@@ -146,19 +147,19 @@ export default {
         outline: none;
         border: none;
     }
-    .search13 > a > img {
+    .search14 > a > img {
         cursor: pointer;
         position: absolute;
         top: 7px;
         right: 20px;
         width: 40px;
     }
-    .search14 > h2 {
+    .search15 > h2 {
         color: rgb(133, 117, 102);
         text-decoration: underline;
         cursor: pointer;
     }
-    .search14 > h2:hover {
+    .search15 > h2:hover {
         color: rgb(71, 63, 55);
     }
 
@@ -197,7 +198,7 @@ export default {
         .search12 > h1 {
             font-size: 40px;
         }
-        .search13 > input {
+        .search14 > input {
             width: 90vw;
         }
         .search151-each {

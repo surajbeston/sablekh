@@ -24,13 +24,14 @@ export default {
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       {href: "https://fonts.googleapis.com/css2?family=Comfortaa&family=Rajdhani&family=Staatliches&display=swap" , rel: "stylesheet"},
-      {href: "https://fonts.googleapis.com/css2?family=Ubuntu:wght@300&display=swap",  rel: "stylesheet"}
+      {href: "https://fonts.googleapis.com/css2?family=Ubuntu:wght@300&display=swap",  rel: "stylesheet"},
+      { rel:"stylesheet", href:"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css", integrity:"sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm", crossorigin:"anonymous" }
     ]
   },
   /*
   ** Global CSS
   */
-  css: [
+  css: [    // oh shit its here
   ],
   /*
   ** Plugins to load before mounting the App
