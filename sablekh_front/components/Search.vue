@@ -8,10 +8,37 @@
             <div class="search12">
                 <h1>Search any PDFs here</h1>
             </div>
-            <div class="search13"></div>
-            <div class="search14">
+            <div class="search13">
                 <input @keyup.enter="search_button" type="text" v-model="search" id="search">
                 <a href="#results-div"><img @click="search_button" src="@/assets/search/search.png" alt="loading image"></a>
+            </div>
+            <!-- <div class="search14">
+                <input  type="text" :style="dynamic_padding" v-model="current_tag" id="current-tag" @input="current_tag_changed" placeholder="Add tags here">
+                <div v-show="show_suggessions" class="input-options">
+                    <span :key="option.item" v-for="option in avialable_tags" @click="options_clicked">
+                        {{option.item}}
+                    </span>
+                </div>
+                <div class="all-tags" id="all-tags">
+                    <div class="each-tag" v-bind:key="tag" v-for="tag in tags">
+                        <span>{{tag}}</span>
+                        <img src="@/assets/cancel.png" alt="loading image" :id="tag" @click="cancel_button">
+                    </div>
+                </div>
+            </div> -->
+            <div class="search14">
+                <div class="all-tags">
+                    <div class="each-tag" v-bind:key="tag" v-for="tag in tags">
+                        <span>{{tag}}</span>
+                        <img src="@/assets/cancel.png" alt="loading image" :id="tag" @click="cancel_button">
+                    </div>
+                </div>
+                <input  type="text" v-model="current_tag" id="current-tag" @input="current_tag_changed" placeholder="Add tags here">
+            </div>
+            <div v-show="show_suggessions" class="input-options">
+                <span :key="option.item" v-for="option in avialable_tags" @click="options_clicked">
+                    {{option.item}}
+                </span>
             </div>
             <div class="search15">
                 <h2 @click="to_link" id="to">{{this.get_name}}</h2>
@@ -33,12 +60,28 @@
 
 <script>
 
+import Fuse from "fuse.js";
+import axios from "axios";
+
 import {setCookie} from "@/extras/cookie";
 
 export default {
 
     data() {
         return {
+            server_address: "http://164.90.217.64",
+            show_suggessions: false,
+            off_width: 0,
+            current_tag: "",
+            tags: [],
+            avialable_tags: [],
+            all_tags: [
+                'Science',
+                'Math',
+                'Social',
+                'English',
+                'Dont think of this'
+            ],
             search: "",
             is_searched: false,
             search_books: [
@@ -59,8 +102,41 @@ export default {
     },
 
     methods: {
+        current_tag_changed() {
+            this.show_suggessions = true
+            this.avialable_tags = this.fuse.search(this.current_tag)
+        },
+        options_clicked(e) {
+            let i = e.target.innerText
+
+            this.current_tag = i
+
+            if (! this.tags.includes(this.current_tag) ) {
+                this.tags.push(i)
+            }
+
+            this.show_suggessions = false;
+            this.current_tag = "";
+            this.change_padding()
+        },
+        cancel_button(e) {
+            let i = this.tags.indexOf(e.target.id)
+            this.tags.splice(i, 1)
+            this.change_padding()
+        },
+        change_padding() {
+            setTimeout(() => {
+                this.off_width = document.getElementById("all-tags").offsetWidth
+            }, 200);
+        },
         search_button() {
             this.is_searched = true;
+            // axios.get(`${this.server_address}/search`, {
+            //     "query": this.search,
+            //     "tags": this.tags
+            // })
+            // .then()
+            // .catch()
         },
         to_link() {
             this.get_link ? window.location.replace("/upload") : window.location.replace("/login");
@@ -73,6 +149,11 @@ export default {
     }, 
 
     computed: {
+        dynamic_padding() {
+            return {
+                paddingLeft: `${this.off_width + 10}px`
+            }
+        },
         get_link() {
             if (process.browser) {
                 return window.localStorage.getItem("token") ? true : false; 
@@ -84,17 +165,7 @@ export default {
     },
 
     mounted() {
-
-        setTimeout(() => {
-            console.clear()
-            }, 2000);
-        
-        // if (window.localStorage.getItem("token")) {
-        //   document.getElementById("to-upload").setAttribute("class", "")
-        // }
-        // else {
-        //     document.getElementById("to-login").setAttribute("class", "")
-        // }
+        this.fuse = new Fuse(this.all_tags, {})    
     }
 
 }
@@ -132,11 +203,11 @@ export default {
         padding: 0 10px;
         font-size: 2.5vw;
     }
-    .search14 {
+    .search13 {
         position: relative;
-        margin: 2vh 0;
+        margin: 2vh 0 5vh 0;
     }
-    .search14 > input {
+    .search13 > input {
         width: 40vw;
         font-size: 20px;
         padding: 15px 20px;
@@ -147,12 +218,65 @@ export default {
         outline: none;
         border: none;
     }
-    .search14 > a > img {
+    .search13 > a > img {
         cursor: pointer;
         position: absolute;
         top: 7px;
         right: 20px;
         width: 40px;
+    }
+    .search14 {
+        min-width: 30vw;
+        display: flex;
+        justify-content: center;
+    }
+    .search14 > input {
+        max-width: 100%;
+        font-size: 20px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 0 10px 10px 0 ;
+        outline: none;
+    }
+    .all-tags {
+        min-width: 10px;
+        background-color: white;
+        border-radius: 10px 0 0 10px;
+        display: grid;
+        grid-template-columns: auto auto auto auto;
+    }
+    .each-tag {
+        background-color: rgb(238, 177, 97);
+        margin: 5px;
+        padding: 5px 20px 5px 10px;
+        border-radius: 10px;
+        font-size: 18px;
+    }
+    .each-tag > img {
+        position: relative;
+        left: 5px;
+        top: 2px;
+        width: 16px;
+    }
+    .input-options {
+        width: 30%;
+        display: flex;
+        flex-direction: column;
+        background-color: rgb(238, 177, 97);
+        border-radius: 10px;
+
+    }
+    .input-options > span {
+        text-align: center;
+        letter-spacing: 1px;
+        font-size: 20px;
+        padding-top: 1vh;
+        padding-bottom: 1vh;
+        width: 100%;
+        cursor: pointer;
+    }
+    .input-options > span:hover {
+        background-color: rgb(187, 140, 80);
     }
     .search15 > h2 {
         color: rgb(133, 117, 102);
@@ -198,7 +322,7 @@ export default {
         .search12 > h1 {
             font-size: 40px;
         }
-        .search14 > input {
+        .search13 > input {
             width: 90vw;
         }
         .search151-each {
