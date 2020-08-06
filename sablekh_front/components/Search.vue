@@ -44,16 +44,18 @@
                 <h2 @click="to_link" id="to">{{this.get_name}}</h2>
             </div>
             <div v-show="is_searched" id="results-div" class="search15">
-                <div v-bind:key="book.id" v-for="book in search_books" class="search151">
-                    <div class="search151-each">
-                        <img :src="book.img" alt="loading image">
-                        <div class="search1512">
-                            <h1>{{book.title}}</h1>
-                            <p>{{book.desc}}</p>
+                <NuxtLink to="library/fasdfasdfasdf" v-bind:key="book.id" v-for="book in search_books" >
+                    <div class="search151">
+                        <div class="search151-each">
+                            <img :src="book.img" alt="loading image">
+                            <div class="search1512">
+                                <h1>{{book.title}}</h1>
+                                <p>{{book.desc}}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-        </div>
+                </NuxtLink>
+            </div>
         </div>
     </div>
 </template>
@@ -173,6 +175,9 @@ export default {
 </script>
 
 <style scoped>
+    a {
+        text-decoration: none;
+    }
     .search-component {
         padding-bottom: 5vh;
         background-color: rgb(254, 227, 200);
@@ -314,9 +319,12 @@ export default {
         margin: 0 5vw 0 0;
     }
     .search1512 > p {
+        /* text-decoration: none; */
         font-size: 20px;
         margin-top: 10px;
     }
+
+    
 
     @media screen and (max-width: 1200px) {
         .search11 > img {
