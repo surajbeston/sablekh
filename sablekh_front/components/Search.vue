@@ -12,25 +12,58 @@
                 <input @keyup.enter="search_button" type="text" v-model="search" id="search">
                 <a href="#results-div"><img @click="search_button" src="@/assets/search/search.png" alt="loading image"></a>
             </div>
+            <!-- <div class="search14">
+                <input  type="text" :style="dynamic_padding" v-model="current_tag" id="current-tag" @input="current_tag_changed" placeholder="Add tags here">
+                <div v-show="show_suggessions" class="input-options">
+                    <span :key="option.item" v-for="option in avialable_tags" @click="options_clicked">
+                        {{option.item}}
+                    </span>
+                </div>
+                <div class="all-tags" id="all-tags">
+                    <div class="each-tag" v-bind:key="tag" v-for="tag in tags">
+                        <span>{{tag}}</span>
+                        <img src="@/assets/cancel.png" alt="loading image" :id="tag" @click="cancel_button">
+                    </div>
+                </div>
+            </div> -->
             <div class="search14">
+                <div class="all-tags">
+                    <div class="each-tag" v-bind:key="tag" v-for="tag in tags">
+                        <span>{{tag}}</span>
+                        <img src="@/assets/cancel.png" alt="loading image" :id="tag" @click="cancel_button">
+                    </div>
+                    <input  type="text" v-model="current_tag" id="current-tag" @input="current_tag_changed" placeholder="Add tags here">
+                </div>
+            </div>
+            <div v-show="show_suggessions" class="input-options">
+                <span :key="option.item" v-for="option in avialable_tags" @click="options_clicked">
+                    {{option.item}}
+                </span>
+            </div>
+            <div class="search15">
                 <h2 @click="to_link" id="to">{{this.get_name}}</h2>
             </div>
             <div v-show="is_searched" id="results-div" class="search15">
-                <div v-bind:key="book.id" v-for="book in search_books" class="search151">
-                    <div class="search151-each">
-                        <img :src="book.img" alt="loading image">
-                        <div class="search1512">
-                            <h1>{{book.title}}</h1>
-                            <p>{{book.desc}}</p>
+                <NuxtLink to="library/fasdfasdfasdf" v-bind:key="book.id" v-for="book in search_books" >
+                    <div class="search151">
+                        <div class="search151-each">
+                            <img :src="book.img" alt="loading image">
+                            <div class="search1512">
+                                <h1>{{book.title}}</h1>
+                                <p>{{book.desc}}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-        </div>
+                </NuxtLink>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
+
+import Fuse from "fuse.js";
+import axios from "axios";
 
 import {setCookie} from "@/extras/cookie";
 
@@ -38,6 +71,19 @@ export default {
 
     data() {
         return {
+            server_address: "https://42283b29070f.ngrok.io",
+            show_suggessions: false,
+            off_width: 0,
+            current_tag: "",
+            tags: [],
+            avialable_tags: [],
+            all_tags: [
+                'Science',
+                'Math',
+                'Social',
+                'English',
+                'Dont think of this'
+            ],
             search: "",
             is_searched: false,
             search_books: [
@@ -58,8 +104,41 @@ export default {
     },
 
     methods: {
+        current_tag_changed() {
+            this.show_suggessions = true
+            this.avialable_tags = this.fuse.search(this.current_tag)
+        },
+        options_clicked(e) {
+            let i = e.target.innerText
+
+            this.current_tag = i
+
+            if (! this.tags.includes(this.current_tag) ) {
+                this.tags.push(i)
+            }
+
+            this.show_suggessions = false;
+            this.current_tag = "";
+            this.change_padding()
+        },
+        cancel_button(e) {
+            let i = this.tags.indexOf(e.target.id)
+            this.tags.splice(i, 1)
+            this.change_padding()
+        },
+        change_padding() {
+            setTimeout(() => {
+                this.off_width = document.getElementById("all-tags").offsetWidth
+            }, 200);
+        },
         search_button() {
             this.is_searched = true;
+            // axios.get(`${this.server_address}/search`, {
+            //     "query": this.search,
+            //     "tags": this.tags
+            // })
+            // .then()
+            // .catch()
         },
         to_link() {
             this.get_link ? window.location.replace("/upload") : window.location.replace("/login");
@@ -72,6 +151,11 @@ export default {
     }, 
 
     computed: {
+        // dynamic_padding() {
+        //     return {
+        //         paddingLeft: `${this.off_width + 10}px`
+        //     }
+        // },
         get_link() {
             if (process.browser) {
                 return window.localStorage.getItem("token") ? true : false; 
@@ -83,17 +167,7 @@ export default {
     },
 
     mounted() {
-
-        setTimeout(() => {
-            console.clear()
-            }, 2000);
-        
-        // if (window.localStorage.getItem("token")) {
-        //   document.getElementById("to-upload").setAttribute("class", "")
-        // }
-        // else {
-        //     document.getElementById("to-login").setAttribute("class", "")
-        // }
+        this.fuse = new Fuse(this.all_tags, {})    
     }
 
 }
@@ -101,11 +175,15 @@ export default {
 </script>
 
 <style scoped>
+    a {
+        text-decoration: none;
+    }
     .search-component {
         padding-bottom: 5vh;
         background-color: rgb(254, 227, 200);
     }
     .search-wrapper1 {
+        padding-top: 10vh;
         position: relative;
         width: 100%;
         display: flex;
@@ -133,7 +211,7 @@ export default {
     }
     .search13 {
         position: relative;
-        margin: 2vh 0;
+        margin: 2vh 0 5vh 0;
     }
     .search13 > input {
         width: 40vw;
@@ -153,12 +231,67 @@ export default {
         right: 20px;
         width: 40px;
     }
-    .search14 > h2 {
+    .search14 {
+        min-width: 30vw;
+        display: flex;
+        justify-content: center;
+    } 
+    .all-tags {
+        min-width: 10px;
+        background-color: white;
+        /* border-radius: 10px; */
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 1vw;
+    }
+    .all-tags > input {
+        min-width: 30vw;
+        font-size: 20px;
+        padding: 10px 20px;
+        border: none;
+        outline: none;
+    }
+    .each-tag {
+        position: relative;
+        background-color: rgb(238, 177, 97);
+        margin: 5px;
+        padding: 5px 30px 5px 10px;
+        border-radius: 5px;
+        font-size: 18px;
+    }
+
+    .each-tag > img {
+        position: absolute;
+        right: 5px;
+        top: 7px;
+        width: 16px;
+    }
+    .input-options {
+        width: 30%;
+        display: flex;
+        flex-direction: column;
+        background-color: rgb(238, 177, 97);
+        border-radius: 10px;
+
+    }
+    .input-options > span {
+        text-align: center;
+        letter-spacing: 1px;
+        font-size: 20px;
+        padding-top: 1vh;
+        padding-bottom: 1vh;
+        width: 100%;
+        cursor: pointer;
+    }
+    .input-options > span:hover {
+        background-color: rgb(187, 140, 80);
+    }
+    .search15 > h2 {
         color: rgb(133, 117, 102);
         text-decoration: underline;
         cursor: pointer;
     }
-    .search14 > h2:hover {
+    .search15 > h2:hover {
         color: rgb(71, 63, 55);
     }
 
@@ -186,9 +319,12 @@ export default {
         margin: 0 5vw 0 0;
     }
     .search1512 > p {
+        /* text-decoration: none; */
         font-size: 20px;
         margin-top: 10px;
     }
+
+    
 
     @media screen and (max-width: 1200px) {
         .search11 > img {
@@ -203,10 +339,46 @@ export default {
         .search151-each {
             width: 90vw;
         }
+        .all-tags {
+            margin: 0 5vw;
+            /* grid-template-columns: auto auto auto; */
+        }
     }
-    @media screen and (max-width: 500px) {
+    @media screen and (max-width: 900px) {
+        /* .all-tags {
+            grid-template-columns: auto auto;
+        } */
+          .input-options {
+              width: 300px;
+          }
+    }
+    @media screen and (max-width: 600px) {
+        .search-wrapper1 {
+            padding-top: 70px;
+        }
+        .input-options {
+            width: 90vw;
+        }
+        .search14 {
+            width: 98%;
+        }
+        .all-tags {
+            margin: 0 5vw;
+            /* grid-template-columns: auto; */
+        }
+        .all-tags > input {
+            max-width: 80%;
+        }
         .search12 > h1 {
             font-size: 24px;
+        }
+        .search13 > input {
+            width: 90vw;
+            padding: 10px 10px;
+            font-size: 16px;
+        }
+        .search13 > a > img {
+            width: 22px;
         }
         .search151-each > img {
             width: 70px;

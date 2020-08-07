@@ -77,15 +77,20 @@
 
     @media screen and (max-width: 500px){
        .footer{
-            height: 110px;
+            height: 400px;
+       }
+       .foot-link {
+           margin-top: 5vh;
+           margin-bottom: 2vh;
+           font-size: 20px;
+        font-weight: bold;
+       }
+       .footer-wrapper1 {
+           flex-direction: column;
        }
        #main-img{
            height: 40%;
        }
-        .foot-link{
-            font-size: 90%;
-            font-weight: bold;
-        }
     }
 
 </style>
