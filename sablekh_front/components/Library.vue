@@ -33,7 +33,7 @@
 
 <script>
 
-import axios from "axios";
+import axios from "axios"
 
 export default {
 
@@ -62,7 +62,7 @@ export default {
 
         const form_data = new FormData()
 
-        form_data.set("hid", this.$route.params.id)
+        form_data.append("hid", "26ab74a5f7ef2f7bc8e3b3d36ca3ba821ab09ee407f8e085b3996be8")
 
         axios.post(`${this.server_address}/get-library`, {
             hid: this.$route.params.id
