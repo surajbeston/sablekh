@@ -172,8 +172,9 @@ class FileView(APIView):
             return Response({"error":"file not found"}, status = status.HTTP_404_NOT_FOUND)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def get_library(request):
+    print (request.data)
     hid = request.data["hid"]
     try:
         library = Library.objects.get(hid = hid)
@@ -182,7 +183,7 @@ def get_library(request):
     except Library.DoesNotExist:
         return Response({"error":"not found"}, status = status.HTTP_404_NOT_FOUND)
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def all_libraries(request):
     try:
@@ -194,7 +195,7 @@ def all_libraries(request):
     except Visitor.DoesNotExist:
         return Response({"error":"not found"}, status = status.HTTP_404_NOT_FOUND)
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def all_files(request):
     library = Library.objects.get(hid = request.data["hid"])
@@ -208,7 +209,7 @@ def all_files(request):
         return Response(data, status = status.HTTP_302_FOUND)
     return Response({"error":"not found"}, status = status.HTTP_404_NOT_FOUND)
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def download_files(request):
     hids = request.data["hids"].split(",")
     library_hid = request.data["library"]
@@ -249,7 +250,7 @@ def download_files(request):
         down_obj.save()
         return Response({"filename": "http://localhost/downloadable/"+zip_name, "by": "created"}, status = status.HTTP_201_CREATED)
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def search(request):
     ix = open_dir("index")
     query = request.data["query"]
@@ -311,7 +312,7 @@ def auth_token(request):
                 return Response({"token": hashed.hexdigest()}, status = status.HTTP_200_OK)
     return Response({"error": "authentication failed"}, status=status.HTTP_404_NOT_FOUND)
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def change_link(request):
     hid = request.data["hid"]

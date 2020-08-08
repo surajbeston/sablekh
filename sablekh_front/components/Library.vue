@@ -33,7 +33,7 @@
 
 <script>
 
-import axios from "axios";
+import axios from "axios"
 
 export default {
 
@@ -43,7 +43,7 @@ export default {
 
     data() {
         return {
-            server_address: "https://api.sablekh.com",
+            server_address: "http://localhost",
             library_name: 'ANSI C',
             library_desc: 'asdfasd asdfa sdfadsf asdfasdfa asdfasdf asdfasdf doloribus ex. Porro eaque doloremque, facere assumenda repellat amet suscipit accusamus quam officiis praesentium quas asdfasd asdfa sdfadsf asdfasdfa asdfasdf asdfasdf doloribus ex. Porro eaque doloremque, facere assumenda repellat amet suscipit asdfasd asdfa sdfadsf asdfasdfa asdfasdf asdfasdf doloribus ex. Porro eaque doloremque, facere assumenda repellat amet suscipit accusamus quam officiis praesentium quas exercitationem culpa accusamus quam officiis praesentium quas exercitationem culpa exercitationem culpa.',
             library_image_link: 'https://pngimg.com/uploads/book/book_PNG51074.png',
@@ -62,23 +62,14 @@ export default {
 
         const form_data = new FormData()
 
-        form_data.set("hid", this.$route.params.id)
+        form_data.append("hid", "26ab74a5f7ef2f7bc8e3b3d36ca3ba821ab09ee407f8e085b3996be8")
 
         axios({
-            url: `${this.server_address}/get-library`,
-            method: "get",
-            data: form_data,
-            headers: {
-                "Content-Type": "application/json"
-            }
+            url: "http://localhost/get-library",
+            method: "post",
+            headers: {"Content-Type": "application/json"},
+            data: form_data
         })
-        .then(res => {
-            console.log(res)
-        })
-        .catch(e => {
-            console.log(e)
-        })
-
     }
 }
 </script>
