@@ -137,4 +137,17 @@ export default {
         width: 100%;
         height: 100%;
     }
+
+    @media screen and (max-width: 1000px) {
+        .logo-img {
+            width: 100px;
+        }
+        .password-reset11 {
+            display: none;
+        }
+        .password-reset12 {
+            width: 100%;
+            padding: 10px;
+        }
+    }
 </style>
