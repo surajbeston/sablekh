@@ -65,7 +65,10 @@ export default {
         }
         window.location.replace("/login")
       })
-      .catch(err => console.log(err))
+      .catch(err => {
+        console.log(err)
+        alert('Internal error please try again later')
+      })
     },
 
     cookie_setter(token) {

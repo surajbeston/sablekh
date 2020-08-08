@@ -44,11 +44,11 @@ export default {
     data() {
         return {
             server_address: "https://api.sablekh.com",
-            library_name: 'ANSI C',
-            library_desc: 'asdfasd asdfa sdfadsf asdfasdfa asdfasdf asdfasdf doloribus ex. Porro eaque doloremque, facere assumenda repellat amet suscipit accusamus quam officiis praesentium quas asdfasd asdfa sdfadsf asdfasdfa asdfasdf asdfasdf doloribus ex. Porro eaque doloremque, facere assumenda repellat amet suscipit asdfasd asdfa sdfadsf asdfasdfa asdfasdf asdfasdf doloribus ex. Porro eaque doloremque, facere assumenda repellat amet suscipit accusamus quam officiis praesentium quas exercitationem culpa accusamus quam officiis praesentium quas exercitationem culpa exercitationem culpa.',
+            library_name: '',
+            library_desc: '',
             library_image_link: 'https://pngimg.com/uploads/book/book_PNG51074.png',
-            contents: ["Intro", "Chorus", "Verse", "Chorus", "End"],
-            files: ["Intro", "Chorus", "Verse", "Chorus", "End", "Intro", "Chorus", "Verse", "Chorus", "End"],
+            contents: ["Intro", "Verse", "Chorus", "End"],
+            files: ["Intro", "Verse", "Chorus", "End"],
         }
     },
 
@@ -64,16 +64,13 @@ export default {
 
         form_data.set("hid", this.$route.params.id)
 
-        axios({
-            url: `${this.server_address}/get-library`,
-            method: "get",
-            data: form_data,
-            headers: {
-                "Content-Type": "application/json"
-            }
+        axios.post(`${this.server_address}/get-library`, {
+            hid: this.$route.params.id
         })
         .then(res => {
             console.log(res)
+            this.library_name = res.data.title
+            this.library_desc = res.data.description
         })
         .catch(e => {
             console.log(e)
@@ -137,6 +134,7 @@ export default {
         font-size: 20px;
     }
     .library12 {
+        width: 100%;
         padding: 10px 2vw;
     }
     .library12 > h1 {
