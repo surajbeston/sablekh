@@ -20,10 +20,10 @@
                 <p>{{library_desc}}</p>
                 <h2>Download PDFs</h2>
                 <div class="library121">
-                    <div :key="file" v-for="file in files" class="each-files">
+                    <div :key="file.hid" v-for="file in refined_files" class="each-files">
                         <img src="@/assets/filenames/pdf.png" alt="loading-img" class="pdf-image">
-                        <span>{{file}}</span>
-                        <img src="@/assets/download.png" alt="loading image" class="download-img">
+                        <span>{{file.title}}</span>
+                        <img src="@/assets/download.png" alt="loading image" class="download-img" @click="download_clicked(file.hid)">
                     </div>
                 </div>
             </div>
@@ -47,13 +47,34 @@ export default {
             library_name: '',
             library_desc: '',
             library_image_link: 'https://pngimg.com/uploads/book/book_PNG51074.png',
-            contents: ["Intro", "Verse", "Chorus", "End"],
-            files: ["Intro", "Verse", "Chorus", "End"],
+            contents: [],
+            files: [],
+            refined_files: [],
         }
     },
 
     methods: {
 
+        download_clicked(hid) {
+            // here call the api /download
+            // window.location.href(link)
+        },
+
+        clean_title() {
+
+            this.files.map(each => {
+                let b = each
+                let e = each.title.split(".")
+                let a = e[0]
+                let lent = a.length
+                let title = (`${a[0]}${a[1]}${a[lent-2]}${a[lent-1]}.${e[1]}`)
+                b.title = title
+                this.contents.push(title)
+
+                this.refined_files.push(b)
+            })
+
+        }
 
     },
 
@@ -68,13 +89,23 @@ export default {
             hid: this.$route.params.id
         })
         .then(res => {
-            console.log(res)
+            // console.log(res)
             this.library_name = res.data.title
             this.library_desc = res.data.description
         })
         .catch(e => {
             console.log(e)
         })
+
+        axios.post(`${this.server_address}/all-files`, {
+            hid: this.$route.params.id
+        })
+        .then(res => {
+            this.files = res.data
+            this.clean_title()
+            console.log(res)
+        })
+        .catch(err => console.log(err))
 
     }
 }
@@ -152,6 +183,7 @@ export default {
     }
     .library121 {
         max-height: 70vh;
+        min-height: 20vh;
         overflow-y: auto;
     }
     .each-files {
