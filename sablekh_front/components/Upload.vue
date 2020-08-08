@@ -374,7 +374,7 @@ export default {
     },
     mounted() {
         this.auth_token = window.localStorage.getItem('token')
-        if (this.auth_token === undefined) {
+        if (!this.auth_token) {
             window.location.replace("/login")
             }
 
