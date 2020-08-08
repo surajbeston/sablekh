@@ -41,7 +41,7 @@ export default {
 
   data() {
     return {
-      server_address: "https://42283b29070f.ngrok.io",
+      server_address: "https://api.sablekh.com",
       email: "",
       password: "",
       remember: false,

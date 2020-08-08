@@ -1,5 +1,6 @@
 <template>
     <div class="library-component mxw-100-mnh-100">
+        <img src="@/assets/back-arrow.png" alt="loading img" class="back-arrow">
         <img src="@/assets/logo1.png" alt="loading image" class="logo-img">
         <div class="library-wrapper1">
             <div class="library11">
@@ -31,21 +32,53 @@
 </template>
 
 <script>
+
+import axios from "axios";
+
 export default {
+
     props: [
         "lib_id"
     ],
+
     data() {
         return {
+            server_address: "https://api.sablekh.com",
             library_name: 'ANSI C',
-            library_desc: 'deserunt veniam libero? Quos dolores pariatur distinctio perferendis! ipsum dolor sit amet consectetur, adipisicing elit. Pariatur commodi quo, enim blanditiis doloribus ex. Porro eaque doloremque, facere assumenda repellat amet suscipit accusamus quam officiis praesentium quas exercitationem culpa.',
+            library_desc: 'asdfasd asdfa sdfadsf asdfasdfa asdfasdf asdfasdf doloribus ex. Porro eaque doloremque, facere assumenda repellat amet suscipit accusamus quam officiis praesentium quas asdfasd asdfa sdfadsf asdfasdfa asdfasdf asdfasdf doloribus ex. Porro eaque doloremque, facere assumenda repellat amet suscipit asdfasd asdfa sdfadsf asdfasdfa asdfasdf asdfasdf doloribus ex. Porro eaque doloremque, facere assumenda repellat amet suscipit accusamus quam officiis praesentium quas exercitationem culpa accusamus quam officiis praesentium quas exercitationem culpa exercitationem culpa.',
             library_image_link: 'https://pngimg.com/uploads/book/book_PNG51074.png',
             contents: ["Intro", "Chorus", "Verse", "Chorus", "End"],
-            files: ["Intro", "Chorus", "Verse", "Chorus", "End"],
+            files: ["Intro", "Chorus", "Verse", "Chorus", "End", "Intro", "Chorus", "Verse", "Chorus", "End"],
         }
     },
+
+    methods: {
+
+
+    },
+
     mounted() {
         if (!this.lib_id) window.location.replace("/")
+
+        const form_data = new FormData()
+
+        form_data.set("hid", this.$route.params.id)
+
+        axios({
+            url: `${this.server_address}/get-library`,
+            method: "get",
+            data: form_data,
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        .then(res => {
+            console.log(res)
+        })
+        .catch(e => {
+            console.log(e)
+        })
+
     }
 }
 </script>
@@ -54,14 +87,23 @@ export default {
 
     .library-component {
         background-color: rgb(254.0, 227, 200);
-        padding: 20vh 0;
+        padding: 150px 0 10px 0;
         position: relative;
+    }
+    .back-arrow {
+        cursor: pointer;
+        position:absolute;
+        width: 35px;
+        height: 20px;
+        top: 40px;
+        left: 5px;
+        display: none;
     }
     .logo-img {
         position: absolute;
         top: 1vh;
         right: 1vw;
-        width: 7vw;
+        width: 130px;
     }
     .library-wrapper1 {
         border-radius: 10px;
@@ -85,6 +127,7 @@ export default {
         padding: 10px;
         width: 20vw;
         box-shadow: 0 0 10px rgb(165, 143, 115);
+        border-radius: 10px;
     }
     .library-contents > ul {
         margin: 10px 0 0 20px;
@@ -96,15 +139,21 @@ export default {
     .library12 {
         padding: 10px 2vw;
     }
+    .library12 > h1 {
+        font-size: 500%;
+    }
     .library12 > p{
         margin-top: 10px;
         font-size: 120%;
+        text-align: justify;
     }
     .library12 > h2 {
+        font-size: 30px;
         margin-top: 10vh;
+        margin-bottom: 2vh;
     }
     .library121 {
-        /* height: 40vh; */
+        max-height: 70vh;
         overflow-y: auto;
     }
     .each-files {
@@ -132,6 +181,9 @@ export default {
     }
 
     @media screen and (max-width: 1300px) {
+        .library-component {
+            padding: 120px 0 10px 0;
+        }
         .logo-img {
             width: 100px;
         }
@@ -139,13 +191,13 @@ export default {
             width: 95vw;
         }
         .library12 > h1 {
-            font-size: 25px;
+            font-size: 250%;
         }
         .library12 > p {
             font-size: 16px;
         }
         .library12 > h2 {
-            font-size: 20px;
+            font-size: 25px;
         }
         .library111 > h1 {
             font-size: 20px;
@@ -161,7 +213,7 @@ export default {
             padding: 10px 10px;
         }
         .library121 {
-            /* height: 30vh; */
+            max-height: 50vh;
         }
         .each-files {
             height: 50px;
@@ -178,14 +230,20 @@ export default {
     }
 
     @media screen and (max-width: 700px){
+        .library11 > a {
+            font-size: 14px;
+        }
+        .back-arrow {
+            display: block;
+        }
         .library12 > h1 {
-            font-size: 16px;
+            font-size: 200%;
         }
         .library12 > p {
-            font-size: 12px;
+            font-size: 14px;
         }
         .library12 > h2 {
-            font-size: 14px;
+            font-size: 18px;
         }
         .library111 > h1 {
             font-size: 14px;
@@ -199,9 +257,10 @@ export default {
             font-size: 12px;
         }
         .library121 {
-            /* height: 20vh; */
+            max-height: 40vh;
         }
         .each-files {
+            width: 100%;
             height: 30px;
         }
         .pdf-image {
@@ -215,4 +274,19 @@ export default {
         }  
     }
 
+    @media screen and (max-width: 500px) {
+        .logo-img {
+            width: 70px;
+        }
+        .library-component {
+            padding: 90px 0 10px 0;
+        }
+        .library11 {
+            display: none;
+        }
+        .library12 > h1 {
+            font-size: 150%;
+        }
+
+    }
 </style>

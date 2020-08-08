@@ -89,7 +89,7 @@
            flex-direction: column;
        }
        #main-img{
-           height: 40%;
+           height: 25%;
        }
     }
 
