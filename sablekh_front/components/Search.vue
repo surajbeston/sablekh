@@ -44,7 +44,7 @@
                 <h2 @click="to_link" id="to">{{this.get_name}}</h2>
             </div>
             <div id="results-div" class="search15">
-                <NuxtLink :to="`library/${book.hid}`" v-bind:key="book.hid" v-for="book in search_books" >
+                <NuxtLink :to="`library/${book.link_str}`" v-bind:key="book.hid" v-for="book in search_books" >
                     <div class="search151">
                         <div class="search151-each">
                             <img :src="image_address" alt="loading image">
