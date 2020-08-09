@@ -92,6 +92,22 @@ export default {
     },
 
     methods: {
+
+        add_to_localstorage(name, data) {
+            let s = false
+            try {
+                window.localStorage.setItem(name, JSON.stringify(data))
+                s = true
+            }
+            catch {}
+            return s
+        },
+
+        retrive_from_localstorage(name) {
+            let data = window.localStorage.getItem(name);
+            return data ? JSON.parse(data) : [];
+        },
+
         current_tag_changed() {
             this.show_suggessions = true
             this.avialable_tags = this.fuse.search(this.current_tag)
@@ -129,6 +145,7 @@ export default {
                 })
                 .then(res => {
                     this.search_books = res.data
+                    this.add_to_localstorage("search", res.data)
                 })
                 .catch(err => {
                     console.log(err)
@@ -167,7 +184,9 @@ export default {
     },
 
     mounted() {
-        this.fuse = new Fuse(this.all_tags, {})    
+        this.fuse = new Fuse(this.all_tags, {}) 
+
+        this.search_books = this.retrive_from_localstorage("search")
     }
 
 }
@@ -328,7 +347,7 @@ export default {
 
     @media screen and (max-width: 1200px) {
         .search11 > img {
-            width: 70vw;
+            width: 30vw;
         }
         .search12 > h1 {
             font-size: 40px;
@@ -353,6 +372,9 @@ export default {
           }
     }
     @media screen and (max-width: 600px) {
+        .search11 > img {
+            width: 200px;
+        }
         .search-wrapper1 {
             padding-top: 70px;
         }

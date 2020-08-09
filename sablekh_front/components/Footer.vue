@@ -1,7 +1,7 @@
 <template>
     <div class="footer">
         <div class="footer-wrapper1">
-            <NuxtLink class = "foot-link" to="/my-library">My Libraries</NuxtLink>
+            <NuxtLink class = "foot-link" to="/library">My Libraries</NuxtLink>
             <NuxtLink class = "foot-link" to="/upload">Upload</NuxtLink>
             <img src="@/assets/sablekh.png" alt="loading image" id = "main-img">
             <NuxtLink class = "foot-link" to="/">Search</NuxtLink>
