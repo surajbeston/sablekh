@@ -5,7 +5,7 @@
             <div class="my-library11">
                 <h1>Your Library</h1>
                 <div class="my-library111">
-                    <NuxtLink :to="`/library/${library.hid}`" :key="library.hid" v-for="library in libraries">
+                    <NuxtLink :to="`/library/${library.link_str}`" :key="library.hid" v-for="library in libraries">
                         <div class="each-library" >
                             <img src="@/assets/filenames/pdf.png" alt="loading img">
                             <h1>{{library.title}}</h1>

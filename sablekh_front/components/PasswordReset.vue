@@ -16,14 +16,16 @@
                 </div>
                 <div v-show="second_phase" class="grid-set pr122 w-100-h-100">
                     <div class="pr1221">
-                        <h1>fadfaf adfadf</h1>
-                        <p> adfadfa adfadf asdfad fadfa</p>
+                        <h1>Change Password</h1>
+                        <p>{{email}}</p>
                     </div>
                     <div class="input-section">
                         <input type="password" v-model="password1" id="password1" placeholder="New Password">
                         <input type="password" v-model="password2" id="password2" placeholder="Old Password">
                     </div>
-                    <button class="btn">
+                    <p v-show="diff_pass">Different Password</p>
+                    <p v-show="short_pass">Short Password</p>
+                    <button class="btn" @click="done_button">
                         Done
                     </button>
                 </div>
@@ -33,20 +35,69 @@
 </template>
 
 <script>
+
+import axios from "axios";
+
 export default {
     data() {
         return {
+            server_address: "https://api.sablekh.com",
             first_phase: true,
             second_phase: false,
             password1: "",
-            password2: ""
+            password2: "",
+            email: "dfadfa@gmail.com",
+            diff_pass: false,
+            short_pass: false
         }
     },
     methods: {
+
+        done_button() {
+            this.short_pass = false;
+            this.diff_pass = false;
+
+            if(!this.similarity_check) {
+                this.diff_pass = true;
+            }
+            else if(!this.length_check) {
+                this.short_pass = true
+            }
+            else {
+              axios.post(this.server_address + "/reset-password", {
+                  token: this.$route.params.id,
+                  type: "action-change",
+                  password: this.password1
+              })
+              .then(res => {
+                  window.location.replace("/login")
+              })
+            }
+
+        },
+
         reset_button() {
-            this.first_phase = false
-            this.second_phase = true
+
+            axios.post(this.server_address + "/reset-password", {
+                token: this.$route.params.id,
+                type: "test"
+            })
+            .then(res => {
+                if (res.data.message === "token valid") {
+                    this.first_phase = false
+                    this.second_phase = true
+                }
+            })
+
         }
+    },
+    computed: {
+      similarity_check() {
+          return this.password1 === this.password2 ? true : false ;
+      },
+      length_check() {
+          return this.password1.length > 7 ? true : false ;
+      }
     }
 }
 </script>
@@ -96,6 +147,9 @@ export default {
     }
     .pr122 {
         padding: 10% 1%;
+    }
+    .pr122 > p {
+        color: red;
     }
     .pr1221 > p {
         font-style: italic;

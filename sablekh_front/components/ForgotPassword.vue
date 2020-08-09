@@ -11,6 +11,9 @@
                         <div class="main123">
                             <h1>Forgot Password ?</h1>
                             <h2>E-mail</h2>
+                            <p v-show="email_sent" style="margin-top: 20px;color:red;">
+                              <b>Check Your Email</b>
+                            </p>
                             <input type="email" v-model="email" class="email-field" placeholder="Your e-mail">
                             <button id="verify-btn" @click="send_clicked">Send</button>
                         </div>
@@ -29,7 +32,8 @@ export default {
     data() {
         return {
           server_address: "https://api.sablekh.com",
-            email: ""
+            email: "",
+            email_sent: false
         }
     },
 
@@ -44,7 +48,7 @@ export default {
               email: this.email
             })
             .then(res => {
-              console.log(res)
+              this.email_sent = true
             })
             .catch(e => {
               console.log(e)
