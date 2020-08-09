@@ -284,7 +284,7 @@ export default {
                                     data: {"hid": this.library, "title": this.title, "description": this.description, "tags": this.tags}
                                 }).then(res => {
                                     this.finish = "Just a second"
-                                    window.location.replace("/library/" + res.data.hid)
+                                    window.location.replace("/library/" + res.data.link_str)
                                 })
                                 .catch(err => {
                                     console.log(err)
