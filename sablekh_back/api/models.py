@@ -51,6 +51,12 @@ class Tag(models.Model):
     title = models.CharField(max_length = 150)
     datetime = models.DateTimeField(auto_now=True)
 
+class PwResetToken(models.Model):
+    token = models.CharField(max_length=150)
+    user = models.ForeignKey(Visitor, on_delete=models.CASCADE)
+    is_used = models.BooleanField(default = True)
+    datetime = models.DateTimeField(auto_now=True)
+
 stem_ana = StemmingAnalyzer()
 WHOOSH_SCHEMA = Schema(hid = KEYWORD(stored = True), title=TEXT(analyzer = stem_ana), description=TEXT(analyzer = stem_ana))
 

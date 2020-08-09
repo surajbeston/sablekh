@@ -15,7 +15,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from api.views import UserView, LibraryView, all_files, all_libraries, get_library, FileView, download_files, search, auth_token, change_link, string_to_library, get_tags, hawa
+from api.views import UserView, LibraryView, all_files, all_libraries, get_library, FileView, download_files, search, auth_token, change_link, string_to_library, get_tags
+from api.views import send_password_key, reset_password
 from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework.generics import ListCreateAPIView
 from django.contrib.auth.models import User
@@ -24,15 +25,17 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('users', UserView.as_view()),
     path('token', auth_token),
-    path('token-to', hawa),
     path('library', LibraryView.as_view()),
     path('file', FileView.as_view()),
     path('all-libraries', all_libraries),
     path('all-files', all_files),
+    path('all-libraries', all_libraries),
     path('get-library', get_library),
     path('download', download_files),
     path('search', search),
     path('change-link', change_link),
     path('link', string_to_library), 
+    path('send-password-key', send_password_key),
+    path('reset-password', reset_password),
     path('tags', get_tags)
 ]
