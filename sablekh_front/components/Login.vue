@@ -13,7 +13,7 @@
           <label for="password">Password</label>
           <input @keyup.enter="login_button" type="password" v-model="password" id="password" />
           <span class="forget-password">
-            <a href="#">Forget password ?</a>
+            <NuxtLink to="/forgot-password">Forget password ?</NuxtLink>
           </span>
           <div class="remember-me-div">
             <input type="checkbox" v-model="remember" id="remember-me" />
