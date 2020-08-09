@@ -5,10 +5,12 @@
             <div class="my-library11">
                 <h1>Your Library</h1>
                 <div class="my-library111">
-                    <div class="each-library" :key="library" v-for="library in libraries">
-                        <img src="@/assets/filenames/pdf.png" alt="loading img">
-                        <h1>library</h1>
-                    </div>
+                    <NuxtLink :to="`/library/${library.hid}`" :key="library.hid" v-for="library in libraries">
+                        <div class="each-library" >
+                            <img src="@/assets/filenames/pdf.png" alt="loading img">
+                            <h1>{{library.title}}</h1>
+                        </div>
+                    </NuxtLink>
                 </div>
             </div>
         </div>
@@ -23,19 +25,28 @@ export default {
     data() {
         return {
             server_address: "https://api.sablekh.com",
-            libraries: ["afad", "asdfafd", "adfadf"]
+            libraries: []
         }
     },
     mounted() {
-       axios.post(this.server_address + '/search', {
-           query: "aa",
-           tags: [""]
+        var id = window.localStorage.getItem("token")
+        if (!id) {
+            window.location.replace("/login")
+        }
+        console.log(id)
+
+       axios({
+           url: this.server_address + '/all-libraries',
+           headers: {
+               "Authorization": "Token " + id
+           }
        })
        .then(res => {
-           console.log(res)
+           this.libraries = res.data
        })
        .catch(e => {
            console.log(e)
+           alert("Internal Error please try again later")
        })
     }
 }
@@ -76,8 +87,13 @@ export default {
         border-radius: 20px;
         margin-bottom: 3vh;
         background-color: white;
+        box-shadow: 0 5px 10px rgb(196, 176, 150);
     }
     .each-library > h1 {
         margin-left: 5%;
+    }
+
+    a {
+        text-decoration: none;
     }
 </style>

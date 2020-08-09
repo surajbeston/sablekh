@@ -22,9 +22,13 @@
 </template>
 
 <script>
+
+import axios from "axios";
+
 export default {
     data() {
         return {
+          server_address: "https://api.sablekh.com",
             email: ""
         }
     },
@@ -32,7 +36,24 @@ export default {
     methods: {
 
         send_clicked() {
-
+          if (!this.validate_email) {
+            alert('Enter valid E-mail address')
+          }
+          else {
+            axios.post(this.server_address + "/send-password-key", {
+              email: this.email
+            })
+            .then(res => {
+              console.log(res)
+            })
+            .catch(e => {
+              console.log(e)
+            })
+          }
+        },
+        validate_email(){
+          const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+          return re.test(String(this.email).toLowerCase());
         }
 
     }
@@ -104,7 +125,7 @@ export default {
       font-size: 150%;
       margin: 5vh 0;
       background: none;
-      padding: 5px 10px;
+      padding: 10px 20px;
       border: 2px solid rgb(163, 135, 98);
       border-radius: 10px;
       outline: none;
@@ -168,6 +189,7 @@ export default {
       }
         .main123 > input {
             font-size: 18px;
+            padding: 5px 10px;
         }
       .main123 > button {
         padding: 25px 50px;
