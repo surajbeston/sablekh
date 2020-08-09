@@ -11,7 +11,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import ParseError
 from rest_framework.parsers import FileUploadParser
-from .models import Library, File, DownloadLot, Like, Visitor, Tag
+from .models import Library, File, DownloadLot, Like, Visitor, Tag, PwResetToken
 import hashlib
 from datetime import datetime
 import mimetypes
@@ -27,6 +27,11 @@ from django.conf import settings
 from whoosh.index import create_in, open_dir
 from whoosh.qparser import QueryParser
 from .models import WHOOSH_SCHEMA
+
+import requests
+from django.contrib.auth.hashers import make_password
+from datetime import datetime, timedelta
+from dateutil import tz
 
 class UserView(APIView):
     def post(self, request):
@@ -54,7 +59,7 @@ class UserView(APIView):
             user = Visitor.objects.get(email = request.user.email)
             serializer = VisitorSerializer(user)
             data = serializer.data
-            return Response(data, status = status.HTTP_302_FOUND)
+            return Response(data, status = status.HTTP_200_OK)
         except Visitor.DoesNotExist:
             return Response({"error": "not found"}, status = status.HTTP_404_NOT_FOUND)
 
@@ -84,12 +89,11 @@ class LibraryView(APIView):
         serializer = LibrarySerializer(data =data)
         data["link_str"] = title_to_link(data["title"], punctuation)
         if serializer.is_valid():
-            print (serializer.validated_data)
             serializer.save()
             return Response(serializer.data, status = status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status = status.HTTP_303_SEE_OTHER)
-    
+
     def patch(self, request):
         hid = request.data["hid"]
         try:
@@ -107,7 +111,6 @@ class LibraryView(APIView):
 
     def delete(self, request):
         hid = request.data["hid"]
-        print (hid)
         try:
             library = Library.objects.get(hid = hid)
             if library.user.email != request.user.email:
@@ -128,10 +131,8 @@ class FileView(APIView):
 
     def post(self, request):
         if '_file' not in request.data:
-            print (request.data)
             raise ParseError("Empty content")
         data = request.data
-        print (request.data)
         try:
             library = Library.objects.get(hid = data["library"])
             if library.user.email != request.user.email:
@@ -142,7 +143,6 @@ class FileView(APIView):
             return Response({"error":"library not found"}, status = status.HTTP_404_NOT_FOUND)
         data["size"] = data["_file"].size // 1024
         if data["size"] > 31000:
-            print (data["size"]/1024)
             return Response({"error": "file size larger than 30MB"}, status = status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
         data["title"] = data["_file"].name
         hash_str = data["title"] + str(datetime.now())
@@ -174,12 +174,11 @@ class FileView(APIView):
 
 @api_view(['GET', 'POST'])
 def get_library(request):
-    print (request.data)
     hid = request.data["hid"]
     try:
         library = Library.objects.get(hid = hid)
         serializer = LibrarySerializer(library)
-        return Response(serializer.data, status = status.HTTP_302_FOUND)
+        return Response(serializer.data, status = status.HTTP_200_OK)
     except Library.DoesNotExist:
         return Response({"error":"not found"}, status = status.HTTP_404_NOT_FOUND)
 
@@ -196,17 +195,14 @@ def all_libraries(request):
         return Response({"error":"not found"}, status = status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
 def all_files(request):
     library = Library.objects.get(hid = request.data["hid"])
-    if library.user != request.user:
-        return Response({"error": "library does not belong to user"}, status = status.HTTP_401_UNAUTHORIZED)
     files = File.objects.filter(library = request.data["hid"])
     if len(files) > 0:
         serializers = [FileSerializer(file) for file in files]
         data = [serializer.data for serializer in serializers]
         # data = [del each["_file"] for each in data_raw]
-        return Response(data, status = status.HTTP_302_FOUND)
+        return Response(data, status = status.HTTP_200_OK)
     return Response({"error":"not found"}, status = status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET', 'POST'])
@@ -274,7 +270,10 @@ def search(request):
         try:
             obj = Library.objects.get(hid = result["hid"])
             tag_score = 0
-            obj_tags = obj.tags
+            if obj.tags == None:
+                obj_tags = []
+            else:
+                obj_tags = obj.tags
             for obj_tag in obj_tags:
                 if obj_tag in tags:
                     tag_score += 1
@@ -284,15 +283,19 @@ def search(request):
                 max_whoosh_score = result.score
             result_objs.append((result.score, tag_score, obj))
         except Library.DoesNotExist:
-            print ("reached here")
             pass 
     if max_tag_score > 0:
         whoosh_per_tag = max_whoosh_score/max_tag_score
     else:
-        whoosh_per_tag = 0 
+        whoosh_per_tag = 0
     tuple_data = [(whoosh_score+tag_score*whoosh_per_tag, LibrarySerializer(result_obj)) for whoosh_score, tag_score, result_obj in result_objs]
     tuple_data.sort(key = lambda x: x[0], reverse = True) 
-    return Response([serializer.data for score, serializer in tuple_data], status = status.HTTP_200_OK)
+    response = [serializer.data for score, serializer in tuple_data]
+    new_response = []
+    for data in response:
+        if data not in new_response:
+            new_response.append(data)
+    return Response(new_response, status = status.HTTP_200_OK)
 
 @api_view(['GET', 'POST'])
 def auth_token(request):
@@ -310,7 +313,7 @@ def auth_token(request):
                 token = Token(user = auth_user, key = hashed.hexdigest())
                 token.save()
                 return Response({"token": hashed.hexdigest()}, status = status.HTTP_200_OK)
-    return Response({"error": "authentication failed"}, status=status.HTTP_404_NOT_FOUND)
+    return Response({"error": "authentication failed"}, status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
@@ -332,7 +335,7 @@ def change_link(request):
     except Library.DoesNotExist:
         return Response({"error": "library not found"}, status = status.HTTP_404_NOT_FOUND)
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def string_to_library(request):
     link_str = request.data["link_str"]
     try:
@@ -342,12 +345,57 @@ def string_to_library(request):
     except Library.DoesNotExist:
         return Response({"error": "library not found"}, status = status.HTTP_404_NOT_FOUND)
 
+
+@api_view(['GET', 'POST'])
+def send_password_key(request):
+    email = request.data["email"]
+    try:
+        visitor = Visitor.objects.get(email = email)
+    except Visitor.DoesNotExist:
+        return Response({"error":"email not found"}, status = status.HTTP_404_NOT_FOUND)
+
+    token = ''.join([random.choice(digits+ascii_letters) for _ in range(150)])    
+    token_obj = PwResetToken(token = token, user = visitor)
+    token_obj.save()
+    link = "https://sablekh.com/reset-password/"+token
+    response = requests.post(
+        "https://api.mailgun.net/v3/sablekh.com/messages",
+        auth=("api", "f746c538cfc2aa48e43c3ae39bddb827-f7d0b107-ca20f738"),
+        data={"from": "Sablekh <noreply@sablekh.com>",
+              "to": [email],
+              "subject": "Password Reset",
+              "text": "Hi, {} please click on the link below to reset password".format(visitor.username),
+              "html": "<a href =\"{}\">{}</a> ".format(link, link)})
+    if response.status_code == 200:
+        return Response({"message": "email sent"}, status =status.HTTP_200_OK)
+    else:
+        return Response({"error": "error sending email"}, status = status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET', 'POST'])
+def reset_password(request):
+    token = request.data["token"]
+    _type = request.data["type"]
+    try:
+        token_obj = PwResetToken.objects.get(token = token)
+    except PwResetToken.DoesNotExist:
+        return Response({"error": "invalid token"})
+    if datetime.now(tz = tz.UTC) - token_obj.datetime > timedelta(days = 1):
+        return Response({"error": "token expired"}, status = status.HTTP_403_FORBIDDEN)
+    if _type == "test":
+        return Response({"message": "token valid"}, status = status.HTTP_200_OK)
+    elif _type == "action-change":
+        password = request.data["password"]
+        user = token_obj.user
+        user.password = make_password(password)
+        user.save()
+        return Response({"message": "password reset"}, status= status.HTTP_200_OK)
+    else:
+        return Response({"error": "invalid type"}, status = status.HTTP_303_SEE_OTHER)
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_tags(request):
     tags = Tag.objects.all()
     return Response([tag.title for tag in tags], status = status.HTTP_200_OK)
 
-@api_view(['GET', 'POST'])
-def hawa(request):
-    return Response({"hawa": "hawa"})
