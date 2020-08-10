@@ -303,10 +303,13 @@ export default {
         margin-top: 2vh;
         width: 60vw;
         background-color: white;
-        padding: 20px;
+        padding: 10px 70px 10px 10px;
         border-radius: 10px;
         box-shadow: 0 0 10px rgb(201, 178, 157);
         display: flex;
+        flex-direction: row;
+        align-items: center;
+        position: relative;
     }
     .search151-each > img {
         height: 10vw;
@@ -320,11 +323,11 @@ export default {
         margin-top: 10px;
     }
     .likes {
-        width: 150px;
+        width: 50px;
         display: flex;
         flex-direction: column;
-        align-items: flex-end;
-        justify-content: center;
+        position: absolute;
+        right: 0;
     }
     .likes > img {
         width: 50%;
@@ -390,6 +393,15 @@ export default {
             font-size: 15px;
         }
         .search1512 > p {
+            font-size: 10px;
+        }
+        .search151-each {
+            padding: 5px 40px 5px 5px;
+        }
+        .likes {
+            width: 30px;
+        }
+        .likes > span {
             font-size: 10px;
         }
     }
