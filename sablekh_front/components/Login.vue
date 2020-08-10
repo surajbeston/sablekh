@@ -8,19 +8,20 @@
       <div class="login1-each login12"> 
         <h1 class = "head1">Login</h1> 
         <div class="input-section"> 
+          <div id = "errorBox" v-show="hasError" ><p id = "errorTxt"> {{error}}<img src = "@/assets/cancel.png" @click="hasError =!hasError" class = "cancelError"></p></div>
           <label for="email">E-mail</label> 
           <input type="email" v-model="email" id="email" autofocus /> 
           <label for="password">Password</label>
           <input @keyup.enter="login_button" type="password" v-model="password" id="password" />
           <span class="forget-password">
-            <NuxtLink to="/forgot-password">Forget password ?</NuxtLink>
+            <a href="#">Forget password ?</a>
           </span>
           <div class="remember-me-div">
             <input type="checkbox" v-model="remember" id="remember-me" />
             <span class="remember-me">Remember me</span>
           </div>
         </div>
-        <button @click="login_button" class="btn login-button">Log in</button>
+        <button @click="login_button" class="btn login-button">{{btn_txt}}</button>
         <div class="dont-have-account">
           <NuxtLink to="/register">Don't have an Account ?</NuxtLink>
         </div>
@@ -45,31 +46,58 @@ export default {
       email: "",
       password: "",
       remember: false,
+      hasError: false,
+      error: "",
+      sending: false,
+      btn_txt: "Log in"
     }
   },
 
   methods: {
     login_button() {
-      axios.post(`${this.server_address}/token`,{
-        email: this.email,
-        password: this.password
-      })
-      .then(res => {
-        var token = res.data.token
-        if (token != undefined){
-                window.localStorage.setItem("token", token)
-        }
 
-        if (this.remember) {
-          this.cookie_setter(token)
+      if (this.sending){
+            this.show_error("Please wait, sending request.")
         }
-        window.location.replace("/login")
-      })
-      .catch(err => {
-        console.log(err)
-        alert('Internal error please try again later')
-      })
-    },
+      else if (!this.validate_email){
+            this.show_error("Please enter correct email address.")
+        }
+      else if (!navigator.onLine){
+            this.show_error("Please check your internet connection and try again.")
+      }
+        else if (!this.length_check) {
+            this.show_error("Please make your password at least 8 character long.")
+        }
+        else {
+          this.sending = true
+          this.btn_txt = "Sending"
+          axios.post(`${this.server_address}/token`,{
+            email: this.email,
+            password: this.password
+          })
+          .then(res => {
+            this.sending = true
+            this.btn_txt = "Create"
+            var token = res.data.token
+            if (token != undefined){
+                    window.localStorage.setItem("token", token)
+            }
+
+            if (this.remember) {
+              this.cookie_setter(token)
+            }
+            window.location.replace("/login")
+          })
+          .catch(err => {
+            var data = err.response
+            this.btn_txt = "Create"
+            this.sending = false
+            if (data.status == 404) this.show_error("User with this email not found.")
+            else if (data.status == 401) this.show_error("Email or password incorrect.")
+            else this.show_error("Something went wrong, pease try again.")
+          })
+        }
+      },
 
     cookie_setter(token) {
       var id = uuidv4();
@@ -78,7 +106,6 @@ export default {
       this.assembler(enc, id);
 
     },
-
 
     assembler(enc, id) {
       var assembled = `${enc}+${id}`
@@ -99,7 +126,11 @@ export default {
 
       return bytes.toString(CryptoJS.enc.Utf8);
 
-    }
+    },
+    show_error(errorTxt){
+      this.hasError = true 
+      this.error = errorTxt 
+      }
 
   },
 
@@ -116,8 +147,17 @@ export default {
 
         window.location.replace("/")
       }
-      
-  }
+  },
+
+  computed: {
+    length_check() {
+        return this.password.length > 7 ? true : false ;
+    },
+    validate_email(){
+      const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      return re.test(String(this.email).toLowerCase());
+    }
+},
 
 
 }
@@ -221,6 +261,26 @@ export default {
   color: rgb(255, 239, 223);
   border-radius: 5px;
   margin-top: 5vh;
+}
+
+#errorBox{
+    background-color: rgba(255, 0, 0, 0.4);
+    color: rgb(51, 47, 43);
+    border: 1px black solid;
+    border-radius: 5px;
+    padding : 2%;
+    font-size: 110%;
+    font-family: 'Rajdhani', sans-serif;
+    animation-name: fadein;
+    animation: fadein 1s;
+    margin: 2% 0 2% 0;
+    font-weight: bold;
+}
+
+.cancelError{
+    cursor: pointer;
+    right: 0;
+    float: right;
 }
 
   @media screen and (max-width: 1200px){

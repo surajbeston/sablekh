@@ -9,10 +9,10 @@
                         <h1 class = "head1">Upload</h1>
                         <p class = "description">Create your small library and share it with the world. You can add upto 10 files, each not exceeding 30MB in size.</p>
                         <div class="input-section" v-bind:class="{alternative: activate}">
-                            <div id = "errorBox" v-show="hasError" ><p id = "errorTxt">Error: {{error}}<img src = "@/assets/cancel.png" @click="hasError =!hasError" class = "cancelError"></p></div>
-                            <label for="title">Title</label>
+                            <div id = "errorBox" v-show="hasError" ><p id = "errorTxt"> {{error}}<img src = "@/assets/cancel.png" @click="hasError =!hasError" class = "cancelError"></p></div>
+                            <label for="title">Title {{letters_title}}/150</label>
                             <input class="input-box" type="text" v-model="title" id="title" autofocus >
-                            <label for="description">Description</label>
+                            <label for="description">Description {{letters_description}}/600</label>
                             <textarea class="input-box" v-model="description" id="description" cols="30" rows="5"></textarea>
                             <label for="file" >{{fileLabel}}</label>
                             <input type="file" name="upload_file" id="file" @change="filesChange($event.target.files)" multiple class = "hamro">
@@ -368,8 +368,17 @@ export default {
                     return suggestion_list.slice(0, 5)
                 }
                 this.show_suggestions = false
-
             }
+        },
+        letters_description(){
+            var length = this.description.length
+            if (length >= 600) this.description = this.description.slice(0, 599)
+            return length
+        },
+        letters_title(){
+            var length = this.title.length
+            if (length >= 150) this.title = this.title.slice(0, 14)
+            return length
         }
     },
     mounted() {

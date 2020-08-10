@@ -5,10 +5,46 @@
             <NuxtLink class = "foot-link" to="/upload">Upload</NuxtLink>
             <img src="@/assets/sablekh.png" alt="loading image" id = "main-img">
             <NuxtLink class = "foot-link" to="/">Search</NuxtLink>
-            <NuxtLink class = "foot-link" to="/about">About Us</NuxtLink>
+            <NuxtLink class = "foot-link" to="/login" v-show="!authenticated">Log in</NuxtLink>
+            <a class = "foot-link" @click = "logout" v-show="authenticated">Log out</a>
+        </div>
+        <div class="bottom-links">
+            <NuxtLink class = "bottom-link" to = "/privacy-policy">Privacy Policy</NuxtLink>
+            <NuxtLink class = "bottom-link" to = "/terms-and-conditions">Terms and Conditions</NuxtLink>
         </div>
     </div>
 </template>
+
+<script>
+
+import {setCookie} from "@/extras/cookie";
+
+export default {
+    data() {
+        return{
+            authenticated: false
+        }
+    },
+    methods: {
+        logout(){
+            if (process.browser){
+                setCookie("ikmrfs", "", -1)
+                window.localStorage.removeItem("token");
+                window.location.reload()
+            }
+        }
+    },
+    mounted() {
+        if (window.localStorage.getItem("token")){
+            this.authenticated = true
+        }
+        else{
+            this.authenticated = false
+        }
+    }
+}
+</script>
+
 
 <style scoped>
     .foot-link{
@@ -23,6 +59,7 @@
 
     .foot-link:hover {
         text-decoration: underline;
+        cursor: pointer;
         color:rgb(0, 0, 0)
     }
     .footer {
@@ -30,6 +67,7 @@
         max-width:100vw;
         background-color: white;
     }
+
     .footer-wrapper1 {
         width: 100%;
         height: 100%;
@@ -37,6 +75,22 @@
         justify-content: center;
         align-items: center;
     }
+
+    .bottom-links{
+        background-color: black;
+        padding: 5px 0 5px 0;
+        text-align: center;
+    }
+
+    .bottom-link{
+        color: rgb(254, 227, 200);
+        margin: 0 5% 0 5%;
+        text-decoration: none;
+        font-family: 'Staatliches', cursive;
+        letter-spacing: 1px;
+        font-size: 110%;
+    }
+
 
     @media screen and (max-width: 1500px){
        .footer{
@@ -60,6 +114,10 @@
         .foot-link{
             font-size: 120%;
         }
+
+        .bottom-link{
+            font-size: 100%;
+        }
     }
 
     @media screen and (max-width: 700px){
@@ -73,10 +131,14 @@
             font-size: 100%;
             font-weight: bold;
         }
+
+        .bottom-link{
+            font-size: 90%;
+        }
     }
 
     @media screen and (max-width: 500px){
-       .footer{
+       /* .footer{
             height: 400px;
        }
        .foot-link {
@@ -90,7 +152,16 @@
        }
        #main-img{
            height: 25%;
+       } */
+
+       .foot-link{
+            font-size: 90%;
        }
+
+       .bottom-link{
+           font-size: 80%;
+       }
+
     }
 
 </style>
