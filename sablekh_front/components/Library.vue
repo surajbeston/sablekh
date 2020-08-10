@@ -99,12 +99,19 @@ export default {
         b.title = title;
         this.contents.push(title);
 
+<<<<<<< HEAD
         this.refined_files.push(b);
       });
 
       console.log(this.refined_files);
     },
   },
+=======
+        })
+        .catch(e => {
+            console.log(e)
+        })
+>>>>>>> bf87d05e756a99043188edbe8dcd72286e0bd990
 
   mounted() {
     if (!this.lib_id) window.location.replace("/");

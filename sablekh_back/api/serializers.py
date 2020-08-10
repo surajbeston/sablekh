@@ -46,3 +46,12 @@ class FileSerializer(serializers.ModelSerializer):
 
     def create(self, data):
         return File.objects.create(**data)
+
+class LikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = "__all__"
+
+    def create(self, data):
+        print (data)
+        return Like.objects.create(**data)   
