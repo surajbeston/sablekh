@@ -23,9 +23,7 @@
           <div :key="file.hid" v-for="file in refined_files" class="each-files">
             <img src="@/assets/filenames/pdf.png" alt="loading-img" class="pdf-image" />
             <span>{{file.title}}</span>
-            <!-- <a :href="file.link" download> -->
             <img src="@/assets/download.png" alt="loading image" class="download-img" @click="download_clicked(file)"/>
-            <!-- </a> -->
           </div>
         </div>
       </div>
