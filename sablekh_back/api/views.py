@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .serializers import VisitorSerializer, LibrarySerializer, FileSerializer
+from .serializers import VisitorSerializer, LibrarySerializer, FileSerializer, LikeSerializer
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework import generics
@@ -172,7 +172,6 @@ class FileView(APIView):
         except File.DoesNotExist:
             return Response({"error":"file not found"}, status = status.HTTP_404_NOT_FOUND)
 
-
 @api_view(['GET', 'POST'])
 def get_library(request):
     hid = request.data["hid"]
@@ -225,6 +224,16 @@ def download_files(request):
         else:
             return Response({"error": "file and library does not match"}, status = status.HTTP_401_UNAUTHORIZED)
     library = file_obj.library
+    if (len(filenames) == 1):
+        zip_name = filenames[0]
+        if request.user.is_authenticated:
+            visitor = Visitor.objects.get(email = request.user.email)
+            down_obj = DownloadLot(zip_name = zip_name, visitor = visitor, library = library, files = filenames)
+        else:
+            down_obj = DownloadLot(zip_name = zip_name, library = library, files = filenames)
+        down_obj.save()
+        return Response({"filename": "https://api.sablekh.com/single-download/"+zip_name.split("/")[1], "by": "created"}, status = status.HTTP_201_CREATED)
+
     filenames.sort()
     try:
         download_lot = DownloadLot.objects.get(files = filenames)
@@ -245,7 +254,7 @@ def download_files(request):
         else:
             down_obj = DownloadLot(zip_name = zip_name, library = library, files = filenames)
         down_obj.save()
-        return Response({"filename": "httpa://api.sablekh.com/download/"+zip_name, "by": "created"}, status = status.HTTP_201_CREATED)
+        return Response({"filename": "https://api.sablekh.com/download/"+zip_name, "by": "created"}, status = status.HTTP_201_CREATED)
 
 @api_view(['GET', 'POST'])
 def search(request):
@@ -379,7 +388,7 @@ def send_password_key(request):
 @api_view(['GET', 'POST'])
 def reset_password(request):
     token = request.data["token"]
-    _type = request.data["type"]
+    _type = request.data["type"] 
     try:
         token_obj = PwResetToken.objects.get(token = token)
     except PwResetToken.DoesNotExist:
@@ -397,9 +406,42 @@ def reset_password(request):
     else:
         return Response({"error": "invalid type", "email": user.email}, status = status.HTTP_303_SEE_OTHER)
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
+def like(request):
+    data = request.data
+    visitor = Visitor.objects.get(email = request.user.email)
+    data["user"] = visitor.hid
+    serializer = LikeSerializer(data = data)
+    print ("reached here")
+    if serializer.is_valid():
+        obj = serializer.save()
+        data["message"] = "like registered"
+        return Response(data, status = status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status = status.HTTP_303_SEE_OTHER)
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def check_like(request):
+    user = Visitor.objects.get(email = request.user.email)
+    try:
+        like_obj = Like.objects.get(user = user, library = request.data["library"])
+        return Response({"library": request.data["library"], "message": "is like"}, status = status.HTTP_200_OK)
+    except Like.DoesNotExist:
+        return Response({"error": "not like"}, status = status.HTTP_404_NOT_FOUND)   
+
+@api_view(['GET', 'POST'])
+def all_likes(request):
+    likes_objs = Like.objects.filter(library = request.data["library"])
+    return Response({"library": request.data["library"] ,"likes": len(likes_objs)}, status = status.HTTP_200_OK)
+
+@api_view(['GET', 'POST'])
+def all_downloads(request):
+    downloads = DownloadLot.objects.filter(library = request.data["library"])
+    return Response({"library": request.data["library"], "downloads" : len(downloads)}, status = status.HTTP_200_OK)
+
+@api_view(['GET'])
 def get_tags(request):
     tags = Tag.objects.all()
     return Response([tag.title for tag in tags], status = status.HTTP_200_OK)
-

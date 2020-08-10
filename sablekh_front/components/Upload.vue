@@ -14,7 +14,7 @@
                             <input class="input-box" type="text" v-model="title" id="title" autofocus >
                             <label for="description">Description {{letters_description}}/600</label>
                             <textarea class="input-box" v-model="description" id="description" cols="30" rows="5"></textarea>
-                            <label for="file" >{{fileLabel}}</label>
+                            <label for="file" >{{fileLabel}}</label> 
                             <input type="file" name="upload_file" id="file" @change="filesChange($event.target.files)" multiple class = "hamro">
                             <div class = "files-wrap"> 
                                 <div class = "file-box" v-for="file in files" :key = "file.random_id">
@@ -63,14 +63,13 @@ import axios from "axios"
 import Fuse from 'fuse.js'
 
 export default {
-
     data() {
         return{
             title: "",
             description: "",
             // files: [{"name": "something.pdf", "filename": "/filenames/pdf.png", "uploadedsize": "12", "totalsize": "25"}, {"name": "something.txt", "filename": "/filenames/text.png", "uploadedsize": "12", "totalsize": "25"}],
             files: [],
-            url: "https://api.sablekh.com/",
+            url: "http://localhost/",
             library: "",
             auth_token: "",
             last_title: "",
@@ -87,7 +86,7 @@ export default {
             tag_search: "Add tags for your library",
             show_suggestions: false,
             finish: "Finish",
-            to_search: ["Tribhuvan University", "Purwanchal University", "First Semester", "Second Semester", "Third Semester", "Fourth Semester", "First Year", "Second Year", "Third Year", "Fourth Year", "Pokhara University", "Kathmandu University", "Economics", "Mechanical Engineering", "Social Engineering", "Socialogy"]
+            to_search: ["Tribhuvan University", "Purwanchal University", "First Semester", "Second Semester", "Third Semester", "Fourth Semester", "First Year", "Second Year", "Third Year", "Fourth Year", "Pokhara University", "Kathmandu University", "Economics", "Mechanical Engineering", "Social Engineering", "Sociology"]
         }
     },
 
@@ -101,7 +100,7 @@ export default {
                 else{
                     var title = this.title
                     var description= this.description
-                }
+                } 
                 console.log(this.auth_token)
                 axios({
                     url: this.url+"library",
