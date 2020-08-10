@@ -19,7 +19,7 @@
                         <span>{{tag}}</span>
                         <img src="@/assets/cancel.png" alt="loading image" :id="tag" @click="cancel_button">
                     </div>
-                    <input  type="text" v-model="current_tag" id="current-tag" @input="current_tag_changed" placeholder="Add tags here">
+                    <input  type="text" v-model="current_tag" id="current-tag" @input="current_tag_changed" placeholder="Add tags here" autocomplete="off">
                 </div>
             </div>
             <div v-show="show_suggessions" class="input-options">
@@ -101,6 +101,7 @@ export default {
         current_tag_changed() {
             this.show_suggessions = true
             this.avialable_tags = this.fuse.search(this.current_tag)
+            this.avialable_tags = this.avialable_tags.filter(e => !this.tags.includes(e.item))
         },
         options_clicked(e) {
             let i = e.target.innerText
