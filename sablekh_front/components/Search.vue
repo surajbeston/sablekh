@@ -1,7 +1,9 @@
 <template>
     <div class="search-component">
         <div class="search-wrapper1 mxw-100-mnh-100">
-            <button @click="logout_button" v-if="get_link" class="btn btn-logout">logout</button>
+            <div class="header">
+                <img src="@/assets/logo1.png" alt="log0" class="logo-img">
+            </div>
             <div class="search11">
                 <img src="@/assets/search/top.png" alt="loading image">
             </div>
@@ -137,11 +139,6 @@ export default {
         },
         to_link() {
             this.get_link ? window.location.replace("/upload") : window.location.replace("/login");
-        },
-        logout_button() {
-            setCookie("ikmrfs", "", -1)
-            window.localStorage.removeItem("token");
-            window.location.reload()
         }
     }, 
 
@@ -175,24 +172,23 @@ export default {
         background-color: rgb(254, 227, 200);
     }
     .search-wrapper1 {
-        padding-top: 10vh;
-        position: relative;
         width: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
     }
-    .btn-logout {
-        position: absolute;
-        right: 2vw;
-        top: 2vh;
-        background: none;
-        border: 2px solid black;
-        border-radius: 5px;
-        font-size: 16px;
+    .header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+        width: 100%;
+        height: 17vh;
+        box-shadow: 0 5px 5px rgb(184, 166, 143);
     }
-    .btn-logout:hover {
-        background-color: rgba(126, 113, 96, 0.13);
+    .logo-img {
+        width: 7%;
+        margin-right: 2vw;
     }
     .search11 > img {
         width: 25vw;
@@ -227,11 +223,13 @@ export default {
         min-width: 30vw;
         display: flex;
         justify-content: center;
+        border-radius: 10px;
+        background-color: white;
+        padding: 5px 0;
     } 
     .all-tags {
         min-width: 10px;
         background-color: white;
-        /* border-radius: 10px; */
         display: flex;
         flex-wrap: wrap;
         margin: 0 1vw;
@@ -244,6 +242,7 @@ export default {
         outline: none;
     }
     .each-tag {
+        border-radius: 5px;
         position: relative;
         background-color: rgb(238, 177, 97);
         margin: 5px;
@@ -289,9 +288,6 @@ export default {
     .search15 > h2:hover {
         color: rgb(71, 63, 55);
     }
-
-    /* wrapper2  */
-
     .search15 {
         padding-top: 5vh;
         background-color: rgb(254, 227, 200);
@@ -314,11 +310,9 @@ export default {
     }
     .search151-each > img {
         height: 10vw;
-        /* width:  */
         margin: 0 5vw 0 0;
     }
     .search1512 > p {
-        /* text-decoration: none; */
         text-align: justify;
         font-size: 20px;
         margin-top: 10px;
@@ -336,6 +330,9 @@ export default {
     
 
     @media screen and (max-width: 1200px) {
+        .logo-img {
+            width: 100px;
+        }
         .search11 > img {
             width: 30vw;
         }
@@ -358,16 +355,17 @@ export default {
           }
     }
     @media screen and (max-width: 600px) {
+        .logo-img {
+            width: 70px;
+        }
         .search11 > img {
             width: 200px;
-        }
-        .search-wrapper1 {
-            padding-top: 70px;
         }
         .input-options {
             width: 90vw;
         }
         .search14 {
+            padding: 1px;
             width: 98%;
         }
         .all-tags {
