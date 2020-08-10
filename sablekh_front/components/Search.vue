@@ -107,7 +107,6 @@ export default {
             let data = window.localStorage.getItem(name);
             return data ? JSON.parse(data) : [];
         },
-
         current_tag_changed() {
             this.show_suggessions = true
             this.avialable_tags = this.fuse.search(this.current_tag)

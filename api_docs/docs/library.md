@@ -24,7 +24,7 @@
 
 *  This does require the authentication, any user, even without authentication can request this.
 
-*  Library can be retrieved by sending `GET` request to `ip/get-library` with data in following format:
+*  Library can be retrieved by sending `POST` request to `ip/get-library` with data in following format:
 `{
 	"hid": "491ae542fb36e33d46824bce48468e62fc6bf84dce0775eb3bdc95ca"
 }`
@@ -82,7 +82,7 @@
 
 ### All libraries from a user
 
-*  For this, you'll have to send a `blank` `GET` request to `ip/all-libraries`.
+*  For this, you'll have to send a `blank` `POST` request to `ip/all-libraries`.
 
 *  This will result an array of libraries from the authorized user:
 `[
@@ -98,7 +98,7 @@
 
 ### Change library link
 
-* You can change library link string to something that user wants to keep, just send a `GET` request to `ip/change-link` whith data in following format:
+* You can change library link string to something that user wants to keep, just send a `POST` request to `ip/change-link` whith data in following format:
 
 `{
   "hid": "e815c9146fe738bb57484c8bdab3cd3be1ade2f9848528b1e41c5182",
@@ -121,7 +121,7 @@
 
 ### Getting library from link
 
-* When user pushes a link you'd want to know fetch and display library according to that link.
+* When user pushes a link you'd want to know fetch and display library according to that link, just have to send a `POST` request to `ip/link` in following format:
 
 `{
   "link_str": "wogH0o-bhoo-lo"

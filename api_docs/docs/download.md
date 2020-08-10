@@ -3,7 +3,7 @@ One can download single file or multiple file from a directory or the entire dir
 
 ### Download Procedure
 
-* To download a file or a group of files from a directory, user should just send a request in following format:
+* To download a file or a group of files from a directory, user should just send a `POST` request to `ip/download` in following format:
 
 `{
 	"hids" : "77176dbd65ea83e6c56871eacaf181875c92c1a33627e8394aaa353b,44538aca61fdf07e32bc689d9377c214168279c9d627527a076cd575",

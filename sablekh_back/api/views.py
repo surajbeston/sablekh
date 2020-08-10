@@ -8,8 +8,8 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework import generics
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.exceptions import ParseError
+from rest_framework.decorators import api_view, permission_classes 
+from rest_framework.exceptions import ParseError 
 from rest_framework.parsers import FileUploadParser
 from .models import Library, File, DownloadLot, Like, Visitor, Tag, PwResetToken
 import hashlib
@@ -32,6 +32,7 @@ import requests
 from django.contrib.auth.hashers import make_password
 from datetime import datetime, timedelta
 from dateutil import tz
+from bs4 import BeautifulSoup
 
 class UserView(APIView):
     def post(self, request):
@@ -244,7 +245,7 @@ def download_files(request):
         else:
             down_obj = DownloadLot(zip_name = zip_name, library = library, files = filenames)
         down_obj.save()
-        return Response({"filename": "http://localhost/downloadable/"+zip_name, "by": "created"}, status = status.HTTP_201_CREATED)
+        return Response({"filename": "httpa://api.sablekh.com/download/"+zip_name, "by": "created"}, status = status.HTTP_201_CREATED)
 
 @api_view(['GET', 'POST'])
 def search(request):
@@ -355,9 +356,13 @@ def send_password_key(request):
         return Response({"error":"email not found"}, status = status.HTTP_404_NOT_FOUND)
 
     token = ''.join([random.choice(digits+ascii_letters) for _ in range(150)])    
-    token_obj = PwResetToken(token = token, user = visitor)
+    token_obj = PwResetToken(token = token, user = visitor) 
     token_obj.save()
     link = "https://sablekh.com/reset-password/"+token
+    file = open("password_reset.html")
+    text = file.read()
+    soup = BeautifulSoup(text, 'html.parser')
+    soup.select("#token_link")[0]["href"] = link 
     response = requests.post(
         "https://api.mailgun.net/v3/sablekh.com/messages",
         auth=("api", "f746c538cfc2aa48e43c3ae39bddb827-f7d0b107-ca20f738"),
@@ -365,7 +370,7 @@ def send_password_key(request):
               "to": [email],
               "subject": "Password Reset",
               "text": "Hi, {} please click on the link below to reset password".format(visitor.username),
-              "html": "<a href =\"{}\">{}</a> ".format(link, link)})
+              "html": str(soup)})
     if response.status_code == 200:
         return Response({"message": "email sent"}, status =status.HTTP_200_OK)
     else:
@@ -378,20 +383,19 @@ def reset_password(request):
     try:
         token_obj = PwResetToken.objects.get(token = token)
     except PwResetToken.DoesNotExist:
-        return Response({"error": "invalid token"})
+        return Response({"error": "invalid token"}, status = status.HTTP_404_NOT_FOUND)
+    user = token_obj.user
     if datetime.now(tz = tz.UTC) - token_obj.datetime > timedelta(days = 1):
-        return Response({"error": "token expired"}, status = status.HTTP_403_FORBIDDEN)
+        return Response({"error": "token expired", "email": user.email}, status = status.HTTP_403_FORBIDDEN)
     if _type == "test":
-        return Response({"message": "token valid"}, status = status.HTTP_200_OK)
+        return Response({"message": "token valid", "email": user.email}, status = status.HTTP_200_OK)
     elif _type == "action-change":
         password = request.data["password"]
-        user = token_obj.user
         user.password = make_password(password)
         user.save()
-        return Response({"message": "password reset"}, status= status.HTTP_200_OK)
+        return Response({"message": "password reset", "email": user.email}, status= status.HTTP_205_RESET_CONTENT)
     else:
-        return Response({"error": "invalid type"}, status = status.HTTP_303_SEE_OTHER)
-
+        return Response({"error": "invalid type", "email": user.email}, status = status.HTTP_303_SEE_OTHER)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

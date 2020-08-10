@@ -11,22 +11,23 @@
             <div class="register1-each register12">
                 <h1 class = "head1">Create an Account</h1>
                 <div class="input-section">
+                    <div id = "errorBox" v-show="hasError" ><p id = "errorTxt"> {{error}}<img src = "@/assets/cancel.png" @click="hasError =!hasError" class = "cancelError"></p></div>
                     <label for="email">E-mail</label>
                     <input type="email" v-model="email" id="email" autofocus>
                     <label for="password">Password</label>
                     <input type="password" v-model="password1" id="password1">
                     <label for="confirm password">Confirm Password</label>
                     <input @keyup.enter="create_button" type="password" v-model="password2" id="password2">
-                    <span class="warning" v-show= "same_password">Passwords don't match.</span>
-                    <span class="warning" v-show= "small_password">Password should be at least 8 character long.</span>
-                    <span class = "warning" v-show = "wrong_email">Enter correct email address.</span>
                 </div>
-                <button @click="create_button" class="btn create-button">Create</button>
+
+                <p class="privacy-stuff">*By signing up you accept all our <a href = "/terms-and-conditions">Terms & Conditions</a> and <a href = "/privacy-policy">Privacy Policy.</a></p>
+
+                <button @click="create_button" class="btn create-button">{{btn_txt}}</button>
                 <div class="already-have-account">
                     <NuxtLink to="/login">Already have an account?</NuxtLink>
                 </div>
             </div>
-        </div>
+        </div> 
     </div>
 </template>
 
@@ -44,10 +45,11 @@ export default {
         email: "",
         password1: "",
         password2: "",
-        same_password: false,
-        small_password: false,
-        wrong_email: false
-    }
+        hasError: false,
+        error: "this is error.",
+        btn_txt: "Create",
+        sending: false
+    } 
   },
 
   methods: {
@@ -56,33 +58,87 @@ export default {
         this.small_password = false
         this.wrong_email = false
 
-        console.log("shit")
-
-        if (!this.validate_email){
-            this.wrong_email = true
+        if (this.sending){
+            this.show_error("Please wait, sending request.")
+        }
+        else if (!navigator.onLine){
+            this.show_error("Please check your internet connection and try again.")
+        }
+        else if (!this.validate_email){
+            this.show_error("Please enter correct email address.")
         }
         else if (!this.similarity_check) {
-            this.same_password = true
+            this.show_error("Passwords below don't match.")
         }
         else if (!this.length_check) {
-            this.small_password = true
+            this.show_error("Please make your password at least 8 character long.")
         }
         else {
+            this.sending = true
+            this.btn_txt = "Sending"
             axios.post(`${this.server_address}/users`, {
                 email: this.email,
                 password: this.password1
             })
             .then(res => {
                 console.log(res)
+                this.sending= false
+                this.btn_txt = "Create"
+
+                axios.post(`${this.server_address}/token`,{
+                email: this.email,
+                password: this.password1
+            })
+            .then(res => {
+                this.sending = true
+                this.btn_txt = "Create"
+                var token = res.data.token
+                if (token != undefined){
+                        window.localStorage.setItem("token", token)
+                }
+
+                if (this.remember) {
+                this.cookie_setter(token)
+                }
                 window.location.replace("/login")
             })
             .catch(err => {
+                this.sending = true
+                this.btn_txt = "Create"
                 console.log(err)
-                alert("some error please try again later!")
+                this.sending = false
+                this.show_error("Incorrect email or password.")
+            })
+               
+            })
+            .catch(err => {
+                var data = err.response
+                this.sending = false
+                this.btn_txt = "Create"
+                if (data.status == 303) this.show_error("User with this email already exists.")
+                else this.show_error("Something went wrong. please try again.")
+                this.password1 = ""
+                this.password2 = ""
             })
           }
       },
-      
+      show_error(errorTxt){
+          this.hasError = true
+          this.error = errorTxt
+      },
+    cookie_setter(token) {
+        var id = uuidv4();
+        id = id.replace(/-/g, "")
+        var enc = CryptoJS.AES.encrypt(token, id).toString();
+        this.assembler(enc, id);
+
+    },
+
+    assembler(enc, id) {
+      var assembled = `${enc}+${id}`
+      setCookie("ikmrfs", assembled, 30)
+
+    },
   },
 
   computed: {
@@ -163,13 +219,14 @@ export default {
         background: none;
     }
     .create-button {
-        font-size: 150%;
+        font-size: 110%;
         letter-spacing: .8px;
         background-color: rgb(40, 43, 42);
         color: rgb(255, 239, 223);
         border-radius: 5px;
         margin-top: 5vh;
         font-family: 'Rajdhani', sans-serif;
+        cursor: pointer;
     }
 
     .already-have-account {
@@ -194,8 +251,35 @@ export default {
         font-weight: bolder;
         
     }
+
+    .privacy-stuff{
+        font-family: 'Comfortaa', cursive;
+        font-size: 80%;
+    }
+
+
     .community{
         display: none;
+    }
+
+    #errorBox{
+        background-color: rgba(255, 0, 0, 0.4);
+        color: rgb(51, 47, 43);
+        border: 1px black solid;
+        border-radius: 5px;
+        padding : 2%;
+        font-size: 110%;
+        font-family: 'Rajdhani', sans-serif;
+        animation-name: fadein;
+        animation: fadein 1s;
+        margin: 2% 0 2% 0;
+        font-weight: bold;
+    }
+
+    .cancelError{
+        cursor: pointer;
+        right: 0;
+        float: right;
     }
 
     @media screen and (max-width: 1500px){
