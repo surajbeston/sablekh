@@ -49,7 +49,8 @@ export default {
       hasError: false,
       error: "",
       sending: false,
-      btn_txt: "Log in"
+      btn_txt: "Log in",
+      time: 0
     }
   },
 
@@ -71,9 +72,11 @@ export default {
         else {
           this.sending = true
           this.btn_txt = "Sending"
-          axios.post(`${this.server_address}/token`,{
-            email: this.email,
-            password: this.password
+          axios({
+            url: this.server_address + "/token",
+            method: "post",
+            headers: this.implicit_data(),
+            data: {"email": this.email, "password": this.password}
           })
           .then(res => {
             this.sending = true
@@ -104,7 +107,6 @@ export default {
       id = id.replace(/-/g, "")
       var enc = CryptoJS.AES.encrypt(token, id).toString();
       this.assembler(enc, id);
-
     },
 
     assembler(enc, id) {
@@ -130,7 +132,10 @@ export default {
     show_error(errorTxt){
       this.hasError = true 
       this.error = errorTxt 
-      }
+      },
+      implicit_data(){
+            return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
+        }
 
   },
 
@@ -147,6 +152,8 @@ export default {
 
         window.location.replace("/")
       }
+
+      this.time = new Date().getTime()
   },
 
   computed: {
@@ -158,8 +165,6 @@ export default {
       return re.test(String(this.email).toLowerCase());
     }
 },
-
-
 }
 
 </script>

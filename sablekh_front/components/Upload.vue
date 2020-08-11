@@ -86,6 +86,7 @@ export default {
             tag_search: "Add tags for your library",
             show_suggestions: false,
             finish: "Finish",
+            time: 0,
             to_search: ["Tribhuvan University", "Purwanchal University", "First Semester", "Second Semester", "Third Semester", "Fourth Semester", "First Year", "Second Year", "Third Year", "Fourth Year", "Pokhara University", "Kathmandu University", "Economics", "Mechanical Engineering", "Social Engineering", "Sociology"]
         }
     },
@@ -105,7 +106,7 @@ export default {
                 axios({
                     url: this.url+"library",
                     method: "post",
-                    headers: {"Content-Type": "application/json", "Authorization": "Token "+this.auth_token},
+                    headers: {"Content-Type": "application/json", "Authorization": "Token "+this.auth_token, ...this.implicit_data()},
                     data: {"title": title, "description": description, "tags": this.tags}
                 }).then(res => {
                     this.library = res.data.hid
@@ -164,7 +165,7 @@ export default {
                         axios({
                             url: this.url+"file",
                             method: "post",
-                            headers: {"Content-Type": "application/json", "Authorization": "Token "+this.auth_token},
+                            headers: {"Content-Type": "application/json", "Authorization": "Token "+this.auth_token, ...this.implicit_data()},
                             data: formData,
                             onUploadProgress: (e) => {
                                 for (var file of this.files){
@@ -273,13 +274,12 @@ export default {
                                     break
                                 }
                             }
-                            console.log(continue_on)
                             if (continue_on){
                                 console.log("no remaining upload, started axios")
                                 axios({
                                     url: this.url + "library",
                                     method: "patch",
-                                    headers: {"Content-Type": "application/json", "Authorization": "Token "+this.auth_token},
+                                    headers: {"Content-Type": "application/json", "Authorization": "Token "+this.auth_token, ...this.implicit_data()},
                                     data: {"hid": this.library, "title": this.title, "description": this.description, "tags": this.tags}
                                 }).then(res => {
                                     this.finish = "Just a second"
@@ -311,7 +311,7 @@ export default {
                     axios({
                         url: this.url + "file",
                         method: "delete",
-                        headers: {"Content-Type": "application/json", "Authorization": "Token "+this.auth_token},
+                        headers: {"Content-Type": "application/json", "Authorization": "Token "+this.auth_token , ...this.implicit_data()},
                         data: {"hid": hid}
                     }).then( res => {
                         console.log(res.data)
@@ -341,7 +341,9 @@ export default {
             if (this.show_suggestions){
                 this.show_suggestions = false
             }
-
+        },
+        implicit_data(){
+            return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
         }
     },
     computed: {
@@ -412,6 +414,8 @@ export default {
             this.filesChange(e.dataTransfer.files)
             
         }.bind(this));
+
+        this.time = new Date().getTime()
 
     }
 }
