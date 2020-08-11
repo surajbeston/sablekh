@@ -29,5 +29,4 @@ class ExtractData(object):
             except:
                 data = ImplicitData(ip = ip, user_agent=user_agent, referer = referer, link = link, origin = origin, time_taken=time_taken, api_link = api_link, method=method)
             data.save()
-            print (data.__dict__)
         return self.get_response(request)
