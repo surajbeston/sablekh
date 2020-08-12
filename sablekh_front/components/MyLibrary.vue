@@ -128,7 +128,7 @@ export default {
         margin: 2% 0;
         padding: 20px 50px;
         border-top: 1px solid rgb(83, 75, 64);
-        border-bottom: 1px solid rgb(97, 86, 71);
+        border-bottom: 1px solid rgb(83, 75, 64);
         font-size: 210%;
     }
 
