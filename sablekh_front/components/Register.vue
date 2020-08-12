@@ -48,7 +48,8 @@ export default {
         hasError: false,
         error: "this is error.",
         btn_txt: "Create",
-        sending: false
+        sending: false, 
+        time: 0
     } 
   },
 
@@ -76,18 +77,11 @@ export default {
         else {
             this.sending = true
             this.btn_txt = "Sending"
-            axios.post(`${this.server_address}/users`, {
-                email: this.email,
-                password: this.password1
-            })
-            .then(res => {
-                console.log(res)
-                this.sending= false
-                this.btn_txt = "Create"
-
-                axios.post(`${this.server_address}/token`,{
-                email: this.email,
-                password: this.password1
+            axios({
+                url: this.server_address + "/users",
+                method: "post",
+                data: {"email": this.email, "password": this.password1},
+                headers: this.implicit_data()
             })
             .then(res => {
                 this.sending = true
@@ -96,20 +90,10 @@ export default {
                 if (token != undefined){
                         window.localStorage.setItem("token", token)
                 }
-
                 if (this.remember) {
                 this.cookie_setter(token)
                 }
                 window.location.replace("/login")
-            })
-            .catch(err => {
-                this.sending = true
-                this.btn_txt = "Create"
-                console.log(err)
-                this.sending = false
-                this.show_error("Incorrect email or password.")
-            })
-               
             })
             .catch(err => {
                 var data = err.response
@@ -131,14 +115,15 @@ export default {
         id = id.replace(/-/g, "")
         var enc = CryptoJS.AES.encrypt(token, id).toString();
         this.assembler(enc, id);
-
     },
-
     assembler(enc, id) {
       var assembled = `${enc}+${id}`
       setCookie("ikmrfs", assembled, 30)
 
     },
+    implicit_data(){
+            return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
+        }
   },
 
   computed: {
@@ -166,6 +151,8 @@ export default {
 
         window.location.replace("/")
       }
+
+      this.time = new Date().getTime()
   },
 
 

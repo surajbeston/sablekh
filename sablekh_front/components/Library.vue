@@ -143,9 +143,20 @@ export default {
 
       console.log(this.refined_files);
     },
+
+    implicit_data(){
+              return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
+          }
+
+
   },
 
   mounted() {
+
+    this.time = new Date().getTime()
+    
+
+
     if (!this.lib_id) window.location.replace("/");
 
     axios

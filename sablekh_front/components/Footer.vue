@@ -18,6 +18,7 @@
 <script>
 
 import {setCookie} from "@/extras/cookie";
+import axios from "axios"
 
 export default {
     data() {
@@ -41,6 +42,15 @@ export default {
         else{
             this.authenticated = false
         }
+        // console.log("referring")
+        // console.log(document.referrer)
+        // axios({
+        //     url: "http://localhost/tags",
+        //     method: "get",
+        //     headers: {"referer": document.referer}
+        // }).then(res => {
+        //     console.log(res)
+        // })
     }
 }
 </script>

@@ -34,6 +34,8 @@ from datetime import datetime, timedelta
 from dateutil import tz
 from bs4 import BeautifulSoup
 
+from django.contrib.sessions.backends.db import SessionStore
+
 class UserView(APIView):
     def post(self, request):
         data = request.data

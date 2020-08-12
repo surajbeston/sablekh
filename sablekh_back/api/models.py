@@ -11,6 +11,8 @@ from whoosh.analysis import StemmingAnalyzer
 
 from django.db.models.signals import class_prepared
 
+from pytz import timezone 
+
 User._meta.get_field('email')._unique = True
 
 class Visitor(User):
@@ -21,6 +23,7 @@ class Library(models.Model):
     title = models.CharField(max_length = 300)
     user = models.ForeignKey(Visitor, on_delete = models.CASCADE, blank = True, null = True)
     description = models.CharField(max_length = 1500)
+    thumbnail = models.URLField(default="https://postimg.cc/qNT1Hgy5")
     link_str = models.CharField(max_length = 350, unique=True)
     tags = ArrayField(models.CharField(max_length = 150), blank = True, null = True)
     finished = models.BooleanField(default=False)
@@ -55,7 +58,28 @@ class PwResetToken(models.Model):
     token = models.CharField(max_length=150)
     user = models.ForeignKey(Visitor, on_delete=models.CASCADE)
     is_used = models.BooleanField(default = True)
+    datetime = models.DateTimeField(auto_now=True)    
+
+class ImplicitData(models.Model):
+    user = models.ForeignKey(Visitor, on_delete = models.CASCADE, null = True, blank = True)
+    user_agent = models.CharField(max_length = 600)
+    referer = models.CharField(max_length = 300)
+    link = models.CharField(max_length=200)
+    origin = models.CharField(max_length = 150)
+    method = models.CharField(max_length=200)
+    api_link = models.CharField(max_length = 100)
+    ip = models.CharField(max_length = 20)
+    time_taken = models.FloatField()
     datetime = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        nepal_time = self.datetime.astimezone(timezone("Asia/Katmandu"))
+        return nepal_time.strftime("%c")
+
+class RestrictedIP(models.Model):
+    ip = models.CharField(max_length = 20)
+    reason = models.CharField(max_length = 300)
+    datetime = models.DateTimeField(auto_now= True)
 
 stem_ana = StemmingAnalyzer()
 WHOOSH_SCHEMA = Schema(hid = KEYWORD(stored = True), title=TEXT(analyzer = stem_ana), description=TEXT(analyzer = stem_ana))
@@ -84,7 +108,6 @@ def update_index(sender, instance, created, **kwargs):
 signals.post_save.connect(update_index, sender=Library)
 
 def longer_token(sender, *args, **kwargs):
-
     if sender.__name__ == "Token":
         sender._meta.get_field("key").max_length = 70
 
