@@ -25,7 +25,18 @@ export default {
     data() {
         return {
             server_address: "https://api.sablekh.com",
-            libraries: []
+            libraries: [
+                {
+                    hid: "asdfasdfasdf",
+                    title: "ANSI C",
+                    description: "asdfj asdf as dfas dfas df as df as df   sdf asdfasdf asdf asd fasdf asdfasd fasdfasdf asdfasdf asdfa sdfasdfasdf."
+                },
+                {
+                    hid: "asdfavsdfasdf",
+                    title: "ANSI C",
+                    description: "asdfj asdf as dfas dfas df as df as df   sdf asdfasdf asdf asd fasdf asdfasd fasdfasdf asdfasdf asdfa sdfasdfasdf."
+                }
+            ]
         }
     },
     mounted() {
@@ -46,7 +57,7 @@ export default {
        })
        .catch(e => {
            console.log(e)
-           alert("Internal Error please try again later")
+        //    alert("Internal Error please try again later")
        })
     }
 }
