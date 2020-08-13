@@ -74,7 +74,15 @@ class UserView(APIView):
 
     def delete(self, request):
         hid = request.data["hid"]
+        try:    def get(self, request):
         try:
+            user = Visitor.objects.get(email = request.user.email)
+            serializer = VisitorSerializer(user)
+            data = serializer.data
+            return Response(data, status = status.HTTP_200_OK)
+        except Visitor.DoesNotExist:
+            return Response({"error": "not found"}, status = status.HTTP_404_NOT_FOUND)
+
             user = Visitor.objects.get(email = request.user.email)
             if user.hid != hid:
                 return Response({"error": "not authorized"}, status = status.HTTP_401_UNAUTHORIZED)

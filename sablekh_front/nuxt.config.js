@@ -4,6 +4,10 @@ export default {
   ** Nuxt rendering mode
   ** See https://nuxtjs.org/api/configuration-mode
   */
+//  server: {
+//   port: 3000, // default: 3000
+//   host: 'localhost' // default: localhost
+// },
   mode: 'universal',
   /*
   ** Nuxt target
@@ -59,5 +63,6 @@ export default {
   ** See https://nuxtjs.org/api/configuration-build/
   */
   build: {
-  }
+  },
+
 }
