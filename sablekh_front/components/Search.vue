@@ -124,9 +124,14 @@ export default {
         search_button() {
             
             if (this.search != "") {
-                axios.post(`${this.server_address}/search`, {
-                    query: this.search,
-                tags: this.tags.length > 0 ? this.tags : [""]
+                axios({
+                    url: `${this.server_address}/search`,
+                    method: 'POST',
+                    data: {
+                        query: this.search,
+                        tags: this.tags.length > 0 ? this.tags : [""]
+                    },
+                    headers: this.implicit_data()
                 })
                 .then(res => {
                     this.search_books = res.data
@@ -139,7 +144,10 @@ export default {
         },
         to_link() {
             this.get_link ? window.location.replace("/upload") : window.location.replace("/login");
-        }
+        },
+        implicit_data(){
+          return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
+      }
     }, 
 
     computed: {
@@ -154,6 +162,9 @@ export default {
     },
 
     mounted() {
+
+        this.time = new Date().getTime();
+
         this.fuse = new Fuse(this.all_tags, {}) 
 
         this.search_books = this.retrive_from_localstorage("search")

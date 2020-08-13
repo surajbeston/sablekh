@@ -61,6 +61,8 @@
 <script>
 import axios from "axios"
 import Fuse from 'fuse.js'
+import Mime from 'mime-types'
+
 
 export default {
     data() {
@@ -90,6 +92,10 @@ export default {
             to_search: ["Tribhuvan University", "Purwanchal University", "First Semester", "Second Semester", "Third Semester", "Fourth Semester", "First Year", "Second Year", "Third Year", "Fourth Year", "Pokhara University", "Kathmandu University", "Economics", "Mechanical Engineering", "Social Engineering", "Sociology"]
         }
     },
+
+    props: [
+        'lib_str'
+    ],
 
     methods: {
         filesChange(files){
@@ -206,7 +212,7 @@ export default {
                     console.log(fileType)
                     var filename;
                     if (file.size/1024/1024 <= 30)
-                        var category = fileType.split("/")[0]
+                        var category = fileType.split("/")[0] 
                         var extension = fileType.split("/")[1]
                          if ( category == "application"){
                              if (extension == "pdf"){
@@ -383,6 +389,7 @@ export default {
         }
     },
     mounted() {
+
         this.auth_token = window.localStorage.getItem('token')
         if (!this.auth_token) {
             window.location.replace("/login")
@@ -416,6 +423,59 @@ export default {
         }.bind(this));
 
         this.time = new Date().getTime()
+
+        if (this.lib_str) {
+
+            var i = 0;
+
+            axios({
+                url: this.url + "link",
+                method: 'post',
+                data: {
+                    link_str: this.lib_str
+                },
+                headers: this.implicit_data()
+            })
+            .then(res => {
+                this.title = res.data.title,
+                this.description = res.data.description
+                this.library = res.data.hid
+
+                axios({
+                    url: this.url + "all-files",
+                    method: 'post',
+                    data: {
+                        hid: this.library
+                    },
+                    headers: this.implicit_data()
+                })
+                .then(res => {
+                    this.files = res.data
+                    this.files = this.files.map(e => {
+                        let a = {   
+                                    ...e,
+                                    name: e.title,
+                                    filename: this.get_filename(e.title),
+                                    progress: '100%',
+                                    totalsize: (e.size / 1024).toFixed(2),
+                                    uploadedsize: (e.size / 1024).toFixed(2),
+                                    filename: "/filenames/" + this.get_filename(Mime.lookup(e.title)),
+                                    random_id: i++,
+                                    uploaded: true
+                                }
+                        return a
+                    })
+                })
+
+            })
+            .catch(e => {
+                console.log(e)
+                alert('error')
+            })
+
+        }
+
+
 
     }
 }

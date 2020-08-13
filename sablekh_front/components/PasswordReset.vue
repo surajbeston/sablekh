@@ -64,10 +64,15 @@ export default {
                 this.short_pass = true
             }
             else {
-              axios.post(this.server_address + "/reset-password", {
-                  token: this.$route.params.id,
-                  type: "action-change",
-                  password: this.password1
+              axios({
+                  url: this.server_address + "/reset-password", 
+                  method: 'post',
+                  data: {
+                    token: this.$route.params.id,
+                    type: "action-change",
+                    password: this.password1
+                  },
+                  headers: this.implicit_data()
               })
               .then(res => {
                   window.location.replace("/login")
@@ -89,7 +94,10 @@ export default {
                 }
             })
 
-        }
+        },
+        implicit_data(){
+          return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
+      }
     },
     computed: {
       similarity_check() {

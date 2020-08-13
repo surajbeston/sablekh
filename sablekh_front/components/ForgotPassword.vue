@@ -44,8 +44,13 @@ export default {
             alert('Enter valid E-mail address')
           }
           else {
-            axios.post(this.server_address + "/send-password-key", {
-              email: this.email
+            axios({
+              url: this.server_address + "/send-password-key",
+              method: 'post',
+              data: {
+                email: this.email
+              },
+              headers: this.implicit_data()
             })
             .then(res => {
               this.email_sent = true
@@ -58,7 +63,10 @@ export default {
         validate_email(){
           const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
           return re.test(String(this.email).toLowerCase());
-        }
+        },
+        implicit_data(){
+          return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
+      }
 
     }
 }
