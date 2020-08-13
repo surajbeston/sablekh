@@ -71,7 +71,7 @@ export default {
             description: "",
             // files: [{"name": "something.pdf", "filename": "/filenames/pdf.png", "uploadedsize": "12", "totalsize": "25"}, {"name": "something.txt", "filename": "/filenames/text.png", "uploadedsize": "12", "totalsize": "25"}],
             files: [],
-            url: "http://localhost/",
+            url: "https://api.sablekh.com/",
             library: "",
             auth_token: "",
             last_title: "",
