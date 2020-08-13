@@ -78,7 +78,7 @@ export default {
       changing: false,
       token: "",
       authenticated: false,
-      downloads: 100
+      downloads: 0
     };
   },
 
@@ -130,6 +130,23 @@ export default {
         .then((res) => {
           this.get_like()
           this.is_liked = true;
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    },
+
+    get_downloads() {
+      axios({
+        url: this.server_address + "/all-downloads",
+        method: "post",
+        headers: this.implicit_data(),
+        data: {
+          library: this.hid,
+        },
+      })
+        .then((res) => {
+          this.downloads= res.data.downloads;
         })
         .catch((e) => {
           console.log(e);
@@ -328,6 +345,7 @@ export default {
         this.library_name = res.data.title;
         this.library_desc = res.data.description;
         this.get_like()
+        this.get_downloads()
         if (this.token) {
           this.check_like()
         }
