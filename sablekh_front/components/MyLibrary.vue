@@ -15,13 +15,19 @@
 
             <div class="ml-libraries">
                 <div class="each-library" :key="library.hid" v-for="library in libraries">
-                    <button class="btn edit-btn">
+                    <button @click="edit_clicked(library)" class="btn edit-btn">
                         Edit
                     </button>
-                    <img src="@/assets/search/book2.png" alt="loading image" class="book-img">
-                    <div class="library-info">
-                        <h1>{{library.title}}</h1>
+                    <img @click="heading_clicked(library.link_str)" src="@/assets/search/book2.png" alt="loading image" class="book-img">
+                    <div @click="heading_clicked(library.link_str)" class="library-info">
+                        <h1 >{{library.title}}</h1>
                         <p>{{library.description}}</p>
+                    </div>
+                    <div class="likes-div">
+                        <span>{{library.likes}}</span>
+                        <img src="@/assets/like.png" alt="like img" class="like-img">
+                        <span id="span">20</span>
+                        <img src="@/assets/download1.png" alt="download img" class="download-img">
                     </div>
                 </div>
             </div>
@@ -38,25 +44,34 @@ export default {
     data() {
         return {
             server_address: "https://api.sablekh.com",
-            libraries: [
-                {
-                    hid: "asdfasdfasdf",
-                    title: "ANSI C",
-                    description: "asdfj asdf as dfas dfas df as df as df   sdf asdfasdf asdf asd fasdf asdfasd fasdfasdf asdfasdf asdfa sdfasdfasdf."
-                },
-                {
-                    hid: "asdfavsdfasdf",
-                    title: "ANSI C",
-                    description: "asdfj asdf as dfas dfas df as df as df   sdf asdfasdf asdf asd fasdf asdfasd fasdfasdf asdfasdf asdfa sdfasdfasdf."
-                }
-            ]
+            libraries: []
         }
     },
 
     methods: {
+
+        edit_clicked(lib) {
+
+            window.location.href = "upload/" + lib.link_str
+
+        },
+
+        heading_clicked(link_str){
+            window.location.href = "library/" + link_str
+        },
         implicit_data(){
-          return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
+          return {"Authorization": "Token " + this.id, "site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
       }
+    },
+
+    computed: {
+        id(){
+            var id = window.localStorage.getItem("token")
+            if (!id) {
+                window.location.replace("/login")
+            }
+            return id
+        }
     },
 
 
@@ -64,25 +79,37 @@ export default {
 
       this.time = new Date().getTime()
 
-
-        var id = window.localStorage.getItem("token")
-        if (!id) {
-            window.location.replace("/login")
-        }
-        console.log(id)
-
        axios({
            url: this.server_address + '/all-libraries',
-           headers: {
-               "Authorization": "Token " + id
-           }
+           method: 'post',
+           headers: this.implicit_data()
        })
        .then(res => {
-           this.libraries = res.data
+           this.libraries = []
+
+            res.data.map(lib => {
+
+                axios({
+                    url: this.server_address + "/all-likes",
+                    method: 'post',
+                    headers: this.implicit_data(),
+                    data: {
+                        library: lib.hid
+                    }
+                })    
+                    .then(res => {
+                        lib.likes = res.data.likes
+                        this.libraries.push(lib)
+                    })
+                    .catch(e => {
+                        console.log(e)
+                    })
+            })
+
+
        })
        .catch(e => {
            console.log(e)
-        //    alert("Internal Error please try again later")
        })
     }
 }
@@ -148,6 +175,7 @@ export default {
     .each-library {
         background-color: white;
         width: 50%;
+        min-height: 150px;
         margin: 0 auto 1% auto;
         padding: 1%;
         border-radius: 10px;
@@ -171,12 +199,33 @@ export default {
     }
 
     .book-img {
-        width: 50%;
+        cursor: pointer;
+        width: 80%;
     }
-
+    .library-info {
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
     .library-info > h1 {
         font-size: 150%;
         margin: 0;
+    }
+    .likes-div {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: flex-end;
+    }
+    .download-img {
+        width: 18%;
+    }
+    .like-img {
+        width: 15%;
+        margin-bottom: 5px;
     }
 
 @media screen and (max-width: 1200px) {
@@ -191,6 +240,10 @@ export default {
     }
     .each-library {
         width: 80%;
+        min-height: 120px;
+    }
+    .edit-btn {
+        padding: 5px 20px;
     }
 }
 
@@ -198,6 +251,7 @@ export default {
     .each-library {
         padding: 5% 1%;
         width: 95%;
+        min-height: 100px;
         margin-bottom: 3%;
     }
     .library-info > h1 {
@@ -223,7 +277,7 @@ export default {
         font-size: 18px;
     }
     .each-library {
-        padding-left: 10px;
+        padding: 10px 15px;
         grid-template-columns: 10fr 2fr;
     }
     .book-img {
@@ -234,6 +288,12 @@ export default {
     }
     .library-info > p {
         font-size: 12px;
+    }
+    span {
+        font-size: 10px;
+    }
+    .like-img {
+        width: 20%;
     }
 
 }

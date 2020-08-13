@@ -1,6 +1,6 @@
 <template>
     <div class="upload">
-        <Upload />
+        <Upload v-bind:lib_str="$route.params.id"/>
         <Footer />
     </div>
 </template>

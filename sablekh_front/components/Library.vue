@@ -2,44 +2,17 @@
   <div class="library-component mxw-100-mnh-100">
     <img src="@/assets/back-arrow.png" alt="loading img" class="back-arrow" />
     <img src="@/assets/logo1.png" alt="loading image" class="logo-img" />
-    <!-- <div class="library-wrapper1">
-      <div class="library11">
-        <img src="@/assets/search/book2.png" alt="loading image" />
-        <a href="#">Read here</a>
-        <div class="library111">
-          <h1>Contents</h1>
-          <div class="library-contents">
-            <ul>
-              <li :key="content" v-for="content in contents">{{content}}</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="library12">
-        <h1>{{library_name}}</h1>
-        <p>{{library_desc}}</p>
-        <h2>Download PDFs</h2>
-        <div class="library121">
-          <div :key="file.hid" v-for="file in refined_files" class="each-files">
-            <img src="@/assets/filenames/pdf.png" alt="loading-img" class="pdf-image" />
-            <span>{{file.title}}</span>
-            <img src="@/assets/download.png" alt="loading image" class="download-img" @click="download_clicked(file)"/>
-          </div>
-        </div>
-      </div>
-    </div> -->
-
 
     <div class="library-wrapper1">
 
       <img class="book-img" src="@/assets/search/book2.png" alt="book" >
-      <h1 class="library-title">ANSI C</h1>
+      <h1 class="library-title">{{library_name}}</h1>
       <p class="library-desc">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Nam neque cupiditate sit natus ratione tempora, ipsam dolore error, unde quisquam aliquam cum debitis! Quasi doloremque neque esse quisquam voluptates natus.
+        {{library_desc}}
       </p>
 
       <div class="files-wrapper">
-        <div class="fw-each" :key="file.hid" v-for="file in files">
+        <div class="fw-each" :key="file.hid" v-for="file in refined_files">
           <div class="fw1">
             <img src="@/assets/filenames/pdf.png" alt="png">
             <h3>{{file.title}}</h3>
@@ -51,8 +24,8 @@
       </div>
 
       <div class="download-container">
-        <button class="btn download">Download</button>
-        <button class="btn download-all">Download all</button>
+        <button @click="download_clicked" class="btn download">Download</button>
+        <button @click="download_all_clicked" class="btn download-all">Download all</button>
       </div>
 
     </div>
@@ -73,16 +46,7 @@ export default {
       library_image_link: "https://pngimg.com/uploads/book/book_PNG51074.png",
       contents: [],
       selected_file: [],
-      files: [
-        {
-          hid: "sdaffasdf",
-          title: "asddf"
-        },
-        {
-          hid: "sdafasdf",
-          title: "asdf"
-        }
-      ],
+      files: [],
       refined_files: [],
       hid: "",
     };
@@ -102,17 +66,66 @@ export default {
 
     download_all_clicked() {
 
-      
+      let a = this.files.map(e => e.hid)
+
+      this.download_middle(a.join(","))
 
     },
 
 
-    download_clicked(file) {
+    download_clicked() {
 
+      var file_hids = ""
+
+      if (!this.selected_file.length > 0 ) {
+        alert("None selected")
+        return null
+      }
+        
+      if (this.selected_file.length === 1) {
+        // let file = this.files.filter(e => e.hid === this.selected_file[0]) i guess its not necessary
+
+        // if (file.link) {
+        //   download(file.link)
+        // }
+        // else {
+        file_hids = this.selected_file[0]
+        // }
+      }
+      else {
+        file_hids = this.selected_file.join(',')
+      }
+
+      this.download_middle(file_hids)
    
     },
 
+    download_middle(file_hids){
+      if (file_hids !== "") {
+        axios({
+            url: this.server_address + "/download",
+            method: "post",
+            data: {
+              hids: file_hids,
+              library: this.hid
+            },
+            headers: this.implicit_data()
+          })
+          .then(res => {
+            // console.log(res)
+            this.download(res.data.filename)
+            console.log(res.data)
+          })
+          .catch(e => {
+            alert("try again")
+          })
+      }
+    },
+
     download(url) {
+
+      let file_name = url.split("/")
+
           axios({
             url,
             method: "GET",
@@ -122,7 +135,7 @@ export default {
             var fileURL = window.URL.createObjectURL(new Blob([response.data]));
             var fileLink = document.createElement("a");
             fileLink.href = fileURL;
-            fileLink.setAttribute("download", "download.zip");
+            fileLink.setAttribute("download", file_name[file_name.length-1])
             document.body.appendChild(fileLink);
             fileLink.click();
           });
@@ -141,7 +154,7 @@ export default {
         this.refined_files.push(b);
       });
 
-      console.log(this.refined_files);
+      // console.log(this.refined_files);
     },
 
     implicit_data(){
@@ -159,23 +172,31 @@ export default {
 
     if (!this.lib_id) window.location.replace("/");
 
-    axios
-      .post(`${this.server_address}/link`, {
+    axios({
+      url: `${this.server_address}/link`,
+      method: 'post',
+      data: {
         link_str: this.$route.params.id,
-      })
+      },
+      headers: this.implicit_data()
+    })
       .then((res) => {
         this.hid = res.data.hid;
         this.library_name = res.data.title;
         this.library_desc = res.data.description;
 
-        axios
-          .post(`${this.server_address}/all-files`, {
+        axios({
+          url: `${this.server_address}/all-files`,
+          method: 'post',
+          data: {
             hid: this.hid,
-          })
+          },
+          headers: this.implicit_data()
+        })
           .then((res) => {
             this.files = res.data;
             this.clean_title();
-            console.log(res);
+            // console.log(res);
           })
           .catch((err) => console.log(err));
       })
