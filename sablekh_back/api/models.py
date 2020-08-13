@@ -10,8 +10,10 @@ from whoosh.fields import *
 from whoosh.analysis import StemmingAnalyzer
 
 from django.db.models.signals import class_prepared
+from whoosh.index import LockError
 
 from pytz import timezone 
+import time
 
 User._meta.get_field('email')._unique = True
 
@@ -92,18 +94,25 @@ create_index()
 
 def update_index(sender, instance, created, **kwargs):
     # Code below is just for development.
-    all_libraries = Library.objects.all()
-    if len(all_libraries) <= 1:
-        ix = create_in("index", WHOOSH_SCHEMA)
-    else:
-        ix = open_dir("index")
-    writer = ix.writer()
-    if created:
-        writer.add_document(hid = instance.hid, title=instance.title, description=instance.description)
-        writer.commit()
-    else:
-        writer.update_document(hid = instance.hid, title=instance.title, description=instance.description)
-        writer.commit()
+    if instance.finished:
+        all_libraries = Library.objects.all()
+        if len(all_libraries) <= 1:
+            ix = create_in("index", WHOOSH_SCHEMA)
+        else:
+            ix = open_dir("index")
+        while True:
+            try:
+                writer = ix.writer()
+                break
+            except LockError:
+                time.sleep(0.2)
+
+        if created:
+            writer.add_document(hid = instance.hid, title=instance.title, description=instance.description)
+            writer.commit()
+        else:
+            writer.update_document(hid = instance.hid, title=instance.title, description=instance.description)
+            writer.commit()
 
 signals.post_save.connect(update_index, sender=Library)
 

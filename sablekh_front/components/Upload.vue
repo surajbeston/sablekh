@@ -69,7 +69,7 @@ export default {
             description: "",
             // files: [{"name": "something.pdf", "filename": "/filenames/pdf.png", "uploadedsize": "12", "totalsize": "25"}, {"name": "something.txt", "filename": "/filenames/text.png", "uploadedsize": "12", "totalsize": "25"}],
             files: [],
-            url: "https://api.sablekh.com/",
+            url: "http://localhost/",
             library: "",
             auth_token: "",
             last_title: "",
@@ -280,7 +280,7 @@ export default {
                                     url: this.url + "library",
                                     method: "patch",
                                     headers: {"Content-Type": "application/json", "Authorization": "Token "+this.auth_token, ...this.implicit_data()},
-                                    data: {"hid": this.library, "title": this.title, "description": this.description, "tags": this.tags}
+                                    data: {"hid": this.library, "title": this.title, "description": this.description, "tags": this.tags, "finished": true}
                                 }).then(res => {
                                     this.finish = "Just a second"
                                     window.location.replace("/library/" + res.data.link_str)

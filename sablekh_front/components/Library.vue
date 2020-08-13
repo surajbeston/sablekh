@@ -39,7 +39,7 @@ export default {
 
   data() {
     return {
-      server_address: "https://api.sablekh.com",
+      server_address: "http://localhost",
       library_name: "",
       library_desc: "",
       library_image_link: "https://pngimg.com/uploads/book/book_PNG51074.png",

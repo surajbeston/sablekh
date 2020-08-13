@@ -20,6 +20,8 @@
   "datetime": "2020-07-26T19:49:22.663912Z"
 }`
 
+* This will not actually create a library. you shoud also send a `PATCH` request to the same endpoint with additional boolean variable `finished`. See `Change Library`.
+
 ### Retrieve Library
 
 *  This does require the authentication, any user, even without authentication can request this.
@@ -60,7 +62,8 @@
   "deleted": false
 }`
 
-*  Remember to add both fields, changed value will be checked and updated. 
+*  Remember to add all three fields, `title`, `description` and `tags` , changed value will be checked and updated. 
+* 
 
 ### Delete Library
 
@@ -134,6 +137,7 @@
   "title": "this is title",
   "description": "this is description",
   "link_str": "wogH0o-bhoo-lo",
+  "thumbnail": "default.png",
   "tags": ["Tribhuvan University", "Anthropology", "Third Semester", "Social History"],
   "datetime": "2020-07-30T08:52:18.034731Z",
   "no_files": 0
