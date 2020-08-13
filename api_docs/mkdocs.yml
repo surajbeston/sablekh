@@ -2,6 +2,7 @@ site_name: Sablekh API Docs
 theme: readthedocs
 nav:
     - Home: index.md
+    - Headers: headers.md
     - Authentication & Authorization: auth.md
     - User: user.md
     - Library: library.md
@@ -10,3 +11,4 @@ nav:
     - Search: search.md
     - Tag: tag.md 
     - Verification & Reset: verify.md
+    - Likes & Downloads: likes.md

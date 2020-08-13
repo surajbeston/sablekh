@@ -42,7 +42,7 @@ export default {
 
   data() {
     return {
-      server_address: "https://api.sablekh.com",
+      server_address: "http://localhost",
       email: "",
       password: "",
       remember: false,

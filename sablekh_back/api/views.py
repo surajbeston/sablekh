@@ -20,8 +20,9 @@ import zipfile
 import random  
 import binascii
 from .misc import filter_text, title_to_link
-from os import system
+from subprocess import Popen
 import django
+from django.shortcuts import redirect
 
 from django.conf import settings
 from whoosh.index import create_in, open_dir
@@ -31,10 +32,15 @@ from .models import WHOOSH_SCHEMA
 import requests
 from django.contrib.auth.hashers import make_password
 from datetime import datetime, timedelta
-from dateutil import tz
+from dateutil import tz 
 from bs4 import BeautifulSoup
 
+from .thumbnail import generate_thumbnail
+
 from django.contrib.sessions.backends.db import SessionStore
+
+def home(request):
+    return redirect("https://sablekh.com")
 
 class UserView(APIView):
     def post(self, request):
@@ -104,6 +110,16 @@ class LibraryView(APIView):
             library.title = request.data["title"]
             library.description = request.data["description"] 
             library.tags = request.data["tags"]
+            try:
+                library.finished = request.data["finished"]
+                files = File.objects.filter(library = library)
+                for file in files:
+                    thumbnail_file = generate_thumbnail(file._file.name)
+                    if thumbnail_file:
+                        library.thumbnail = "https://api.sablekh.com/thumbnail/" + thumbnail_file
+                        break 
+            except KeyError:
+                pass    
             library.save()
             serializer = LibrarySerializer(library) 
             data = serializer.data
@@ -166,17 +182,17 @@ class FileView(APIView):
                 serializer = FileSerializer(file)
                 data = serializer.data 
                 file.delete() 
-                system("rm "+file._file.name)
-                data["deleted"] = True
+                Popen("rm "+file._file.name, shell = True).wait()
+                data["deleted"] = True 
                 return Response(data, status = status.HTTP_200_OK)
             else:
                 return Response({"error": "not authorized"}, status = status.HTTP_401_UNAUTHORIZED)
         except File.DoesNotExist:
             return Response({"error":"file not found"}, status = status.HTTP_404_NOT_FOUND)
 
-@api_view(['GET', 'POST'])
+@api_view(['GET', 'POST']) 
 def get_library(request):
-    hid = request.data["hid"]
+    hid = request.data["hid"] 
     try:
         library = Library.objects.get(hid = hid)
         serializer = LibrarySerializer(library)
@@ -215,7 +231,7 @@ def download_files(request):
         library = Library.objects.get(hid = library_hid)
     except Library.DoesNotExist:
         return Response({"error": "no library with following hid - "+library_hid}, status = status.HTTP_404_NOT_FOUND)
-    filenames = [    ]
+    filenames = []
     for hid in hids:
         try:    
             file_obj = File.objects.get(hid = hid)
@@ -239,16 +255,16 @@ def download_files(request):
     filenames.sort()
     try:
         download_lot = DownloadLot.objects.get(files = filenames)
-        return Response({"filename": download_lot.zip_name, "by": "found"})
+        return Response({"filename": "https://api.sablekh.com/download/"+download_lot.zip_name, "by": "found"})
     except DownloadLot.DoesNotExist:
         library_name = filter_text(library.title[:20], punctuation)
         zip_name =  library_name + str(binascii.crc32(str(hids).encode()))+ ".zip"
         jungle_zip = zipfile.ZipFile('downloadable/'+zip_name, 'w')
         for filename in filenames:
-            system("cp "+ filename + " .")
+            Popen("cp "+ filename + " .", shell = True).wait()
             filename = filename.split("/")[1]
             jungle_zip.write(filename, compress_type=zipfile.ZIP_DEFLATED)
-            system("rm "+filename)
+            Popen("rm "+filename, shell= True).wait()
         jungle_zip.close()
         if request.user.is_authenticated:
             visitor = Visitor.objects.get(email = request.user.email)
@@ -403,7 +419,7 @@ def reset_password(request):
     elif _type == "action-change":
         password = request.data["password"]
         user.password = make_password(password)
-        user.save()
+        user.save() 
         return Response({"message": "password reset", "email": user.email}, status= status.HTTP_205_RESET_CONTENT)
     else:
         return Response({"error": "invalid type", "email": user.email}, status = status.HTTP_303_SEE_OTHER)
@@ -415,7 +431,6 @@ def like(request):
     visitor = Visitor.objects.get(email = request.user.email)
     data["user"] = visitor.hid
     serializer = LikeSerializer(data = data)
-    print ("reached here")
     if serializer.is_valid():
         obj = serializer.save()
         data["message"] = "like registered"
@@ -429,9 +444,9 @@ def check_like(request):
     user = Visitor.objects.get(email = request.user.email)
     try:
         like_obj = Like.objects.get(user = user, library = request.data["library"])
-        return Response({"library": request.data["library"], "message": "is like"}, status = status.HTTP_200_OK)
+        return Response({"library": request.data["library"], "liked": True}, status = status.HTTP_200_OK)
     except Like.DoesNotExist:
-        return Response({"error": "not like"}, status = status.HTTP_404_NOT_FOUND)   
+        return Response({"library": request.data["library"],"liked": False}, status = status.HTTP_404_NOT_FOUND)   
 
 @api_view(['GET', 'POST'])
 def all_likes(request):

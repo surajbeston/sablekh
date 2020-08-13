@@ -16,13 +16,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from api.views import UserView, LibraryView, all_files, all_libraries, get_library, FileView, download_files, search, auth_token, change_link, string_to_library, get_tags
-from api.views import send_password_key, reset_password, like, all_likes, check_like, all_downloads
+from api.views import send_password_key, reset_password, like, all_likes, check_like, all_downloads, home
 from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework.generics import ListCreateAPIView
 from django.contrib.auth.models import User
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', home),
     path('users', UserView.as_view()),
     path('token', auth_token),
     path('library', LibraryView.as_view()),
