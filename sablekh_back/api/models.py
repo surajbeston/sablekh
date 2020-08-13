@@ -93,13 +93,10 @@ def create_index(sender=None, **kwargs):
 create_index()
 
 def update_index(sender, instance, created, **kwargs):
-    # Code below is just for development.
-    if instance.finished:
-        all_libraries = Library.objects.all()
-        if len(all_libraries) <= 1:
-            ix = create_in("index", WHOOSH_SCHEMA)
-        else:
+        try:
             ix = open_dir("index")
+        except:
+            ix = create_in("index", WHOOSH_SCHEMA)
         while True:
             try:
                 writer = ix.writer()
