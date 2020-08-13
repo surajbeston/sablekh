@@ -26,7 +26,7 @@
                     <div class="likes-div">
                         <span>{{library.likes}}</span>
                         <img src="@/assets/like.png" alt="like img" class="like-img">
-                        <span id="span">20</span>
+                        <span id="span">{{library.downloads}}</span>
                         <img src="@/assets/download1.png" alt="download img" class="download-img">
                     </div>
                 </div>
@@ -99,6 +99,21 @@ export default {
                 })    
                     .then(res => {
                         lib.likes = res.data.likes
+                    })
+                    .catch(e => {
+                        console.log(e)
+                    })
+
+                axios({
+                    url: this.server_address + "/all-downloads",
+                    method: 'post',
+                    headers: this.implicit_data(),
+                    data: {
+                        library: lib.hid
+                    }
+                })    
+                    .then(res => {
+                        lib.downloads = res.data.downloads
                         this.libraries.push(lib)
                     })
                     .catch(e => {
@@ -294,6 +309,9 @@ export default {
     }
     .like-img {
         width: 20%;
+    }
+    .download-img {
+        width: 25%;
     }
 
 }
