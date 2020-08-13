@@ -2,7 +2,7 @@
   <div class="library-component mxw-100-mnh-100">
     <img src="@/assets/back-arrow.png" alt="loading img" class="back-arrow" />
     <img src="@/assets/logo1.png" alt="loading image" class="logo-img" />
-    <div class="library-wrapper1">
+    <!-- <div class="library-wrapper1">
       <div class="library11">
         <img src="@/assets/search/book2.png" alt="loading image" />
         <a href="#">Read here</a>
@@ -27,6 +27,34 @@
           </div>
         </div>
       </div>
+    </div> -->
+
+
+    <div class="library-wrapper1">
+
+      <img class="book-img" src="@/assets/search/book2.png" alt="book" >
+      <h1 class="library-title">ANSI C</h1>
+      <p class="library-desc">
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Nam neque cupiditate sit natus ratione tempora, ipsam dolore error, unde quisquam aliquam cum debitis! Quasi doloremque neque esse quisquam voluptates natus.
+      </p>
+
+      <div class="files-wrapper">
+        <div class="fw-each" :key="file.hid" v-for="file in files">
+          <div class="fw1">
+            <img src="@/assets/filenames/pdf.png" alt="png">
+            <h3>{{file.title}}</h3>
+          </div>
+          <div class="fw2">
+            <input type="checkbox" :id="file.hid" @input="checkbox_clicked(file.hid)">
+          </div>
+        </div>
+      </div>
+
+      <div class="download-container">
+        <button class="btn download">Download</button>
+        <button class="btn download-all">Download all</button>
+      </div>
+
     </div>
   </div>
 </template>
@@ -44,31 +72,44 @@ export default {
       library_desc: "",
       library_image_link: "https://pngimg.com/uploads/book/book_PNG51074.png",
       contents: [],
-      files: [],
+      selected_file: [],
+      files: [
+        {
+          hid: "sdaffasdf",
+          title: "asddf"
+        },
+        {
+          hid: "sdafasdf",
+          title: "asdf"
+        }
+      ],
       refined_files: [],
       hid: "",
     };
   },
 
   methods: {
+
+    checkbox_clicked(id) {
+      if (this.selected_file.includes(id)) {
+        let i = this.selected_file.indexOf(id)
+        this.selected_file.splice(i, 1)
+      }
+      else {
+        this.selected_file.push(id)
+      }
+    },
+
+    download_all_clicked() {
+
+      
+
+    },
+
+
     download_clicked(file) {
 
-        if (!file.link) {
-            axios.post(this.server_address + "/download", {
-                hids : file.hid,
-                library: file.library
-            })
-            .then(res => {
-                this.download(this.server_address + '/download/' + res.data.filename)
-            })
-            .catch(e => console.log(e))
-        }
-
-        else {
-            this.download(file.link)
-        }
-
-        
+   
     },
 
     download(url) {
@@ -102,9 +143,20 @@ export default {
 
       console.log(this.refined_files);
     },
+
+    implicit_data(){
+              return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
+          }
+
+
   },
 
   mounted() {
+
+    this.time = new Date().getTime()
+    
+
+
     if (!this.lib_id) window.location.replace("/");
 
     axios
@@ -135,6 +187,65 @@ export default {
 </script>
 
 <style scoped>
+
+.download-container {
+  margin-top: 5%;
+}
+
+.btn {
+  cursor: pointer;
+  background-color: rgb(255, 165, 47);
+  border-radius: 5px;
+  font-size: 120%;
+  border: 2px solid rgb(255, 165, 47);
+
+}
+
+.btn:hover {
+  background-color: rgba(255, 165, 47, 0.274);
+}
+
+.files-wrapper {
+  margin-top: 5%;
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+}
+
+.fw-each {
+
+  display: grid;
+  grid-template-columns: 5fr 1fr;
+  grid-gap: 1em;
+}
+
+.fw1 {
+  margin-bottom: 1em;
+  background-color: white;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border-radius: 10px;
+}
+
+.fw1 > img {
+  width: 20%;
+}
+
+.fw2 {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 1em;
+
+}
+
+.fw2 > input {
+  width: 50%;
+  height: 50%;
+}
+
 .library-component {
   background-color: rgb(254, 227, 200);
   padding: 150px 0 10px 0;
@@ -144,7 +255,7 @@ export default {
   cursor: pointer;
   position: absolute;
   width: 35px;
-  height: 20px;
+  height: 35px;
   top: 40px;
   left: 5px;
   display: none;
@@ -155,194 +266,77 @@ export default {
   right: 1vw;
   width: 130px;
 }
-.library-wrapper1 {
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgb(187, 167, 142);
-  width: 90vw;
+ .library-wrapper1 {
+  width: 50%;
   margin: 0 auto;
-  padding: 1.5vw;
   display: flex;
-}
-.library11 > img {
-  width: 20vw;
-  box-shadow: 0 0 10px rgb(151, 137, 118);
-  margin-right: 2vw;
-  margin-bottom: 5vh;
-}
-.library11 > a {
-  font-size: 18px;
-}
-.library111 {
-  margin-top: 5vh;
-  padding: 10px;
-  width: 20vw;
-  box-shadow: 0 0 10px rgb(165, 143, 115);
-  border-radius: 10px;
-}
-.library-contents > ul {
-  margin: 10px 0 0 20px;
-}
-.library-contents > ul > li {
-  padding: 5px 10px;
-  font-size: 20px;
-}
-.library12 {
-  width: 100%;
-  padding: 10px 2vw;
-}
-.library12 > h1 {
-  font-size: 500%;
-}
-.library12 > p {
-  margin-top: 10px;
-  font-size: 120%;
-  text-align: justify;
-}
-.library12 > h2 {
-  font-size: 30px;
-  margin-top: 10vh;
-  margin-bottom: 2vh;
-}
-.library121 {
-  max-height: 70vh;
-  min-height: 20vh;
-  overflow-y: auto;
-}
-.each-files {
-  display: flex;
+  flex-direction: column;
   align-items: center;
-  margin: 0 auto;
-  position: relative;
-  margin-top: 20px;
-  width: 70%;
-  height: 70px;
-  border-radius: 20px;
-  padding: 5px 20px;
-  background-color: rgb(238, 198, 147);
 }
-.each-files > span {
-  margin: 0 0 0 2vw;
-  font-size: 20px;
-  letter-spacing: 1px;
-  font-weight: bold;
+.book-img {
+  width: 20%;
+  box-shadow: 0 0 10px rgb(189, 169, 143);
 }
-.each-files > a {
-  width: 100%;
-  height: 100%;
+.library-title {
+  margin-top: 5%;
+  font-size: 210%;
 }
-.download-img {
-  cursor: pointer;
-  position: absolute;
-  right: 20px;
-  width: 60px;
+.library-desc {
+  margin-top: 3%;
+  font-size: 150%;
+  text-align: center;
 }
 
 @media screen and (max-width: 1300px) {
+
+  .library-wrapper1 {
+    width: 80%;
+  }
+
   .library-component {
     padding: 120px 0 10px 0;
   }
   .logo-img {
     width: 100px;
   }
-  .library-wrapper1 {
-    width: 95vw;
-  }
-  .library12 > h1 {
-    font-size: 250%;
-  }
-  .library12 > p {
-    font-size: 16px;
-  }
-  .library12 > h2 {
-    font-size: 25px;
-  }
-  .library111 > h1 {
-    font-size: 20px;
-  }
-  .library-contents > ul {
-    margin: 5px 5px;
-  }
-  .library-contents > ul > li {
-    padding: 5px 5px;
-    font-size: 16px;
-  }
-  .library12 {
-    padding: 10px 10px;
-  }
-  .library121 {
-    max-height: 50vh;
-  }
-  .each-files {
-    height: 50px;
-  }
-  .pdf-image {
-    width: 70px;
-  }
-  .each-files > span {
-    font-size: 14px;
-  }
-  .download-img {
-    width: 40px;
-  }
+  
 }
 
 @media screen and (max-width: 700px) {
-  .library11 > a {
-    font-size: 14px;
+
+  .library-wrapper1 {
+    width: 90%;
   }
+
+  .files-wrapper {
+    width: 90%;
+  }
+
   .back-arrow {
     display: block;
   }
-  .library12 > h1 {
-    font-size: 200%;
-  }
-  .library12 > p {
-    font-size: 14px;
-  }
-  .library12 > h2 {
-    font-size: 18px;
-  }
-  .library111 > h1 {
-    font-size: 14px;
-  }
-  .library-contents > ul {
-    margin: 2px 0px;
-    padding: 0 0 0 20px;
-  }
-  .library-contents > ul > li {
-    padding: 2px 0px;
-    font-size: 12px;
-  }
-  .library121 {
-    max-height: 40vh;
-  }
-  .each-files {
-    width: 100%;
-    height: 30px;
-  }
-  .pdf-image {
-    width: 50px;
-  }
-  .each-files > span {
-    font-size: 10px;
-  }
-  .download-img {
-    width: 20px;
-  }
+  
 }
 
 @media screen and (max-width: 500px) {
   .logo-img {
     width: 70px;
   }
-  .library-component {
-    padding: 90px 0 10px 0;
+
+  .book-img {
+    width: 70%;
   }
-  .library11 {
-    display: none;
+
+  .library-title {
+    font-size: 30px;
   }
-  .library12 > h1 {
-    font-size: 150%;
+  .library-desc {
+    font-size: 18px;
+    margin-bottom: 20px;
   }
+  .btn {
+    font-size: 16px;
+  }
+
 }
 </style>

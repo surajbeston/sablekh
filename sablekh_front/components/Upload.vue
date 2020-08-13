@@ -438,7 +438,7 @@ export default {
         top: 50px;
         left: 5px;
         width: 40px;
-        height: 30px;
+        height: 35px;
     }
     .upload11 {
         width: 25%;

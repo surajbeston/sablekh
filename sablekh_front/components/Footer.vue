@@ -148,7 +148,7 @@ export default {
     }
 
     @media screen and (max-width: 500px){
-       /* .footer{
+       .footer{
             height: 400px;
        }
        .foot-link {
@@ -159,10 +159,11 @@ export default {
        }
        .footer-wrapper1 {
            flex-direction: column;
+           padding-bottom: 20px;
        }
        #main-img{
            height: 25%;
-       } */
+       }
 
        .foot-link{
             font-size: 90%;

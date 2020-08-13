@@ -132,10 +132,10 @@ export default {
     show_error(errorTxt){
       this.hasError = true 
       this.error = errorTxt 
-      },
-      implicit_data(){
-            return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
-        }
+    },
+    implicit_data(){
+          return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
+      }
 
   },
 
