@@ -32,7 +32,8 @@
             <!-- <div class="search15">
                 <h2 @click="to_link" id="to">{{this.get_name}}</h2>
             </div> -->
-            <div id="results-div" class="search15">
+            <span class="loader" v-show = "loader_on"></span>
+            <div id="results-div" class="search15" v-show = "!loader_on">
                 <NuxtLink :to="`library/${book.link_str}`" v-bind:key="book.hid" v-for="(book, index) in books" >
                     <div class="search151">
                         <div class="search151-each">
@@ -46,11 +47,11 @@
                             </div>
                             <div class = "action-box">
                                 <div class="action">
-                                    <span>{{likes[index]}}</span>
+                                    <span>{{book.downloads}}</span>
                                     <img src="@/assets/download1.png" alt="like">
                                 </div>
                                 <div class="action">
-                                    <span>{{likes[index]}}</span>
+                                    <span>{{book.likes}}</span>
                                     <img src="@/assets/like.png" alt="like">
                                 </div>
                             </div>
@@ -70,7 +71,6 @@ import axios from "axios";
 import {setCookie} from "@/extras/cookie";
 
 export default {
-
     data() {
         return {
             server_address: "https://api.sablekh.com",
@@ -91,7 +91,10 @@ export default {
             search: "",
             search_books: [],
             likes: [],
-            downloads: []
+            downloads: [],
+            libraries: [],
+            loaded: false,
+            loader_on: false
         }
     },
 
@@ -106,7 +109,6 @@ export default {
             catch {}
             return s
         },
-
         retrive_from_localstorage(name) {
             let data = window.localStorage.getItem(name);
             return data ? JSON.parse(data) : [];
@@ -124,7 +126,6 @@ export default {
             if (! this.tags.includes(this.current_tag) ) {
                 this.tags.push(i)
             }
-
             this.show_suggessions = false;
             this.current_tag = "";
         },
@@ -134,6 +135,7 @@ export default {
         },
         search_button() {
             if (this.search != "") {
+                this.loader_on = true
                 axios({
                     url: `${this.server_address}/search`,
                     method: 'POST',
@@ -145,49 +147,51 @@ export default {
                 })
                 .then(res => {
                     this.add_to_localstorage("search", res.data)
-                    this.search_books = []
-                    res.data.map(lib => {
-                        axios({
-                            url: this.server_address + "/all-likes",
-                            method: 'post',
-                            headers: this.implicit_data(),
-                            data: {
-                                library: lib.hid
-                            }
-                        })    
-                            .then(res => {
-                                lib.likes = res.data.likes
-                            })
-                            .catch(e => {
-                                lib.likes = 0
-                            })
-
-                        axios({
-                            url: this.server_address + "/all-downloads",
-                            method: 'post',
-                            headers: this.implicit_data(),
-                            data: {
-                                library: lib.hid
-                            }
-                        })    
-                            .then(res => {
-                                lib.downloads = res.data.downloads
-                                this.libraries.push(lib)
-                            })
-                            .catch(e => {
-                                lib.downloads = 0
-                            })
-                        this.search_books.push(lib)
-                    })
-
-                })
-                .catch(err => {
-                    console.log(err)
-                })
+                    this.search_books = res.data
+                    this.loaded = false
+                    this.loader_on = false
+                }) 
             }
         },
         to_link() {
             this.get_link ? window.location.replace("/upload") : window.location.replace("/login");
+        },
+        get_likes_downloads(){
+            this.libraries = []
+            if (this.search_books.length > 0){
+                this.search_books.map(lib => {
+                    axios({
+                        url: this.server_address + "/all-likes",
+                        method: 'post',
+                        headers: this.implicit_data(),
+                        data: {
+                            library: lib.hid
+                        }
+                        })    
+                        .then(res => {
+                            lib.likes = res.data.likes
+                        })
+                        .catch(e => {
+                            lib.likes = 0
+                        })
+                    axios({
+                        url: this.server_address + "/all-downloads",
+                        method: 'post',
+                        headers: this.implicit_data(),
+                        data: {
+                            library: lib.hid
+                        }
+                    })    
+                        .then(res => {
+                            lib.downloads = res.data.downloads
+                            this.libraries.push(lib)
+                        })
+                        .catch(e => {
+                            lib.downloads = 0
+                        })
+                    this.libraries.push(lib)
+                    })
+                }
         },
         implicit_data(){
           return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
@@ -204,45 +208,22 @@ export default {
             return this.get_link ? "upload" : "login to upload";
         },
         books(){
+            if (!this.loaded) {
+                this.get_likes_downloads()
+            }
             for (var book of this.search_books){
                 if (book.title.length > 50) book.title = book.title.slice(0, 67) + "..."
                 if (book.description.length > 70) book.description = book.description.slice(0, 67) + '...'
-                axios({
-                    url: `${this.server_address}/all-likes`,
-                    method: "POST",
-                    headers: this.implicit_data(),
-                    data: {"library": book.hid}
-                }).then( response => {
-                    console.log(response)
-                    this.likes.push(response.data.likes)
-                }).catch( response => {
-                    console.log(response)
-                    this.likes.push(1)
-                })
-                axios({
-                    url: `${this.server_address}/all-downloads`,
-                    method: "POST",
-                    headers: this.implicit_data(),
-                    data: {"library": book.hid}
-                }).then( response => {
-                    console.log(response)
-                    this.downloads.push(response.data.downloads)
-                }).catch( response => {
-                    console.log(response)
-                    this.downloads.push(1)
-                })
             }
             return this.search_books
         }
     },
 
     mounted() {
-
-        this.time = new Date().getTime();
-
+        this.time = new Date().getTime()
         this.fuse = new Fuse(this.all_tags, {}) 
-
         this.search_books = this.retrive_from_localstorage("search")
+        this.loaded = false
     }
 
 }
@@ -461,6 +442,41 @@ export default {
         display: inline-block;
     }
 
+
+    .loader {
+        width: 48px;
+        height: 48px;
+        border: 3px solid #FFF;
+        border-radius: 50%;
+        display: inline-block;
+        position: relative;
+        box-sizing: border-box;
+        animation: rotation 1s linear infinite;
+        margin-top: 5%;
+    }
+    .loader::after {
+    content: '';  
+    box-sizing: border-box;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 3px solid;
+    border-color: #FF3D00 transparent;
+    }
+
+    @keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+    } 
+
     @media screen and (max-width: 1500px) {
         .search1512{
             margin-right: 10%;
@@ -498,6 +514,16 @@ export default {
 
         .search14 {
         width: 60vw;
+        }
+
+        .loader {
+            width: 30px;
+            height: 30px;
+        }
+
+        .loader::after {
+            width: 36px;
+            height: 36px;
         }
     }
     @media screen and (max-width: 900px) {
@@ -583,6 +609,7 @@ export default {
         .likes > span {
             font-size: 10px;
         }
+
     }
 
 

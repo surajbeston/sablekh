@@ -156,7 +156,6 @@ export default {
       if (!this.token) {
         window.location.href = "login";
       }
-
       axios({
         url: this.server_address + "/like",
         method: "post",
