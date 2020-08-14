@@ -8,25 +8,38 @@
       <img class="book-img" src="@/assets/search/book2.png" alt="book" />
       <h1 class="library-title">{{library_name}}</h1>
       <p class="library-desc">{{library_desc}}</p>
-
+      <div class="lib-tags" v-bind:key="tag" v-for="tag in library_tags">
+        <span class="each-tag">{{tag}}</span>
+      </div>
       <div class="like-div">
-        <span>{{likes}}</span>
-        <img
-          @click="like_clicked"
-          v-show="!is_liked"
-          src="@/assets/like.png"
-          alt="like"
-          class="blk-like"
-        />
-        <img v-show="is_liked" src="@/assets/like1.png" alt="like" class="blu-like" />
-        <span>{{downloads}}</span>
-        <img src="@/assets/download1.png" alt="download img" class="download-img">
+        <div class="like1">
+          <span class="like-span">{{likes}}</span>
+          <img
+            @click="like_clicked"
+            v-show="!is_liked"
+            src="@/assets/like.png"
+            alt="like"
+            class="blk-like"
+          />
+          <img v-show="is_liked" src="@/assets/like1.png" alt="like" class="blu-like" />
+        </div>
+        <div class="like2">
+          <span class="like-span">{{downloads}}</span>
+          <img src="@/assets/download1.png" alt="download img" class="download-img">
+        </div>
+        <div class="like3">
+            <img src="@/assets/share.png" alt="share img" class="share-img">
+        </div> 
       </div>
       <div class="files-wrapper">
         <div class="fw-each" :key="file.hid" v-for="file in refined_files">
-          <div class="fw1">
+          <div @click="download_middle(file.hid)" class="fw1">
             <img src="@/assets/filenames/pdf.png" alt="png" />
             <h3>{{file.title}}</h3>
+            <div class="size-div">
+              <img src="@/assets/file.png" alt="file png" class="file-img">
+              <span>{{(file.size/1024).toFixed(2)}} MB</span>
+            </div>
           </div>
           <div class="fw2">
             <input type="checkbox" :id="file.hid" @input="checkbox_clicked(file.hid)" />
@@ -41,7 +54,7 @@
         <button @click="download_clicked" class="btn download">Download</button>
         <button @click="download_all_clicked" class="btn download-all">Download all</button>
       </div>
-      <button @click="show_change_link" v-show="!changing && authenticated" class="btn" >
+      <button @click="show_change_link" v-show="!changing && authenticated && is_in_user_library" class="btn" >
         Change Link
       </button>
       <div v-show="changing && authenticated" class="change-link">
@@ -65,12 +78,13 @@ export default {
       library_name: "",
       library_desc: "",
       library_image_link: "https://pngimg.com/uploads/book/book_PNG51074.png",
+      library_tags: [],
       contents: [],
       selected_file: [],
       files: [],
       refined_files: [],
       hid: "",
-      library_thumbnail: ""
+      library_thumbnail: "",
       likes: 0,
       is_liked: false,
       downloading: false,
@@ -79,12 +93,37 @@ export default {
       changing: false,
       token: "",
       authenticated: false,
-      downloads: 0
-
+      downloads: 0,
+      is_in_user_library: false,
+      user_libraries: []
     };
   },
 
   methods: {
+
+    library_stuffs(){
+
+      axios({
+        url: this.server_address + "/all-libraries",
+        method: 'post',
+        headers: {
+          ...this.implicit_data(),
+          Authorization: "Token " + this.token
+        }
+      })
+      .then(res => {
+        this.user_libraries = res.data
+        
+        this.is_in_user_library = this.user_libraries.filter(lib => lib.hid === this.hid) ? true : false ;
+
+      })
+      .catch(e => {
+        console.log(e)
+      })
+
+
+    },
+
     
     link_changed() {
 
@@ -347,10 +386,12 @@ export default {
         this.library_name = res.data.title;
         this.library_desc = res.data.description;
          this.library_thumbnail = res.data.thumbnail
+         this.library_tags = res.data.tags
         this.get_like()
         this.get_downloads()
         if (this.token) {
           this.check_like()
+          this.library_stuffs()
         }
         axios({
           url: `${this.server_address}/all-files`,
@@ -376,6 +417,31 @@ export default {
 </script>
 
 <style scoped>
+
+.lib-tags{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.each-tag {
+  margin-top: 10px;
+  padding: 5px 10px;
+  font-size: 110%;
+  border: 2px solid rgb(255, 160, 35);
+  border-radius: 10px;
+}
+
+.size-div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding-right: 10px;
+}
+
+.file-img {
+  width: 20%;
+}
 
 .change-link {
   width: 100%;
@@ -404,39 +470,34 @@ export default {
   height: 100%;
   border-radius: 10px;
 }
-.download-img,
-.blk-like,
-.blu-like {
-  width: 10%;
-  cursor: pointer;
-}
-
-.download-img {
-  cursor: auto;
-}
 
 .like-div {
-  margin-top: 5vh;
-  padding: 1% 0;
+  margin-top: 3vh;
+  padding: 1% 2%;
   width: 50%;
   height: 20%;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  background-color: rgb(255, 182, 85);
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  text-align: center;
+  background-color: rgb(245, 245, 245);
   box-shadow: 0 5px 10px rgb(177, 145, 105);
   border-radius: 10px;
 }
 
-.like-div > span {
-  margin: 0 5%;
-  font-size: 200%;
+.blk-like,
+.blu-like,
+.share-img {
+  cursor: pointer;
 }
 
+.blk-like,
 .blu-like,
-.blk-like {
-  margin-right: 5%;
+.download-img
+ {
+  width: 20%;
+}
+.share-img {
+  width: 30%;
 }
 
 .download-container {
@@ -471,12 +532,13 @@ export default {
 
 .fw1 {
   margin-bottom: 1em;
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.603);
   width: 100%;
   display: flex;
   flex-direction: row;
   align-items: center;
   border-radius: 10px;
+  cursor: pointer;
 }
 
 .fw1 > img {
@@ -521,6 +583,9 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-shadow: 0 0 10px rgb(207, 187, 161);
+  padding: 2%;
+  border-radius: 10px;
 }
 .book-img {
   width: 20%;
@@ -555,20 +620,6 @@ export default {
   .progress-bar {
     height: 10px;
   }
-
-.download-img,
-.blk-like,
-.blu-like {
-  width: 15%;
-  cursor: pointer;
-}
-  .like-div > span {
-    font-size: 30px;
-  }
-  .like-div {
-    padding: 2% 0 ;
-    margin-top: 15px;
-  }
   .library-wrapper1 {
     width: 90%;
   }
@@ -583,18 +634,18 @@ export default {
 }
 
 @media screen and (max-width: 500px) {
+  .like-div {
+    margin-top: 1vh;
+    margin-bottom: 2vh;
+    width: 80%;
+  }
+  .size-div > span {
+    font-size: 12px;
+  }
+
   .progress-bar {
     height: 5px;
   }
-  
-.like-div {
-  margin-top: 10px;
-  width: 70%;
-}
-
-.like-div > span {
-  font-size: 25px;
-}
   .logo-img {
     width: 70px;
   }
