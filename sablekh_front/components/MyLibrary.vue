@@ -1,7 +1,7 @@
 <template>
     <div class="my-library-component mxw-100-mnh-100">
         <div class="header">
-            <img src="@/assets/back-arrow.png" alt="back img" class="back-img">
+            
             <img src="@/assets/sablekh.png" alt="loading img" class="logo-img">
         </div>
         <div class="my-library-wrapper1">
@@ -10,15 +10,15 @@
                 Your Library
             </h1>
             <p class="email">
-                dummy@gmail.com
+                {{email}}
             </p>
 
-            <div class="ml-libraries">
-                <div class="each-library" :key="library.hid" v-for="library in libraries">
+            <div class="ml-libraries"> 
+                <div class="each-library" :key="library.hid" v-for="library in up_libraries">
                     <button @click="edit_clicked(library)" class="btn edit-btn">
                         Edit
                     </button>
-                    <img @click="heading_clicked(library.link_str)" src="@/assets/search/book2.png" alt="loading image" class="book-img">
+                    <img @click="heading_clicked(library.link_str)" :src="library.thumbnail" alt="loading image" class="book-img">
                     <div @click="heading_clicked(library.link_str)" class="library-info">
                         <h1 >{{library.title}}</h1>
                         <p>{{library.description}}</p>
@@ -44,16 +44,15 @@ export default {
     data() {
         return {
             server_address: "https://api.sablekh.com",
-            libraries: []
+            libraries: [],
+            email: "dummy@sablekh.com"
         }
     },
 
     methods: {
 
         edit_clicked(lib) {
-
             window.location.href = "upload/" + lib.link_str
-
         },
 
         heading_clicked(link_str){
@@ -61,7 +60,7 @@ export default {
         },
         implicit_data(){
           return {"Authorization": "Token " + this.id, "site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
-      }
+        }
     },
 
     computed: {
@@ -71,6 +70,14 @@ export default {
                 window.location.replace("/login")
             }
             return id
+        },
+        up_libraries(){
+            var libraries =  Object.values(this.libraries)
+            for (var library of libraries){
+                if (library.title.length > 50) library.title = library.title.slice(0, 47) + "..."
+                if (library.description.length > 70) library.description = library.description.slice(0, 67) + "..."
+            }
+            return libraries
         }
     },
 
@@ -86,9 +93,7 @@ export default {
        })
        .then(res => {
            this.libraries = []
-
             res.data.map(lib => {
-
                 axios({
                     url: this.server_address + "/all-likes",
                     method: 'post',
@@ -101,7 +106,7 @@ export default {
                         lib.likes = res.data.likes
                     })
                     .catch(e => {
-                        console.log(e)
+                        lib.likes = 0
                     })
 
                 axios({
@@ -117,11 +122,9 @@ export default {
                         this.libraries.push(lib)
                     })
                     .catch(e => {
-                        console.log(e)
+                        lib.downloads = 0
                     })
             })
-
-
        })
        .catch(e => {
            console.log(e)
@@ -172,12 +175,14 @@ export default {
         border-top: 1px solid rgb(83, 75, 64);
         border-bottom: 1px solid rgb(83, 75, 64);
         font-size: 210%;
+        font-family: 'Staatliches', cursive;
+        letter-spacing: 5px;
     }
 
     .email {
         font-size: 150%;
-        font-style: italic;
         letter-spacing: 1px;
+        font-family: 'Ubuntu', sans-serif;
     }
 
     .ml-libraries {
@@ -226,7 +231,16 @@ export default {
     .library-info > h1 {
         font-size: 150%;
         margin: 0;
+        font-family: 'Rajdhani', sans-serif;
+
     }
+
+    .library-info > p {
+        margin-top: 5%;
+        font-family: 'Ubuntu', sans-serif;
+        font-size: 120%;
+    }
+
     .likes-div {
         width: 100%;
         height: 100%;
@@ -291,13 +305,13 @@ export default {
     .email {
         font-size: 18px;
     }
-    .each-library {
+    /* .each-library {
         padding: 10px 15px;
         grid-template-columns: 10fr 2fr;
-    }
-    .book-img {
+    } */
+    /* .book-img {
         display: none;
-    }
+    } */
     .library-info > h1 {
         margin-bottom: 5px;
     }

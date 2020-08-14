@@ -5,10 +5,10 @@
 
     <div class="library-wrapper1">
 
-      <img class="book-img" src="@/assets/search/book2.png" alt="book" >
+      <img class="book-img" :src="library_thumbnail" alt="book" >
       <h1 class="library-title">{{library_name}}</h1>
       <p class="library-desc">
-        {{library_desc}}
+        {{library_desc}} 
       </p>
 
       <div class="files-wrapper">
@@ -49,6 +49,7 @@ export default {
       files: [],
       refined_files: [],
       hid: "",
+      library_thumbnail: ""
     };
   },
 
@@ -114,6 +115,7 @@ export default {
           .then(res => {
             // console.log(res)
             this.download(res.data.filename)
+
             console.log(res.data)
           })
           .catch(e => {
@@ -184,7 +186,7 @@ export default {
         this.hid = res.data.hid;
         this.library_name = res.data.title;
         this.library_desc = res.data.description;
-
+         this.library_thumbnail = res.data.thumbnail
         axios({
           url: `${this.server_address}/all-files`,
           method: 'post',
@@ -196,7 +198,8 @@ export default {
           .then((res) => {
             this.files = res.data;
             this.clean_title();
-            // console.log(res);
+            console.log(res);
+           
           })
           .catch((err) => console.log(err));
       })
@@ -301,11 +304,13 @@ export default {
 .library-title {
   margin-top: 5%;
   font-size: 210%;
+  font-family: 'Rajdhani', sans-serif;
 }
 .library-desc {
   margin-top: 3%;
   font-size: 150%;
   text-align: center;
+  font-family: 'Ubuntu', sans-serif;
 }
 
 @media screen and (max-width: 1300px) {

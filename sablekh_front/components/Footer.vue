@@ -148,18 +148,14 @@ export default {
     }
 
     @media screen and (max-width: 500px){
-       .footer{
-            height: 400px;
-       }
        .foot-link {
-           margin-top: 5vh;
-           margin-bottom: 2vh;
+           /* margin-top: 5vh;
+           margin-bottom: 2vh; */
            font-size: 20px;
-        font-weight: bold;
+            font-weight: bold;
        }
        .footer-wrapper1 {
-           flex-direction: column;
-           padding-bottom: 20px;
+           padding:0;
        }
        #main-img{
            height: 25%;

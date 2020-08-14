@@ -2,7 +2,6 @@
     <div>
         <div class="upload-component mxw-100-mnh-100">
             <div class="upload-wrapper1" ref = "fileform" >
-                <img src="@/assets/back-arrow.png" alt="loading image" class='back-arrow'>
                 <img src="@/assets/upload/upload-top.png" alt="loading image" class="upload11" >
                 <div class="upload12" >
                     <div class = "content">
@@ -586,6 +585,7 @@ export default {
         outline: none;
         border: 2px solid rgb(87, 77, 66);
         border-radius: 10px;
+        font-family: 'Ubuntu', sans-serif;
     }
 
     #errorBox{
@@ -831,9 +831,6 @@ export default {
     } */
 
     @media screen and (max-width: 700px){
-        .upload-component {
-            background-color: white;
-        }
         .upload-wrapper1 {
             width: 98%;
         }

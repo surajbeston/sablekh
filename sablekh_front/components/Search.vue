@@ -8,7 +8,7 @@
                 <img src="@/assets/search/top.png" alt="loading image">
             </div>
             <div class="search12">
-                <h1>Search any PDFs here</h1>
+                <h1>Search Anything</h1>
             </div>
             <div class="search13">
                 <input @keyup.enter="search_button" type="text" v-model="search" id="search">
@@ -19,7 +19,7 @@
                     <div class="each-tag" v-bind:key="tag" v-for="tag in tags">
                         <img src="@/assets/tag.png" alt="tag" class="tag_png">
                         <span>{{tag}}</span>
-                        <img src="@/assets/cancel.png" alt="loading image" :id="tag" @click="cancel_button">
+                        <img src="@/assets/cancel.png" alt="loading image" :id="tag" @click="cancel_button" class = "cancel">
                     </div>
                     <input  type="text" v-model="current_tag" id="current-tag" @input="current_tag_changed" placeholder="Add tags here" autocomplete="off">
                 </div>
@@ -29,21 +29,30 @@
                     {{option.item}}
                 </span>
             </div>
-            <div class="search15">
+            <!-- <div class="search15">
                 <h2 @click="to_link" id="to">{{this.get_name}}</h2>
-            </div>
+            </div> -->
             <div id="results-div" class="search15">
-                <NuxtLink :to="`library/${book.link_str}`" v-bind:key="book.hid" v-for="book in search_books" >
+                <NuxtLink :to="`library/${book.link_str}`" v-bind:key="book.hid" v-for="(book, index) in books" >
                     <div class="search151">
                         <div class="search151-each">
-                            <img :src="image_address" alt="loading image">
+                            <img :src="book.thumbnail" alt="loading image">
                             <div class="search1512">
+                                <p> 
+                                   <span class = "tag">Notes</span><span v-for="tag in book.tags" class = "tag">{{tag}}</span> 
+                                </p>
                                 <h1>{{book.title}}</h1>
                                 <p>{{book.description}}</p>
                             </div>
-                            <div class="likes">
-                                <span>{{likes}}</span>
-                                <img src="@/assets/like.png" alt="like">
+                            <div class = "action-box">
+                                <div class="action">
+                                    <span>{{likes[index]}}</span>
+                                    <img src="@/assets/download1.png" alt="like">
+                                </div>
+                                <div class="action">
+                                    <span>{{likes[index]}}</span>
+                                    <img src="@/assets/like.png" alt="like">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -76,11 +85,13 @@ export default {
                 'Math',
                 'Social',
                 'English',
-                'Dont think of this'
+                'Dont think of this',
+                'shit man'
             ],
             search: "",
             search_books: [],
-            likes: 100,
+            likes: [],
+            downloads: []
         }
     },
 
@@ -122,7 +133,6 @@ export default {
             this.tags.splice(i, 1)
         },
         search_button() {
-            
             if (this.search != "") {
                 axios({
                     url: `${this.server_address}/search`,
@@ -134,8 +144,42 @@ export default {
                     headers: this.implicit_data()
                 })
                 .then(res => {
-                    this.search_books = res.data
                     this.add_to_localstorage("search", res.data)
+                    this.search_books = []
+                    res.data.map(lib => {
+                        axios({
+                            url: this.server_address + "/all-likes",
+                            method: 'post',
+                            headers: this.implicit_data(),
+                            data: {
+                                library: lib.hid
+                            }
+                        })    
+                            .then(res => {
+                                lib.likes = res.data.likes
+                            })
+                            .catch(e => {
+                                lib.likes = 0
+                            })
+
+                        axios({
+                            url: this.server_address + "/all-downloads",
+                            method: 'post',
+                            headers: this.implicit_data(),
+                            data: {
+                                library: lib.hid
+                            }
+                        })    
+                            .then(res => {
+                                lib.downloads = res.data.downloads
+                                this.libraries.push(lib)
+                            })
+                            .catch(e => {
+                                lib.downloads = 0
+                            })
+                        this.search_books.push(lib)
+                    })
+
                 })
                 .catch(err => {
                     console.log(err)
@@ -158,6 +202,37 @@ export default {
         },
         get_name() {
             return this.get_link ? "upload" : "login to upload";
+        },
+        books(){
+            for (var book of this.search_books){
+                if (book.title.length > 50) book.title = book.title.slice(0, 67) + "..."
+                if (book.description.length > 70) book.description = book.description.slice(0, 67) + '...'
+                axios({
+                    url: `${this.server_address}/all-likes`,
+                    method: "POST",
+                    headers: this.implicit_data(),
+                    data: {"library": book.hid}
+                }).then( response => {
+                    console.log(response)
+                    this.likes.push(response.data.likes)
+                }).catch( response => {
+                    console.log(response)
+                    this.likes.push(1)
+                })
+                axios({
+                    url: `${this.server_address}/all-downloads`,
+                    method: "POST",
+                    headers: this.implicit_data(),
+                    data: {"library": book.hid}
+                }).then( response => {
+                    console.log(response)
+                    this.downloads.push(response.data.downloads)
+                }).catch( response => {
+                    console.log(response)
+                    this.downloads.push(1)
+                })
+            }
+            return this.search_books
         }
     },
 
@@ -181,6 +256,7 @@ export default {
     .search-component {
         padding-bottom: 5vh;
         background-color: rgb(254, 227, 200);
+        overflow: hidden;
     }
     .search-wrapper1 {
         width: 100%;
@@ -206,7 +282,10 @@ export default {
     }
     .search12 > h1 {
         padding: 0 10px;
-        font-size: 2.5vw;
+        font-family: 'Staatliches', cursive;
+        letter-spacing: 5px;
+        font-size: 300%;
+        font-weight: 100;
     }
     .search13 {
         position: relative;
@@ -231,12 +310,14 @@ export default {
         width: 40px;
     }
     .search14 {
-        min-width: 30vw;
+        width: 30vw;
         display: flex;
-        justify-content: center;
+        /* justify-content: center; */
         border-radius: 10px;
         background-color: white;
         padding: 5px 0;
+        font-family: 'Comfortaa', cursive;
+        overflow: hidden;
     } 
     .all-tags {
         min-width: 10px;
@@ -246,11 +327,15 @@ export default {
         margin: 0 1vw;
     }
     .all-tags > input {
-        min-width: 30vw;
         font-size: 20px;
         padding: 10px 20px;
         border: none;
         outline: none;
+        font-family: 'Comfortaa', cursive;
+        margin-left: 0;
+        text-align: left;
+        width: 200px;
+        display: inline-block;
     }
     .each-tag {
         border-radius: 5px;
@@ -260,8 +345,12 @@ export default {
         padding: 5px 30px;
         border-radius: 5px;
         font-size: 18px;
+        display: inline-block;
     }
 
+    #current-tag{
+        
+    }
     .each-tag > img {
         position: absolute;
         right: 5px;
@@ -305,13 +394,30 @@ export default {
     }
     .search151 {
         width: 100%;
+        margin-bottom: 5%;
     }
+
+    .search1512{
+        /* border-left: solid rgb(56, 53, 53) 2px; */
+        padding-left: 5%;
+    }
+    .search1512 > h1{
+        margin-top: 0;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: bolder;
+        margin-top: 2%;
+    }
+
+    .search1512 > p{
+        font-family: 'Ubuntu', sans-serif;
+        font-size: bolder;
+    }   
     .search151-each {
         margin: 0 auto;
         margin-top: 2vh;
         width: 60vw;
         background-color: white;
-        padding: 10px 70px 10px 10px;
+        padding: 10px 10px 10px 10px;
         border-radius: 10px;
         box-shadow: 0 0 10px rgb(201, 178, 157);
         display: flex;
@@ -320,26 +426,48 @@ export default {
         position: relative;
     }
     .search151-each > img {
-        height: 10vw;
-        margin: 0 5vw 0 0;
+        height: 120px;
+        width: 100px;
+        margin: 0 5% 0 0;
     }
     .search1512 > p {
         text-align: justify;
         font-size: 20px;
         margin-top: 10px;
     }
-    .likes {
+    .action {
         width: 50px;
-        display: flex;
-        flex-direction: column;
-        position: absolute;
-        right: 0;
+        margin: 10px;
     }
-    .likes > img {
+    .action > img {
         width: 50%;
     }
-    
 
+    .action-box{
+        margin-left: 10%;
+        position: absolute;
+        right: 0;
+        background-color: white;
+    }
+
+    .tag{
+        border: solid 3px rgb(238, 177, 97);
+        border-radius: 5px;
+        padding: 2px 5px 2px 5px;
+        margin: 0 5px 10px 5px;
+        font-size: 80%;
+        font-family: 'Comfortaa', cursive;
+        font-weight: bolder;
+        display: inline-block;
+    }
+
+    @media screen and (max-width: 1500px) {
+        .search1512{
+            margin-right: 10%;
+        }
+    }
+
+    
     @media screen and (max-width: 1200px) {
         .logo-img {
             width: 100px;
@@ -359,11 +487,52 @@ export default {
         .all-tags {
             margin: 0 5vw;
         }
+
+        .search1512 > h1{
+            font-size: 170%;
+        }
+
+        .search1512 > p{
+            font-size: 100%;
+        }
+
+        .search14 {
+        width: 60vw;
+        }
     }
     @media screen and (max-width: 900px) {
           .input-options {
               width: 300px;
           }
+
+        .search151-each > img {
+            height: 100px;
+            width: 80px;
+        }
+
+        .tag{
+            margin-bottom: 5px;
+            border-width: 2px;
+        }
+
+        .action {
+            width: 40px;
+        }
+
+        .all-tags > input{
+            font-size: 100%;
+            width: 170px;
+        }
+
+        .input-options > span{
+            font-size: 100%;
+        }
+
+        .each-tag {
+            font-size: 100%;
+        }
+
+
     }
     @media screen and (max-width: 600px) {
         .logo-img {
@@ -377,7 +546,7 @@ export default {
         }
         .search14 {
             padding: 1px;
-            width: 98%;
+            width: 70vw;
         }
         .all-tags {
             margin: 0 5vw;
@@ -415,4 +584,66 @@ export default {
             font-size: 10px;
         }
     }
+
+
+    @media screen and (max-width: 500px) {
+        .header{
+            height: 12vh;
+        }
+
+        .action {
+            width: 30px;
+        }  
+
+        .search151-each > img {
+            height: 80px;
+            width: 60px;
+        }
+
+        .all-tags > input{
+            font-size: 80%;
+            width: 170px;
+        }
+
+        .input-options > span{
+            font-size: 80%;
+        }
+
+        .each-tag {
+            font-size: 80%;
+        }
+
+        .each-tag > img{
+            width: 12px;
+        }
+
+        .search14{
+            width: 85vw;
+        }
+
+         .tag{
+            margin-bottom: 3px;
+            border-width: 1px;
+            border-radius: 3px;
+        }
+
+        .search1512 > h1{
+            margin-top: 0;
+        } 
+
+        .search12 > h1 {
+            letter-spacing: 2px;
+        }
+
+        .search1512 > h1{
+            font-size: 110%;
+        }
+
+        .search1512 > p{
+            font-size: 80%;
+        }
+
+    }
+
+
 </style>

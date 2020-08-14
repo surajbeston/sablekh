@@ -48,7 +48,7 @@ export default {
         hasError: false,
         error: "this is error.",
         btn_txt: "Create",
-        sending: false, 
+        sending: false,
         time: 0
     } 
   },
