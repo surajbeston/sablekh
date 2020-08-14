@@ -70,7 +70,7 @@ export default {
       files: [],
       refined_files: [],
       hid: "",
-      library_thumbnail: ""
+      library_thumbnail: "",
       likes: 0,
       is_liked: false,
       downloading: false,
@@ -117,7 +117,6 @@ export default {
       if (!this.token) {
         window.location.href = "login";
       }
-
       axios({
         url: this.server_address + "/like",
         method: "post",

@@ -86,24 +86,43 @@ export default {
             .then(res => {
                 this.sending = true
                 this.btn_txt = "Create"
-                var token = res.data.token
-                if (token != undefined){
+                console.log("reached here")
+                axios({
+                    url: this.server_address + "/token",
+                    method: "post",
+                    headers: this.implicit_data(),
+                    data: {"email": this.email, "password": this.password1}
+                })
+                .then(res => {
+                    this.sending = true
+                    this.btn_txt = "Create"
+                    var token = res.data.token
+                    if (token != undefined){
                         window.localStorage.setItem("token", token)
-                }
-                if (this.remember) {
-                this.cookie_setter(token)
-                }
-                window.location.replace("/login")
-            })
-            .catch(err => {
-                var data = err.response
-                this.sending = false
-                this.btn_txt = "Create"
-                if (data.status == 303) this.show_error("User with this email already exists.")
-                else this.show_error("Something went wrong. please try again.")
-                this.password1 = ""
-                this.password2 = ""
-            })
+                        window.localStorage.setItem("email", this.email)
+                    }
+                    if (this.remember) {
+                    this.cookie_setter(token)
+                    }
+                    window.location.replace("/")
+                })
+                .catch(err => {
+                    var data = err.response
+                    this.btn_txt = "Create"
+                    this.sending = false
+                    this.window.href = "/login"
+                })
+                    })
+                    .catch(err => {
+                        var data = err.response
+                        console.log(data)
+                        this.sending = false
+                        this.btn_txt = "Create"
+                        if (data.status == 303) this.show_error("User with this email already exists.")
+                        else this.show_error("Something went wrong. please try again.")
+                        this.password1 = ""
+                        this.password2 = ""
+                    })
           }
       },
       show_error(errorTxt){

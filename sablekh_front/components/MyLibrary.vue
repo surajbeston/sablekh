@@ -12,22 +12,26 @@
             <p class="email">
                 {{email}}
             </p>
-
-            <div class="ml-libraries"> 
-                <div class="each-library" :key="library.hid" v-for="library in up_libraries">
-                    <button @click="edit_clicked(library)" class="btn edit-btn">
-                        Edit
-                    </button>
-                    <img @click="heading_clicked(library.link_str)" :src="library.thumbnail" alt="loading image" class="book-img">
-                    <div @click="heading_clicked(library.link_str)" class="library-info">
-                        <h1 >{{library.title}}</h1>
-                        <p>{{library.description}}</p>
-                    </div>
-                    <div class="likes-div">
-                        <span>{{library.likes}}</span>
-                        <img src="@/assets/like.png" alt="like img" class="like-img">
-                        <span id="span">{{library.downloads}}</span>
-                        <img src="@/assets/download1.png" alt="download img" class="download-img">
+            
+            <span class="loader" v-show="loader_on"></span>
+            <div v-show="!loader_on">
+                <h2  v-show="no_library" class = "no_library">No libraries found, please upload to find it here.</h2>
+                <div class="ml-libraries"  v-show="!no_library"> 
+                    <div class="each-library" :key="library.hid" v-for="library in up_libraries">
+                        <button @click="edit_clicked(library)" class="btn edit-btn">
+                            Edit
+                        </button>
+                        <img @click="heading_clicked(library.link_str)" :src="library.thumbnail" alt="loading image" class="book-img">
+                        <div @click="heading_clicked(library.link_str)" class="library-info">
+                            <h1 >{{library.title}}</h1>
+                            <p>{{library.description}}</p>
+                        </div>
+                        <div class="likes-div">
+                            <span>{{library.likes}}</span>
+                            <img src="@/assets/like.png" alt="like img" class="like-img">
+                            <span id="span">{{library.downloads}}</span>
+                            <img src="@/assets/download1.png" alt="download img" class="download-img">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -45,12 +49,13 @@ export default {
         return {
             server_address: "https://api.sablekh.com",
             libraries: [],
-            email: "dummy@sablekh.com"
+            email: "dummy@sablekh.com",
+            no_library: false,
+            loader_on: false
         }
     },
 
     methods: {
-
         edit_clicked(lib) {
             window.location.href = "upload/" + lib.link_str
         },
@@ -85,13 +90,17 @@ export default {
     mounted() {
 
       this.time = new Date().getTime()
-
+        this.loader_on = true
        axios({
            url: this.server_address + '/all-libraries',
            method: 'post',
            headers: this.implicit_data()
        })
        .then(res => {
+           this.loader_on = false
+           if (res.data.length == 0){
+               this.no_library = true
+           }
            this.libraries = []
             res.data.map(lib => {
                 axios({
@@ -257,6 +266,13 @@ export default {
         margin-bottom: 5px;
     }
 
+    .no_library{
+        font-family: 'Rajdhani', sans-serif;
+        margin: 5%;
+        text-align: center;
+    }
+
+
 @media screen and (max-width: 1200px) {
     .logo-img {
         width: 150px;
@@ -274,6 +290,41 @@ export default {
     .edit-btn {
         padding: 5px 20px;
     }
+
+    .loader {
+        width: 48px;
+        height: 48px;
+        border: 3px solid #FFF;
+        border-radius: 50%;
+        display: inline-block;
+        position: relative;
+        box-sizing: border-box;
+        animation: rotation 1s linear infinite;
+        margin-top: 5%;
+    }
+    .loader::after {
+        content: '';  
+        box-sizing: border-box;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        border: 3px solid;
+        border-color: #FF3D00 transparent;
+    }
+
+    @keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
 }
 
 @media screen and (max-width: 700px) {

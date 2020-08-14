@@ -83,9 +83,9 @@ export default {
             this.btn_txt = "Create"
             var token = res.data.token
             if (token != undefined){
-                    window.localStorage.setItem("token", token)
+                window.localStorage.setItem("token", token)
+                window.localStorage.setItem("email", this.email)
             }
-
             if (this.remember) {
               this.cookie_setter(token)
             }
