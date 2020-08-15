@@ -57,6 +57,7 @@ export default {
             })
             .catch(e => {
               console.log(e)
+              alert("Internal error please try again later")
             })
           }
         },
