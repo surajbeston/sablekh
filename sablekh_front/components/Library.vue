@@ -1,16 +1,20 @@
 <template>
   <div class="library-component mxw-100-mnh-100">
-    <img src="@/assets/back-arrow.png" alt="loading img" class="back-arrow" />
     <img src="@/assets/logo1.png" alt="loading image" class="logo-img" />
+    <div>
+      <span class="loader" v-show = "loader_on"></span>
+    </div>
+    <div class="library-wrapper1" v-show="!loader_on">
 
-    <div class="library-wrapper1">
-
-      <img class="book-img" src="@/assets/search/book2.png" alt="book" />
+      <img class="book-img" :src="library_thumbnail" alt="book" />
       <h1 class="library-title">{{library_name}}</h1>
       <p class="library-desc">{{library_desc}}</p>
       <div class="lib-tags" v-bind:key="tag" v-for="tag in library_tags">
         <span class="each-tag">{{tag}}</span>
       </div>
+
+      <div id = "successBox" v-show="hasSuccess" ><p id = "successTxt"> {{success}}<img src = "@/assets/cancel.png" @click="hasSuccess =!hasSuccess" class = "cancelSuccess"></p></div>
+          <div id = "errorBox" v-show="hasError" ><p id = "errorTxt"> {{error}}<img src = "@/assets/cancel.png" @click="hasError =!hasError" class = "cancelError"></p></div>
       <div class="like-div">
         <div class="like1">
           <span class="like-span">{{likes}}</span>
@@ -27,15 +31,15 @@
           <span class="like-span">{{downloads}}</span>
           <img src="@/assets/download1.png" alt="download img" class="download-img">
         </div>
-        <div class="like3">
-            <img src="@/assets/share.png" alt="share img" class="share-img">
+        <div class="like3" @click = "copy(library_name)">
+            <img src="@/assets/copy.png" alt="share img" class="copy-img">
         </div> 
       </div>
-      <div class="files-wrapper">
+      <div class="files-wrapper" v-show = "!loader_on">
         <div class="fw-each" :key="file.hid" v-for="file in refined_files">
           <div @click="download_middle(file.hid)" class="fw1">
             <img src="@/assets/filenames/pdf.png" alt="png" />
-            <h3>{{file.title}}</h3>
+            <h3>{{file.title}}</h3> 
             <div class="size-div">
               <img src="@/assets/file.png" alt="file png" class="file-img">
               <span>{{(file.size/1024).toFixed(2)}} MB</span>
@@ -47,8 +51,7 @@
         </div>
       </div>
       <div v-show="downloading" class="progress-bar">
-        <div class="progress" :style="progress_bar_style">
-        </div>
+        <div class="progress" :style="progress_bar_style"></div>
       </div>
       <div class="download-container">
         <button @click="download_clicked" class="btn download">Download</button>
@@ -60,7 +63,7 @@
       <div v-show="changing && authenticated" class="change-link">
         <input type="text" v-model="new_link" :placeholder="lib_id">
         <button @click="link_changed" class="btn change-link-button">Change</button>
-      </div>
+      </div> 
     </div>
   </div>
 </template>
@@ -95,27 +98,34 @@ export default {
       authenticated: false,
       downloads: 0,
       is_in_user_library: false,
-      user_libraries: []
+      user_libraries: [],
+      loader_on: false,
+      hasSuccess: false,
+      success: "This is success",
+      error: "This is error",
+      hasError: false
     };
   },
 
   methods: {
 
     library_stuffs(){
-
+      this.loader_on = true
       axios({
-        url: this.server_address + "/all-libraries",
+        url: this.server_address + "/get-library",
         method: 'post',
         headers: {
           ...this.implicit_data(),
           Authorization: "Token " + this.token
-        }
+        },
+        data: {"hid": this.hid}
       })
       .then(res => {
+        this.loader_on = false
         this.user_libraries = res.data
+        console.log(res.data)
+        this.is_in_user_library = res.data
         
-        this.is_in_user_library = this.user_libraries.filter(lib => lib.hid === this.hid) ? true : false ;
-
       })
       .catch(e => {
         console.log(e)
@@ -143,7 +153,7 @@ export default {
         window.location.href = "/library/" + res.data.link_str
       })
       .catch(e => {
-        console.log(e)
+        this.show_error("Something went wrong.")
       })
 
     },
@@ -262,7 +272,7 @@ export default {
       var file_hids = "";
 
       if (!this.selected_file.length > 0) {
-        alert("None selected");
+        this.show_error("Please select files to downoad. ")
         return null;
       }
 
@@ -303,7 +313,7 @@ export default {
             this.progress = 80;
           })
           .catch((e) => {
-            alert("try again");
+            this.show_error("Download interrupted. Try again.")
           });
       }
     },
@@ -325,7 +335,11 @@ export default {
         fileLink.click();
         this.progress = 0;
         this.downloading = false
-      });
+        this.show_success("File/s downloaded.")
+      }).catch(error => {
+        this.show_error("Download interrupted. Try again.")
+      })
+      
     },
 
     clean_title() {
@@ -337,17 +351,27 @@ export default {
         let title = `${a.substring(0, a.length > 5 ? 5 : a.length)}.${e[1]}`;
         b.title = title;
         this.contents.push(title);
-
         this.refined_files.push(b);
       });
     },
-
     implicit_data() {
       return {
         site: document.referrer,
         link: window.location.href.toString().split(window.location.host)[1],
         timetaken: new Date().getTime() - this.time,
       };
+    },
+    async copy(s) {
+      await navigator.clipboard.writeText(window.location.href);
+      this.show_success("Link Copied. Share it now!")
+    },
+    show_success(successTxt){
+      this.hasSuccess = true
+      this.success = successTxt
+    },
+    show_error(errorTxt){
+      this.hasError = true 
+      this.error = errorTxt 
     },
   },
 
@@ -370,8 +394,7 @@ export default {
     if (this.token) {
       this.authenticated = true
     }
-
-
+    this.loader_on = true
     axios({
       url: `${this.server_address}/link`,
       method: "post",
@@ -401,6 +424,7 @@ export default {
           headers: this.implicit_data(),
         })
           .then((res) => {
+            this.loader_on = false
             this.files = res.data;
             this.clean_title();
             console.log(res);
@@ -428,7 +452,8 @@ export default {
   padding: 5px 10px;
   font-size: 110%;
   border: 2px solid rgb(255, 160, 35);
-  border-radius: 10px;
+  border-radius: 5px;
+  font-family: 'Comfortaa', cursive;
 }
 
 .size-div {
@@ -444,7 +469,7 @@ export default {
 
 .change-link {
   width: 100%;
-  display: grid;
+  /* display: grid; */
   grid-template-columns: 10fr 1fr;
   grid-column-gap: 5px;
 }
@@ -455,7 +480,11 @@ export default {
 .change-link >input {
   outline: none;
   font-size: 20px;
-  padding: 0 10px;
+  padding: 3px 10px;
+  width: 50%;
+  margin-left: 20%;
+  border: none;
+  border-radius: 5px;
 }
 
 .progress-bar {
@@ -471,21 +500,21 @@ export default {
 }
 
 .like-div {
-  margin-top: 3vh;
+  margin-top: 5%;
   padding: 1% 2%;
   width: 50%;
-  height: 20%;
+  height: 25%;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   text-align: center;
   background-color: rgb(245, 245, 245);
   box-shadow: 0 5px 10px rgb(177, 145, 105);
-  border-radius: 10px;
+  border-radius: 5px;
 }
 
 .blk-like,
 .blu-like,
-.share-img {
+.copy-img {
   cursor: pointer;
 }
 
@@ -493,10 +522,10 @@ export default {
 .blu-like,
 .download-img
  {
-  width: 20%;
+  width: 25%;
 }
-.share-img {
-  width: 30%;
+.copy-img {
+  width: 25%;
 }
 
 .download-container {
@@ -536,8 +565,9 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: center;
-  border-radius: 10px;
+  border-radius: 5px;
   cursor: pointer;
+  font-family: 'Ubuntu', sans-serif;
 }
 
 .fw1 > img {
@@ -602,6 +632,91 @@ export default {
   font-family: 'Ubuntu', sans-serif;
 }
 
+  #successBox{
+      background-color: rgba(134, 190, 87, 0.4);
+      color: rgb(51, 47, 43);
+      border: 1px black solid;
+      border-radius: 5px;
+      padding : 1%;
+      font-size: 110%;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 200;
+      animation-name: fadein;
+      animation: fadein 1s;
+      width: 50%;
+  }
+  .cancelSuccess{
+      cursor: pointer;
+      float: right;
+  }
+
+  #errorBox{
+    background-color: rgba(255, 0, 0, 0.4);
+    color: rgb(51, 47, 43);
+    border: 1px black solid;
+    border-radius: 5px;
+    padding : 1%;
+    font-size: 110%;
+    font-family: 'Rajdhani', sans-serif;
+    animation-name: fadein;
+    animation: fadein 1s;
+    margin: 2% 0 2% 0;
+    font-weight: bold;
+    width: 50%;
+
+}
+
+.cancelError{
+    cursor: pointer;
+    right: 0;
+    float: right;
+}
+
+  .loader {
+      width: 48px;
+      height: 48px;
+      border: 3px solid #FFF;
+      border-radius: 50%;
+      display: inline-block;
+      position: relative;
+      box-sizing: border-box;
+      animation: rotation 1s linear infinite;
+      margin-top: 5%;
+      text-align: center;
+      position: absolute;
+      margin-left: 48%;
+  }
+  .loader::after {
+    content: '';  
+    box-sizing: border-box;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 3px solid;
+    border-color: #FF3D00 transparent;
+    }
+
+    @keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+    } 
+
+    @media screen and (max-width: 1500px) {
+        .search1512{
+            margin-right: 10%;
+        }
+    }
+    
+
+
 @media screen and (max-width: 1300px) {
   .library-wrapper1 {
     width: 80%;
@@ -613,6 +728,35 @@ export default {
   .logo-img {
     width: 100px;
   }
+
+  .like-div{
+    height: 25%;
+    padding: 10px;
+  }
+
+  .blk-like,
+.blu-like,
+.download-img
+ {
+  width: 20%;
+}
+.copy-img {
+  width: 20%;
+}
+
+  .loader {
+      width: 30px;
+      height: 30px;
+  }
+
+  .loader::after {
+      width: 36px;
+      height: 36px;
+  }
+
+  .each-tag {
+    font-size: 90%;
+  }
 }
 
 @media screen and (max-width: 700px) {
@@ -620,16 +764,49 @@ export default {
     height: 10px;
   }
   .library-wrapper1 {
-    width: 90%;
+    width: 72%;
   }
 
   .files-wrapper {
-    width: 90%;
+    width: 72%;
   }
 
   .back-arrow {
     display: block;
   }
+
+      .blk-like,
+  .blu-like,
+  .download-img
+  {
+    width: 25%;
+  }
+  .copy-img {
+    width: 25%;
+}
+
+  .like-div{
+    width: 67%;
+  }
+
+  .each-tag {
+    font-size: 80%;
+  }
+
+  #errorBox{
+    width: 85%;
+    padding: 2%;
+  }
+
+  #successBox{
+    width: 85%;
+    padding: 2%;
+  }
+
+  .cancelError{
+    width: 20px;
+  }
+
 }
 
 @media screen and (max-width: 500px) {
@@ -650,7 +827,7 @@ export default {
   }
 
   .book-img {
-    width: 70%;
+    width: 50%;
   }
 
   .library-title {
@@ -663,5 +840,49 @@ export default {
   .btn {
     font-size: 16px;
   }
+
+  .fw1 {
+    width: 115%;
+  }
+
+  .fw1 > h3{
+    font-size: 90%;
+  }
+
+  .library-wrapper1{
+    width: 90%;
+  }
+
+  .library-title{
+    font-size: 150%;
+
+  }
+
+  .each-tag {
+    font-size: 70%;
+  }
+
+  .file-img{
+    display: none;
+  }
+
+  .size-div{
+    width: 40%;
+  }
+
+  .change-link >input {
+    margin-left: 10%;
+    width: 60%;
+  }
 }
+
+@media screen and (max-width: 400px) {
+  .change-link >input {
+    margin-left: 5%;
+    width: 60%;
+  }
+
+}
+
+
 </style>

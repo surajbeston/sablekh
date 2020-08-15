@@ -9,6 +9,7 @@
                         <p class = "description">Create your small library and share it with the world. You can add upto 10 files, each not exceeding 30MB in size.</p>
                         <div class="input-section" v-bind:class="{alternative: activate}">
                             <div id = "errorBox" v-show="hasError" ><p id = "errorTxt"> {{error}}<img src = "@/assets/cancel.png" @click="hasError =!hasError" class = "cancelError"></p></div>
+
                             <label for="title">Title {{letters_title}}/150</label>
                             <input class="input-box" type="text" v-model="title" id="title" autofocus >
                             <label for="description">Description {{letters_description}}/600</label>
@@ -23,7 +24,7 @@
                                             <div class = "download-filename">{{file.name}}</div>
                                             <div class = "right-box">
                                                 <img src = "@/assets/upload/upload.png" class = "upload-img" v-show = "!file.uploaded" ><img src = "@/assets/upload/upload-green1.png" class = "upload-img" v-show = "file.uploaded">
-                                                <div class = "file-size"> {{file.uploadedsize}}MB of {{file.totalsize}}MB</div>
+                                                <div class = "file-size"> {{file.uploadedsize}}MB/{{file.totalsize}}MB</div>
                                             </div> 
                                         </div>
                                         <div class = "progressbar" ><div class = "progress" v-bind:style= "{width: file.progress}"></div></div> 
@@ -792,9 +793,6 @@ export default {
     }
 
 
-
-
-
     @media screen and (max-width: 1500px){
         .progressbar{
             width: 40vw;
@@ -822,13 +820,13 @@ export default {
 
         
     }
-/* 
-    @media screen and (max-width: 700px){
-        
-        .upload11{
-            display:none;
+
+    @media screen and (max-width: 900px){
+        .progressbar{
+            width: 43vw;
         }
-    } */
+        
+    }
 
     @media screen and (max-width: 700px){
         .upload-wrapper1 {
@@ -873,7 +871,60 @@ export default {
             font-size: 16px;
             padding: 5px 10px;
         }
+        .progressbar{
+            width: 70vw;
+        }
+
     }
+
+    @media screen and (max-width: 500px){
+    .progressbar{
+            width: 67vw;
+        }
+    .download-filename {
+        font-size: 90%;
+    }
+    .right-box{
+        font-size: 90%;
+    }
+
+    }
+
+    @media screen and (max-width: 500px){
+    .progressbar{
+            width: 69vw;
+        }
+
+    .download-filename {
+        font-size: 80%;
+    }
+    .right-box{
+        font-size: 80%;
+    }
+    .upload-img{
+        width: 15%;
+    }
+
+    .cancelDownload{
+        width: 20px;
+    }
+
+
+    }
+
+@media screen and (max-width: 400px){
+
+    .extension-image{
+        width: 13%;
+    }
+}
+
+
+    /* @media screen and (max-width: 450px){
+    .progressbar{
+            width: 60vw;
+        }
+    } */
 
 
 

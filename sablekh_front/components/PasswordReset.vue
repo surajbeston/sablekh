@@ -8,8 +8,8 @@
             </div>
             <div class="password-reset12">
                 <div v-show="first_phase" class="grid-set pr121 w-100-h-100">
-                    <h1>Forget Password ?</h1>
-                    <p>Then reset your password by clicking the button below.</p>
+                    <h1> password reset</h1>
+                    <p>Please click on the button to receive reset link on your email </p>
                     <button class="btn" @click="reset_button">
                         Reset
                     </button>
@@ -18,7 +18,7 @@
                     <div class="pr1221">
                         <h1>Change Password</h1>
                         <p>{{email}}</p>
-                    </div>
+                    </div> 
                     <div class="input-section">
                         <input type="password" v-model="password1" id="password1" placeholder="New Password">
                         <input type="password" v-model="password2" id="password2" placeholder="Old Password">
@@ -81,8 +81,7 @@ export default {
 
         },
 
-        reset_button() {
-
+        reset_button() 
             axios.post(this.server_address + "/reset-password", {
                 token: this.$route.params.id,
                 type: "test"
@@ -147,11 +146,16 @@ export default {
        align-content: space-around;
        padding: 20% 10%;
     }
-    /* .pr121 {
+    .pr121 > h1{
+        text-align: center;
+      letter-spacing: 5px;
+      font-family: 'Staatliches', cursive;
 
-    } */
+    }
     .pr121 > p {
         font-size: 130%;
+        font-family: 'Ubuntu', sans-serif;
+        text-align: center;
     }
     .pr122 {
         padding: 10% 1%;
@@ -176,6 +180,7 @@ export default {
         border-radius: 5px;
         box-shadow: 0 5px 5px rgb(214, 214, 214);
         color: rgb(165, 140, 106);
+        font-family: 'Staatliches', cursive;
     }
 
 /* extras  */
@@ -189,6 +194,7 @@ export default {
         font-weight: bold;
         border-radius: 10px;
         background-color: rgb(247, 206, 152);
+        
     }
     .btn:hover {
         background-color: rgba(229, 186, 130, 0);

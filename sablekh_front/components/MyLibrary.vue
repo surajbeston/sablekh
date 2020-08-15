@@ -12,7 +12,7 @@
             <p class="email">
                 {{email}}
             </p>
-            
+
             <span class="loader" v-show="loader_on"></span>
             <div v-show="!loader_on">
                 <h2  v-show="no_library" class = "no_library">No libraries found, please upload to find it here.</h2>
@@ -91,6 +91,7 @@ export default {
 
       this.time = new Date().getTime()
         this.loader_on = true
+        if (window.localStorage.getItem("email")) this.email = window.localStorage.getItem("email")
        axios({
            url: this.server_address + '/all-libraries',
            method: 'post',
@@ -257,13 +258,20 @@ export default {
         flex-direction: column;
         align-items: flex-end;
         justify-content: flex-end;
+
+    }
+
+    .likes-div > span {
+        margin-right: 10%;
     }
     .download-img {
         width: 18%;
+        margin-right: 10%;
     }
     .like-img {
         width: 15%;
         margin-bottom: 5px;
+         margin-right: 10%;
     }
 
     .no_library{
@@ -272,24 +280,6 @@ export default {
         text-align: center;
     }
 
-
-@media screen and (max-width: 1200px) {
-    .logo-img {
-        width: 150px;
-    }
-    .back-img {
-        display: block;
-    }
-    .top-img {
-        width: 200px;
-    }
-    .each-library {
-        width: 80%;
-        min-height: 120px;
-    }
-    .edit-btn {
-        padding: 5px 20px;
-    }
 
     .loader {
         width: 48px;
@@ -325,6 +315,41 @@ export default {
     }
 }
 
+
+
+@media screen and (max-width: 1200px) {
+    .logo-img {
+        width: 150px;
+    }
+    .back-img {
+        display: block;
+    }
+    .top-img {
+        width: 200px;
+    }
+    .each-library {
+        width: 80%;
+        min-height: 120px;
+    }
+    .edit-btn {
+        padding: 5px 20px;
+    }
+
+        .loader {
+            width: 30px;
+            height: 30px;
+        }
+
+        .loader::after {
+            width: 36px;
+            height: 36px;
+        }
+
+            .book-img {
+        cursor: pointer;
+        width: 90%;
+        height: 80%;
+    }
 }
 
 @media screen and (max-width: 700px) {
@@ -343,6 +368,12 @@ export default {
     .edit-btn {
         font-size: 14px;
         padding: 5px 10px;
+    }
+
+    .book-img {
+        cursor: pointer;
+        width: 90%;
+        height: 120%;
     }
 }
 
@@ -372,11 +403,24 @@ export default {
     span {
         font-size: 10px;
     }
+    .likes-div > span{
+        margin-right: 80%;
+    }
+
     .like-img {
-        width: 20%;
+        width: 30%;
+        margin-right: 80%;
     }
     .download-img {
-        width: 25%;
+        width: 30%;
+        margin-bottom: 0;
+        margin-right: 80%;
+    }
+
+    .book-img {
+        cursor: pointer;
+        width: 90%;
+        height: 120%;
     }
 
 }

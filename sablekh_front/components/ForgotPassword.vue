@@ -9,7 +9,7 @@
                         <img src="@/assets/forgot_pw/logo.png" alt="logo" class="main121">
                         <img src="@/assets/forgot_pw/top.png" alt="loading image" class="main122">
                         <div class="main123">
-                            <h1>Forgot Password ?</h1>
+                            <h1>PASSWORD RESET</h1>
                             <h2>E-mail</h2>
                             <p v-show="email_sent" style="margin-top: 20px;color:red;">
                               <b>Check Your Email</b>
@@ -56,7 +56,6 @@ export default {
               this.email_sent = true
             })
             .catch(e => {
-              console.log(e)
             })
           }
         },
@@ -75,6 +74,7 @@ export default {
 <style scoped>
     .forgot-password-component {
         background-color: rgb(255, 235, 209);
+        overflow: hidden;
     }
     .main {
       width: 100%;
@@ -124,6 +124,8 @@ export default {
     .main123>h1 {
       letter-spacing: 1px;
       font-size: 250%;
+      font-family: 'Staatliches', cursive;
+      letter-spacing: 5px;
     }
 
     .main123>h2 {
