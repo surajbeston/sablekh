@@ -3,18 +3,18 @@
         <img src="@/assets/logo1.png" alt="logo" class="logo-img">
         <div class="password-reset-wrapper1">
             <div class="password-reset11">
-                <img v-show="first_phase" src="@/assets/password_reset/1.png" alt="loading img">
-                <img v-show="second_phase" src="@/assets/password_reset/2.png" alt="loading img">
+                <!-- <img v-show="first_phase" src="@/assets/password_reset/1.png" alt="loading img"> -->
+                <img src="@/assets/password_reset/2.png" alt="loading img">
             </div>
             <div class="password-reset12">
-                <div v-show="first_phase" class="grid-set pr121 w-100-h-100">
+                <!-- <div v-show="first_phase" class="grid-set pr121 w-100-h-100">
                     <h1>Forget Password ?</h1>
                     <p>Then reset your password by clicking the button below.</p>
                     <button class="btn" @click="reset_button">
                         Reset
                     </button>
-                </div>
-                <div v-show="second_phase" class="grid-set pr122 w-100-h-100">
+                </div> -->
+                <div class="grid-set pr122 w-100-h-100">
                     <div class="pr1221">
                         <h1>Change Password</h1>
                         <p>{{email}}</p>
@@ -42,8 +42,8 @@ export default {
     data() {
         return {
             server_address: "https://api.sablekh.com",
-            first_phase: true,
-            second_phase: false,
+            // first_phase: true,
+            // second_phase: false,
             password1: "",
             password2: "",
             email: "dfadfa@gmail.com",
@@ -81,20 +81,6 @@ export default {
 
         },
 
-        reset_button() {
-
-            axios.post(this.server_address + "/reset-password", {
-                token: this.$route.params.id,
-                type: "test"
-            })
-            .then(res => {
-                if (res.data.message === "token valid") {
-                    this.first_phase = false
-                    this.second_phase = true
-                }
-            })
-
-        },
         implicit_data(){
           return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
       }
@@ -106,6 +92,26 @@ export default {
       length_check() {
           return this.password1.length > 7 ? true : false ;
       }
+    },
+    mounted() {
+
+        if(!this.$route.params.id) {
+            window.location.replace("/login")
+        }
+
+        axios.post(this.server_address + "/reset-password", {
+                token: this.$route.params.id,
+                type: "test"
+            })
+            .then(res => {
+                if (!res.data.message === "token valid") {
+                    alert("Invalid link")
+                }
+            })
+            .catch(e => {
+                alert("Internal error")
+                console.log(e)
+            })
     }
 }
 </script>
@@ -203,6 +209,9 @@ export default {
     @media screen and (max-width: 1000px) {
         .logo-img {
             width: 100px;
+        }
+        .password-reset-wrapper1 {
+            width: 90%;
         }
         .password-reset11 {
             display: none;
