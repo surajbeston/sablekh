@@ -454,7 +454,7 @@ def check_like(request):
         like_obj = Like.objects.get(user = user, library = request.data["library"])
         return Response({"library": request.data["library"], "liked": True}, status = status.HTTP_200_OK)
     except Like.DoesNotExist:
-        return Response({"library": request.data["library"],"liked": False}, status = status.HTTP_404_NOT_FOUND)   
+        return Response({"library": request.data["library"],"liked": False}, status = status.HTTP_200_OK)   
 
 @api_view(['GET', 'POST'])
 def all_likes(request):

@@ -56,6 +56,9 @@ export default {
               this.email_sent = true
             })
             .catch(e => {
+              console.log(e)
+              alert("Internal error please try again later")
+
             })
           }
         },
