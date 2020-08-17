@@ -148,7 +148,7 @@ export default {
                 },
             })
             .then(res => {
-                if (res.data.filter(e => e.hid === this.library)) {
+                if (res.data.filter(e => e.hid === this.library).length > 0) {
                     this.is_owner = true;
                 }
             })
