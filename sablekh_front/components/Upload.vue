@@ -50,7 +50,15 @@
                             </div>
                         </div>
                     </div>
+                    <div v-show="is_owner && wants_to_delete && lib_str" class="alert-box">
+                        <h3>Are you sure of deleting this library ?</h3>
+                        <div class="buttons">
+                            <button class="btn yes-btn" @click="yes_button">Yes</button>
+                            <button class="btn no-btn" @click="no_button">No</button>
+                        </div>
+                    </div>
                     <button style="margin-top: 10px;" class="btn" @click = "final_finish">{{finish}}</button>
+                    <button v-show="is_owner && lib_str" class="btn delete-btn" @click="delete_button">Delete</button>
                 </div>
                 <img src="@/assets/logo1.png" alt="loading image" class="upload13">
             </div> 
@@ -60,13 +68,15 @@
 
 <script>
 import axios from "axios"
-import Fuse from 'fuse.js'
+import Fuse from 'fuse.js' 
 import Mime from 'mime-types'
 
 
 export default {
     data() {
         return{
+            is_owner: false,
+            wants_to_delete: false,
             title: "",
             description: "",
             // files: [{"name": "something.pdf", "filename": "/filenames/pdf.png", "uploadedsize": "12", "totalsize": "25"}, {"name": "something.txt", "filename": "/filenames/text.png", "uploadedsize": "12", "totalsize": "25"}],
@@ -98,6 +108,54 @@ export default {
     ],
 
     methods: {
+
+        delete_button() {
+            this.wants_to_delete = true;
+        },
+
+        yes_button() {
+
+            axios({
+                url: this.url + "library",
+                method: 'delete',
+                headers: {
+                    ...this.implicit_data(),
+                    Authorization: 'Token ' + this.auth_token
+                },
+                data: {hid: this.library}
+            })
+            .then(res => {
+                window.location.href = "/library"
+            })
+            .catch(err => alert("Delete not avialable for this library!"))
+
+        },
+
+        no_button() {
+            
+            this.wants_to_delete = false;
+
+        },
+
+        library_stuffs() {
+
+            axios({
+                url: this.url + "all-libraries",
+                method: 'post',
+                headers: {
+                    ...this.implicit_data(),
+                    Authorization: 'Token ' + this.auth_token
+                },
+            })
+            .then(res => {
+                if (res.data.filter(e => e.hid === this.library)) {
+                    this.is_owner = true;
+                }
+            })
+            .catch(e => alert("Internal error"))
+
+        },
+
         filesChange(files){
             if (this.library === ""){
                 if (this.title == "" || this.description == ""){
@@ -428,6 +486,8 @@ export default {
 
             var i = 0;
 
+            this.library_stuffs()
+
             axios({
                 url: this.url + "link",
                 method: 'post',
@@ -505,6 +565,7 @@ export default {
         height: 25%;
     }
     .upload12 {
+        position: relative;
         width: 60%;
         margin: 10vh 0 0 5vw;
     }
@@ -576,6 +637,39 @@ export default {
         font-size: 16px;
         letter-spacing: 1px;
         border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .delete-btn {
+        position: absolute;
+        background-color: rgb(255, 99, 99);
+        right: 0;
+        bottom: 0;
+    }
+
+    .alert-box {
+        margin-top: 5px;
+        padding: 2%;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        border: 2px solid rgb(145, 121, 90);
+        border-radius: 10px;
+        background-color: rgba(255, 0, 0, 0.226);
+    }
+
+    .buttons {
+        display: inline;
+    }
+
+    .yes-btn {
+        background-color: rgb(255, 99, 99);
+    }
+
+    .no-btn {
+        margin-left: 2%;
+        margin-top: 2%;
+        background-color: rgb(109, 216, 109)
     }
 
     .input-box {
