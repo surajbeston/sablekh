@@ -256,6 +256,14 @@ export default {
                 this.loader_on = false
             })
         }
+
+        axios({
+            url: `${this.server_address}/tags`,
+            method: "get",
+            headers: this.implicit_data()
+        }).then(res => {
+            this.to_search = res.dats.tags
+        })
     }
 }
 
