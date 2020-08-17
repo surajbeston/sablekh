@@ -82,7 +82,7 @@ export default {
 
         },
 
-        reset_button() 
+        reset_button() {
             axios.post(this.server_address + "/reset-password", {
                 token: this.$route.params.id,
                 type: "test"
