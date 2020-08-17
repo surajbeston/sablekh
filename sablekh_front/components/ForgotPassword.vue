@@ -9,12 +9,11 @@
                         <img src="@/assets/forgot_pw/logo.png" alt="logo" class="main121">
                         <img src="@/assets/forgot_pw/top.png" alt="loading image" class="main122">
                         <div class="main123">
-                            <h1>PASSWORD RESET</h1>
-                            <h2>E-mail</h2>
-                            <p v-show="email_sent" style="margin-top: 20px;color:red;">
-                              <b>Check Your Email</b>
-                            </p>
-                            <input type="email" v-model="email" class="email-field" placeholder="Your e-mail">
+                             <h1>PASSWORD RESET</h1>                             
+                            <h2>Enter your email address</h2>
+                           <div id = "successBox" v-show="hasSuccess" ><p id = "successTxt"> {{success}}<img src = "@/assets/cancel.png" @click="hasSuccess =!hasSuccess" class = "cancelSuccess"></p></div>
+                            <div id = "errorBox" v-show="hasError" ><p id = "errorTxt"> {{error}}<img src = "@/assets/cancel.png" @click="hasError =!hasError" class = "cancelError"></p></div>
+                            <input type="email" v-model="email" class="email-field" placeholder="dummy@sablekh.com">
                             <button id="verify-btn" @click="send_clicked">Send</button>
                         </div>
                     </div>
@@ -33,42 +32,54 @@ export default {
         return {
           server_address: "https://api.sablekh.com",
             email: "",
-            email_sent: false
+            email_sent: false,
+            hasSuccess: false,
+            success: "This is success",
+            error: "This is error",
+            hasError: false
         }
     },
 
     methods: {
-
         send_clicked() {
-          if (!this.validate_email) {
-            alert('Enter valid E-mail address')
+          if (!this.validate_email() || this.email.replace(/\s/g, '') == "dummy@sablekh.com") {
+            this.show_error('Enter valid E-mail address')
+          }
+          else if (this.email_sent){
+            this.show_success("Email already sent. Please wait & check your mailbox.")
           }
           else {
             axios({
               url: this.server_address + "/send-password-key",
               method: 'post',
-              data: {
-                email: this.email
-              },
+              data: {email: this.email},
               headers: this.implicit_data()
             })
             .then(res => {
               this.email_sent = true
+              this.show_success("Reset instructions sent to following email.")
             })
             .catch(e => {
-              console.log(e)
-              alert("Internal error please try again later")
-
+              if (e.response.status == 404) this.show_error("Following email not found. ")
+              else if (e.response.status == 500) this.show_error("Something went wrong.")
             })
           }
         },
-        validate_email(){
-          const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-          return re.test(String(this.email).toLowerCase());
-        },
+    validate_email(){
+      const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      return re.test(String(this.email).toLowerCase());
+    },
         implicit_data(){
           return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
-      }
+      },
+      show_success(successTxt){
+        this.hasSuccess = true
+        this.success = successTxt
+      },
+      show_error(errorTxt){
+        this.hasError = true 
+        this.error = errorTxt 
+      },
 
     }
 }
@@ -134,7 +145,6 @@ export default {
     .main123>h2 {
         margin-top: 5vh;
       font-size: 200%;
-      text-decoration: underline;
     }
 
     .main123>input {
@@ -159,6 +169,7 @@ export default {
       border: none;
       background-color: rgb(228, 182, 122);
       border-radius: 5px;
+      font-family: 'Ubuntu', sans-serif;
     }
 
     .main123>button:hover {
@@ -166,6 +177,47 @@ export default {
       background-color: rgba(209, 170, 118, 0.137);
       border: 2px solid rgb(228, 182, 122);
     }
+
+
+      #successBox{
+      background-color: rgba(134, 190, 87, 0.4);
+      color: rgb(51, 47, 43);
+      border: 1px black solid;
+      border-radius: 5px;
+      padding : 1%;
+      font-size: 110%;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 200;
+      animation-name: fadein;
+      animation: fadein 1s;
+      width: 100%;
+  }
+  .cancelSuccess{
+      cursor: pointer;
+      float: right;
+  }
+
+  #errorBox{
+    background-color: rgba(255, 0, 0, 0.4);
+    color: rgb(51, 47, 43);
+    border: 1px black solid;
+    border-radius: 5px;
+    padding : 1%;
+    font-size: 110%;
+    font-family: 'Rajdhani', sans-serif;
+    animation-name: fadein;
+    animation: fadein 1s;
+    margin: 2% 0 2% 0;
+    font-weight: bold;
+    width: 100%;
+
+}
+
+.cancelError{
+    cursor: pointer;
+    right: 0;
+    float: right;
+}
 
     @media screen and (max-width: 1200px) {
       .main121 {
@@ -194,7 +246,7 @@ export default {
       }
 
       .main123>h1 {
-        font-size: 25px;
+        font-size: 30px;
       }
 
       .main123>h2 {
@@ -204,12 +256,16 @@ export default {
       .main123>p {
         font-size: 20px;
       }
-        .main123 > input {
-            font-size: 18px;
-            padding: 5px 10px;
-        }
+      .main123 > input {
+          font-size: 18px;
+          padding: 5px 10px;
+      }
       .main123 > button {
         padding: 25px 50px;
+      }
+
+      .main{
+        margin-left: 0;
       }
     }
 </style>

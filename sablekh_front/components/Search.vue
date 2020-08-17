@@ -154,7 +154,7 @@ export default {
                 .then(res => {
                     this.add_to_localstorage("search", res.data)
                     this.no_search = res.data.length > 0 ? false: true
-                    console.log(this.no_search)
+                    //.log(this.no_search)
                     this.search_books = res.data
                     this.fill_extra()
                     this.loaded = false
@@ -170,7 +170,7 @@ export default {
         }
         ,
         get_likes_downloads(){
-            console.log(this.search_books)
+            //.log(this.search_books)
             if (this.search_books.length > 0){
                 this.search_books.map(lib => {
                     axios({
@@ -230,6 +230,7 @@ export default {
             for (var book of this.libraries){
                 if (book.title.length > 50) book.title = book.title.slice(0, 67) + "..."
                 if (book.description.length > 70) book.description = book.description.slice(0, 67) + '...'
+                if (book.tags.length > 2) book.tags = book.tags.splice(0, 3)
             }
             return this.libraries
         }
@@ -250,7 +251,7 @@ export default {
             }).then(res => {
                 this.loaded = false
                 this.search_books.push(res.data)
-                console.log(this.search_books)
+                //.log(this.search_books)
                 this.fill_extra()
                 this.loader_on = false
             })
@@ -411,6 +412,7 @@ export default {
     .search1512{
         /* border-left: solid rgb(56, 53, 53) 2px; */
         padding-left: 5%;
+        
     }
     .search1512 > h1{
         margin-top: 0;
@@ -422,6 +424,8 @@ export default {
     .search1512 > p{
         font-family: 'Ubuntu', sans-serif;
         font-size: bolder;
+        text-align: left;
+
     }   
     .search151-each {
         margin: 0 auto;
@@ -540,6 +544,7 @@ export default {
 
         .search1512 > p{
             font-size: 100%;
+            text-align: left;
         }
 
         .search14 {
@@ -629,6 +634,7 @@ export default {
         }
         .search1512 > p {
             font-size: 10px;
+            text-align: left;
         }
         .search151-each {
             padding: 5px 40px 5px 5px;
@@ -698,6 +704,7 @@ export default {
 
         .search1512 > p{
             font-size: 80%;
+            text-align: left;
         }
 
     }

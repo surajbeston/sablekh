@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="upload-component mxw-100-mnh-100">
-            <div class="upload-wrapper1" ref = "fileform" >
+            <div v-show="!wants_to_delete" class="upload-wrapper1" ref = "fileform" >
                 <img src="@/assets/upload/upload-top.png" alt="loading image" class="upload11" >
                 <div class="upload12" >
                     <div class = "content">
@@ -50,18 +50,20 @@
                             </div>
                         </div>
                     </div>
-                    <div v-show="is_owner && wants_to_delete && lib_str" class="alert-box">
-                        <h3>Are you sure of deleting this library ?</h3>
-                        <div class="buttons">
-                            <button class="btn yes-btn" @click="yes_button">Yes</button>
-                            <button class="btn no-btn" @click="no_button">No</button>
-                        </div>
-                    </div>
                     <button style="margin-top: 10px;" class="btn" @click = "final_finish">{{finish}}</button>
                     <button v-show="is_owner && lib_str" class="btn delete-btn" @click="delete_button">Delete</button>
-                </div>
+                </div>                
                 <img src="@/assets/logo1.png" alt="loading image" class="upload13">
-            </div> 
+            </div>
+            <div v-show="is_owner && wants_to_delete && lib_str" class="alert-wrapper">
+                <div  class="alert-box">
+                    <h3>Are you sure of deleting this library ?</h3>
+                    <div class="buttons">
+                        <button class="btn yes-btn" @click="yes_button">Yes</button>
+                        <button class="btn no-btn" @click="no_button">No</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -151,6 +153,9 @@ export default {
                 if (res.data.filter(e => e.hid === this.library).length > 0) {
                     this.is_owner = true;
                 }
+                else {
+                    window.location.href = "/"
+                }
             })
             .catch(e => alert("Internal error"))
 
@@ -166,7 +171,7 @@ export default {
                     var title = this.title
                     var description= this.description
                 } 
-                console.log(this.auth_token)
+                //.log(this.auth_token)
                 axios({
                     url: this.url+"library",
                     method: "post",
@@ -174,19 +179,19 @@ export default {
                     data: {"title": title, "description": description, "tags": this.tags}
                 }).then(res => {
                     this.library = res.data.hid
-                    console.log(this.library)
+                    //.log(this.library)
                     this.last_title = res.data.title
                     this.last_description = res.data.description
                     this.last_tags = res.data.tags
                     this.send_files(files)
                 })
                 .catch(err => {
-                    console.log(err)
+                    //.log(err)
                     this.displayError("Problem uploading file, please try again.")
                 })
             }
             else{
-                console.log(files)
+                //.log(files)
                 this.send_files(files)
                 }
             },
@@ -200,13 +205,13 @@ export default {
                             continue
                         }
                         var already_uploaded = false
-                        console.log("reached here")
+                        //.log("reached here")
                         for (var already_file of this.files){
-                            console.log("reached here")
-                            console.log(already_file.size_bytes)
-                            console.log(file.size)
+                            //.log("reached here")
+                            //.log(already_file.size_bytes)
+                            //.log(file.size)
                             if (already_file.size_bytes == file.size){
-                                console.log("already reaced here")
+                                //.log("already reaced here")
                                 this.displayError(file.name + " already uploaded/in queue.")
                                 already_uploaded = true
                                 break
@@ -214,7 +219,7 @@ export default {
                         }
                         if (already_uploaded){continue}
                         if (file.size/1024/1024 <=30){
-                        console.log(file.size)
+                        //.log(file.size)
                         var dom_file_name = file.name;
                         if (dom_file_name.length > 20){
                             dom_file_name = dom_file_name.slice(0, 17)+ "..."
@@ -235,7 +240,7 @@ export default {
                                 for (var file of this.files){
 
                                     if (Math.abs(file.size_bytes/1024 - e.total/1024) <= 5 ){
-                                        console.log("reached here")
+                                        //.log("reached here")
                                         file.uploadedsize = (e.loaded/1024/1024).toFixed(2);
                                         file.progress = Math.round(e.loaded/e.total*100) + "%";
                                     } 
@@ -252,13 +257,13 @@ export default {
                                             file.progress = 100+ "%"
                                             file.uploaded = true
                                             file.hid = res.data.hid
-                                            console.log("finished id", file.random_id)
+                                            //.log("finished id", file.random_id)
                                         }
                                     }
-                                console.log(res.data)
+                                //.log(res.data)
                             })
                             .catch(err => {
-                                console.log(err)
+                                //.log(err)
                             });
                     }
                     else {
@@ -267,7 +272,7 @@ export default {
                 }
             },
             get_filename(fileType){
-                    console.log(fileType)
+                    //.log(fileType)
                     var filename;
                     if (file.size/1024/1024 <= 30)
                         var category = fileType.split("/")[0] 
@@ -298,7 +303,7 @@ export default {
                                  filename = "excel.png"
                              }
                              else{
-                                 console.log("reached here")
+                                 //.log("reached here")
                                  filename == "text.png"
                              }
                          }
@@ -330,7 +335,7 @@ export default {
                         }
                         else{
                             var continue_on = true
-                            console.log("there is title iand description")
+                            //.log("there is title iand description")
                             for (var file of this.files){
                                 if (!file.uploaded){
                                     this.displayError("Please wait until file upload is completed.")
@@ -339,7 +344,7 @@ export default {
                                 }
                             }
                             if (continue_on){
-                                console.log("no remaining upload, started axios")
+                                //.log("no remaining upload, started axios")
                                 axios({
                                     url: this.url + "library",
                                     method: "patch",
@@ -350,7 +355,7 @@ export default {
                                     window.location.replace("/library/" + res.data.link_str)
                                 })
                                 .catch(err => {
-                                    console.log(err)
+                                    //.log(err)
                                 });
                                 
                             }
@@ -366,11 +371,11 @@ export default {
                 this.error = errorText
             },
         cancelUpload(random_id){
-            console.log(random_id)
+            //.log(random_id)
             for (var i in this.files){
                 if (this.files[i].random_id == random_id){
                     var hid = this.files[i].hid
-                    console.log(hid)
+                    //.log(hid)
                     this.files.splice(i, 1)
                     axios({
                         url: this.url + "file",
@@ -378,7 +383,7 @@ export default {
                         headers: {"Content-Type": "application/json", "Authorization": "Token "+this.auth_token , ...this.implicit_data()},
                         data: {"hid": hid}
                     }).then( res => {
-                        console.log(res.data)
+                        //.log(res.data)
                     })
                 }
             }
@@ -427,7 +432,7 @@ export default {
                 for (var result of results){
                     if (!this.tags.includes(result.item)){suggestion_list.push(result.item)}
                 }
-                console.log(suggestion_list)
+                //.log(suggestion_list)
                 if (suggestion_list.length > 0){
                     this.show_suggestions = true
                     return suggestion_list.slice(0, 5)
@@ -529,7 +534,7 @@ export default {
 
             })
             .catch(e => {
-                console.log(e)
+                //.log(e)
                 alert('error')
             })
 
@@ -545,7 +550,6 @@ export default {
     .upload-component {
         background-color: rgb(254, 227, 200);
         color:rgb(51, 47, 43);
-        padding-bottom: 2vh;
     }
     .upload-wrapper1 {
         display: flex;
@@ -638,6 +642,8 @@ export default {
         letter-spacing: 1px;
         border-radius: 5px;
         cursor: pointer;
+        margin-top: 10px;
+        margin-bottom: 10px;
     }
 
     .delete-btn {
@@ -647,15 +653,25 @@ export default {
         bottom: 0;
     }
 
+    .alert-wrapper {
+        font-family: 'Rajdhani', sans-serif;
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        background-color: rgba(228, 194, 150, 0.342);
+        align-items: center;
+        justify-content: center;
+    }
+
     .alert-box {
-        margin-top: 5px;
+        width: 50%;
         padding: 2%;
         text-align: center;
         display: flex;
         flex-direction: column;
-        border: 2px solid rgb(145, 121, 90);
         border-radius: 10px;
-        background-color: rgba(255, 0, 0, 0.226);
+        background-color: rgb(255, 115, 0);
+        box-shadow: 0 5px 10px rgb(197, 165, 124);
     }
 
     .buttons {
@@ -663,13 +679,13 @@ export default {
     }
 
     .yes-btn {
-        background-color: rgb(255, 99, 99);
+        background-color: rgb(255, 0, 0);
     }
 
     .no-btn {
         margin-left: 2%;
         margin-top: 2%;
-        background-color: rgb(109, 216, 109)
+        background-color: rgb(32, 221, 32)
     }
 
     .input-box {
@@ -925,6 +941,10 @@ export default {
     @media screen and (max-width: 700px){
         .upload-wrapper1 {
             width: 98%;
+        }
+        .alert-box {
+            width: 95%;
+            font-size: 16px;
         }
         .back-arrow {
             display: block;
