@@ -15,7 +15,9 @@
                         Reset
                     </button>
                 </div> -->
-                <div class="grid-set pr122 w-100-h-100">
+                <div v-if="invalid_token" ><h1 class = "error">{{token_error}}</h1></div>
+                <div v-else class="grid-set pr122 w-100-h-100" >
+                <div id = "errorBox" v-show="hasError" ><p id = "errorTxt"> {{error}}<img src = "@/assets/cancel.png" @click="hasError =!hasError" class = "cancelError"></p></div>
                     <div class="pr1221">
                         <h1>Change Password</h1>
                         <p>{{email}}</p>
@@ -24,8 +26,6 @@
                         <input type="password" v-model="password1" id="password1" placeholder="New Password">
                         <input type="password" v-model="password2" id="password2" placeholder="Old Password">
                     </div>
-                    <p v-show="diff_pass">Different Password</p>
-                    <p v-show="short_pass">Short Password</p>
                     <button class="btn" @click="done_button">
                         Done
                     </button>
@@ -47,22 +47,22 @@ export default {
             // second_phase: false,
             password1: "",
             password2: "",
-            email: "dfadfa@gmail.com",
+            email: "random@gmail.com",
             diff_pass: false,
-            short_pass: false
-        }
+            short_pass: false,
+            token_error: "",
+            invalid_token: false,
+            hasError: false,
+            error: ""
+        } 
     },
     methods: {
-
         done_button() {
-            this.short_pass = false;
-            this.diff_pass = false;
-
             if(!this.similarity_check) {
-                this.diff_pass = true;
+                this.show_error("Passwords don't match.")
             }
-            else if(!this.length_check) {
-                this.short_pass = true
+            else if(!this.length_check){
+                this.show_error("8 letters required.")
             }
             else {
               axios({
@@ -74,29 +74,39 @@ export default {
                     password: this.password1
                   },
                   headers: this.implicit_data()
-              })
+              }) 
               .then(res => {
                   window.location.replace("/login")
+              }).catch(e => {
+                    this.render_error("Somethig went wrong.")
               })
             }
-
         },
-
-        reset_button() 
-            axios.post(this.server_address + "/reset-password", {
-                token: this.$route.params.id,
-                type: "test"
-            })
-            .then(res => {
-                if (res.data.message === "token valid") {
-                    this.first_phase = false
-                    this.second_phase = true
-                }
-            })
-        },
-
+        // reset_button() {
+        //     axios.post(this.server_address + "/reset-password", {
+        //         token: this.$route.params.id,
+        //         type: "test",
+        //         headers: this.implicit_data()
+        //     })
+        //     .then(res => {
+        //         if (res.data.message === "token valid") {
+        //             this.first_phase = false
+        //             this.second_phase = true
+        //         }
+        //     })
+        // },
         implicit_data(){
           return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
+      },
+    show_error(errorTxt){
+        this.hasError = true
+        this.error = errorTxt
+
+    },
+      render_error(errorTxt){
+          this.invalid_token = true
+          this.token_error = errorTxt
+
       }
     },
     computed: {
@@ -107,24 +117,27 @@ export default {
           return this.password1.length > 7 ? true : false ;
       }
     },
-    mounted() {
-
+    mounted(){
         if(!this.$route.params.id) {
             window.location.replace("/login")
-        }
-
-        axios.post(this.server_address + "/reset-password", {
-                token: this.$route.params.id,
-                type: "test"
+        } 
+        //.log("reached here")
+        axios({
+                url: this.server_address + "/reset-password",
+                method: "post",
+                data: {token: this.$route.params.id, type: "test"},
+                headers: this.implicit_data()
             })
             .then(res => {
-                if (!res.data.message === "token valid") {
-                    alert("Invalid link")
-                }
+                var data = res.data
+                this.email = data.email
+                
             })
             .catch(e => {
-                alert("Internal error")
-                console.log(e)
+                //.log(e)
+                if (e.response.status == 404) this.render_error("Link is invalid. Please try again.")
+                else if (e.response.status == 403) this.render_error("Link is expired. Please try again.")
+                else this.render_error("Somethig went wrong. Please try again")
             })
     }
 }
@@ -226,6 +239,35 @@ export default {
         width: 100%;
         height: 100%;
     }
+
+    .error{
+        margin-top: 30%;
+        text-align: center;
+        font-family: 'Staatliches', cursive;
+        font-size: 200%
+
+    }
+
+    #errorBox{
+    background-color: rgba(255, 0, 0, 0.4);
+    color: rgb(51, 47, 43);
+    border: 1px black solid;
+    border-radius: 5px;
+    padding : 2%;
+    font-size: 110%;
+    font-family: 'Rajdhani', sans-serif;
+    animation-name: fadein;
+    animation: fadein 1s;
+    margin: 2% 0 2% 0;
+    font-weight: bold;
+    margin-top: 5%;
+}
+
+.cancelError{
+    cursor: pointer;
+    right: 0;
+    float: right;
+}
 
     @media screen and (max-width: 1000px) {
         .logo-img {

@@ -36,7 +36,7 @@
         <ol>
         <li>This Agreement shall begin on the date hereof.</li>
         <li>Certain parts of this website offer the opportunity for users to post and exchange opinions, information,
-        material and data ('files and its title and description') in areas of the website. Sablekh does not screen, edit, publish
+        material and data ('files and its title and description') in areas of the website. Sablekh does not screen, edit
         or review files and its title and description prior to their appearance on the website and files and its title and description do not reflect the views or
         opinions of Sablekh, its agents or affiliates. files and its title and description reflect the view and opinion of the
         person who posts such view or opinion. To the extent permitted by applicable laws Sablekh shall
@@ -57,6 +57,7 @@
         or unlawful activity.</li>
         </ol>
         </li>
+        <li><strong>Sablekh</strong> isn't liable in anyway if the files and its title and description are lost in any undesired consequence of an event.</li>
         <li>You hereby grant to <strong>Sablekh</strong> a non-exclusive royalty-free license to use, reproduce,
         edit and authorize others to use, reproduce and edit any of your files and its title and description in any and all forms, formats
         or media.</li>

@@ -259,12 +259,18 @@ def download_files(request):
             down_obj = DownloadLot(zip_name = zip_name, library = library, files = filenames)
         down_obj.save()
         return Response({"filename": "https://api.sablekh.com/single-download/"+zip_name.split("/")[1], "by": "created"}, status = status.HTTP_201_CREATED)
-
     filenames.sort()
-    try:
-        download_lot = DownloadLot.objects.get(files = filenames)
+    download_lot = DownloadLot.objects.filter(files = filenames)
+    if len(download_lot) > 0:
+        zip_name = download_lot[0].zip_name
+        if request.user.is_authenticated:
+            visitor = Visitor.objects.get(email = request.user.email)
+            down_obj = DownloadLot(zip_name = zip_name, visitor = visitor, library = library, files = filenames)
+        else:
+            down_obj = DownloadLot(zip_name = zip_name, library = library, files = filenames)
+        down_obj.save()
         return Response({"filename": "https://api.sablekh.com/download/"+download_lot.zip_name, "by": "found"})
-    except DownloadLot.DoesNotExist:
+    else DownloadLot.DoesNotExist:
         library_name = filter_text(library.title[:20], punctuation)
         zip_name =  library_name + str(binascii.crc32(str(hids).encode()))+ ".zip"
         jungle_zip = zipfile.ZipFile('downloadable/'+zip_name, 'w')
@@ -272,7 +278,7 @@ def download_files(request):
             Popen("cp "+ filename + " .", shell = True).wait()
             filename = filename.split("/")[1]
             jungle_zip.write(filename, compress_type=zipfile.ZIP_DEFLATED)
-            Popen("rm "+filename, shell= True).wait()
+            Popen("rm "+filename, shell= True).wait() 
         jungle_zip.close()
         if request.user.is_authenticated:
             visitor = Visitor.objects.get(email = request.user.email)
@@ -299,7 +305,7 @@ def search(request):
         results = searcher.search(title_qry, limit = 20)
         descrip_results = searcher.search(descri_qry, limit = 20)
         results.upgrade_and_extend(descrip_results)
-    result_objs = []
+    result_objs = [] 
     max_whoosh_score  = 0
     max_tag_score = 0
     for result in results:
@@ -394,7 +400,7 @@ def send_password_key(request):
     token_obj = PwResetToken(token = token, user = visitor) 
     token_obj.save()
     link = "https://sablekh.com/reset-password/"+token
-    file = open("password_reset.html")
+    file = open("password_reset.html") 
     text = file.read()
     soup = BeautifulSoup(text, 'html.parser')
     soup.select("#token_link")[0]["href"] = link 

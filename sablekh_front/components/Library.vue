@@ -123,12 +123,10 @@ export default {
       .then(res => {
         this.loader_on = false
         this.user_libraries = res.data
-        console.log(res.data)
         this.is_in_user_library = res.data
         
       })
       .catch(e => {
-        console.log(e)
       })
 
 
@@ -182,7 +180,6 @@ export default {
           this.is_liked = true;
         })
         .catch((e) => {
-          console.log(e);
         });
     },
 
@@ -199,7 +196,6 @@ export default {
           this.downloads= res.data.downloads;
         })
         .catch((e) => {
-          console.log(e);
         });
     },
 
@@ -216,7 +212,7 @@ export default {
           this.likes = res.data.likes;
         })
         .catch((e) => {
-          console.log(e);
+          //.log(e);
         });
     },
 
@@ -238,7 +234,7 @@ export default {
           }
         })
         .catch((e) => {
-          console.log(e);
+          //.log(e);
         });
     },
 
@@ -308,7 +304,7 @@ export default {
           headers: this.implicit_data(),
         })
           .then((res) => {
-            // console.log(res)
+            // //.log(res)
             this.download(res.data.filename);
             this.progress = 80;
           })
@@ -427,13 +423,13 @@ export default {
             this.loader_on = false
             this.files = res.data;
             this.clean_title();
-            console.log(res);
+            //.log(res);
            
           })
-          .catch((err) => console.log(err));
+          .catch((err) =>{} );
       })
       .catch((e) => {
-        console.log(e);
+        //.log(e);
       });
   },
 };
