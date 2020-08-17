@@ -360,8 +360,10 @@ export default {
         display: inline-block;
     }
 
-    #current-tag{
-        
+    .no_search{
+        margin-top: 5%;
+        font-family: 'Rajdhani', sans-serif;
+
     }
     .each-tag > img {
         position: absolute;

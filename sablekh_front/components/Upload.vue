@@ -51,7 +51,7 @@
                         </div>
                     </div>
                     <div v-show="is_owner && wants_to_delete && lib_str" class="alert-box">
-                        <h3>Are you sure of deleting this library ?</h3>
+                        <h3>Delete this library?</h3>
                         <div class="buttons">
                             <button class="btn yes-btn" @click="yes_button">Yes</button>
                             <button class="btn no-btn" @click="no_button">No</button>
