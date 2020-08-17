@@ -150,14 +150,19 @@ export default {
                 },
             })
             .then(res => {
-                if (res.data.filter(e => e.hid === this.library).length > 0) {
+                var data = res.data;
+
+                if (data.filter(e => e.hid === this.library).length > 0) {
                     this.is_owner = true;
                 }
                 else {
                     window.location.href = "/"
                 }
             })
-            .catch(e => alert("Internal error"))
+            .catch(e => {
+                console.log(e)
+                alert("Internal error")
+            })
 
         },
 
@@ -491,8 +496,6 @@ export default {
 
             var i = 0;
 
-            this.library_stuffs()
-
             axios({
                 url: this.url + "link",
                 method: 'post',
@@ -505,6 +508,8 @@ export default {
                 this.title = res.data.title,
                 this.description = res.data.description
                 this.library = res.data.hid
+                this.library_stuffs()
+
 
                 axios({
                     url: this.url + "all-files",
