@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="upload-component mxw-100-mnh-100">
-            <div class="upload-wrapper1" ref = "fileform" >
+            <div v-show="!wants_to_delete" class="upload-wrapper1" ref = "fileform" >
                 <img src="@/assets/upload/upload-top.png" alt="loading image" class="upload11" >
                 <div class="upload12" >
                     <div class = "content">
@@ -50,6 +50,7 @@
                             </div>
                         </div>
                     </div>
+<<<<<<< HEAD
                     <div v-show="is_owner && wants_to_delete && lib_str" class="alert-box">
                         <h3>Delete this library?</h3>
                         <div class="buttons">
@@ -57,11 +58,22 @@
                             <button class="btn no-btn" @click="no_button">No</button>
                         </div>
                     </div>
+=======
+>>>>>>> 45cacbbb2b1f37635c531cf341c39a5e773c565c
                     <button style="margin-top: 10px;" class="btn" @click = "final_finish">{{finish}}</button>
                     <button v-show="is_owner && lib_str" class="btn delete-btn" @click="delete_button">Delete</button>
-                </div>
+                </div>                
                 <img src="@/assets/logo1.png" alt="loading image" class="upload13">
-            </div> 
+            </div>
+            <div v-show="is_owner && wants_to_delete && lib_str" class="alert-wrapper">
+                <div  class="alert-box">
+                    <h3>Are you sure of deleting this library ?</h3>
+                    <div class="buttons">
+                        <button class="btn yes-btn" @click="yes_button">Yes</button>
+                        <button class="btn no-btn" @click="no_button">No</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -148,11 +160,19 @@ export default {
                 },
             })
             .then(res => {
-                if (res.data.filter(e => e.hid === this.library)) {
+                var data = res.data;
+
+                if (data.filter(e => e.hid === this.library).length > 0) {
                     this.is_owner = true;
                 }
+                else {
+                    window.location.href = "/"
+                }
             })
-            .catch(e => alert("Internal error"))
+            .catch(e => {
+                console.log(e)
+                alert("Internal error")
+            })
 
         },
 
@@ -486,8 +506,6 @@ export default {
 
             var i = 0;
 
-            this.library_stuffs()
-
             axios({
                 url: this.url + "link",
                 method: 'post',
@@ -500,6 +518,8 @@ export default {
                 this.title = res.data.title,
                 this.description = res.data.description
                 this.library = res.data.hid
+                this.library_stuffs()
+
 
                 axios({
                     url: this.url + "all-files",
@@ -545,7 +565,6 @@ export default {
     .upload-component {
         background-color: rgb(254, 227, 200);
         color:rgb(51, 47, 43);
-        padding-bottom: 2vh;
     }
     .upload-wrapper1 {
         display: flex;
@@ -638,6 +657,8 @@ export default {
         letter-spacing: 1px;
         border-radius: 5px;
         cursor: pointer;
+        margin-top: 10px;
+        margin-bottom: 10px;
     }
 
     .delete-btn {
@@ -647,15 +668,25 @@ export default {
         bottom: 0;
     }
 
+    .alert-wrapper {
+        font-family: 'Rajdhani', sans-serif;
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        background-color: rgba(228, 194, 150, 0.342);
+        align-items: center;
+        justify-content: center;
+    }
+
     .alert-box {
-        margin-top: 5px;
+        width: 50%;
         padding: 2%;
         text-align: center;
         display: flex;
         flex-direction: column;
-        border: 2px solid rgb(145, 121, 90);
         border-radius: 10px;
-        background-color: rgba(255, 0, 0, 0.226);
+        background-color: rgb(255, 115, 0);
+        box-shadow: 0 5px 10px rgb(197, 165, 124);
     }
 
     .buttons {
@@ -663,13 +694,13 @@ export default {
     }
 
     .yes-btn {
-        background-color: rgb(255, 99, 99);
+        background-color: rgb(255, 0, 0);
     }
 
     .no-btn {
         margin-left: 2%;
         margin-top: 2%;
-        background-color: rgb(109, 216, 109)
+        background-color: rgb(32, 221, 32)
     }
 
     .input-box {
@@ -925,6 +956,10 @@ export default {
     @media screen and (max-width: 700px){
         .upload-wrapper1 {
             width: 98%;
+        }
+        .alert-box {
+            width: 95%;
+            font-size: 16px;
         }
         .back-arrow {
             display: block;

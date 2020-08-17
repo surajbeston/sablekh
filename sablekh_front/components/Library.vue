@@ -112,21 +112,23 @@ export default {
     library_stuffs(){
       this.loader_on = true
       axios({
-        url: this.server_address + "/get-library",
+        url: this.server_address + "/all-libraries",
         method: 'post',
         headers: {
           ...this.implicit_data(),
           Authorization: "Token " + this.token
-        },
-        data: {"hid": this.hid}
+        }
       })
       .then(res => {
         this.loader_on = false
         this.user_libraries = res.data
-        this.is_in_user_library = res.data
+        if(this.user_libraries.filter(e => e.hid === this.hid).length > 0){
+          this.is_in_user_library = true;
+        }
         
       })
       .catch(e => {
+        alert("Internal error")
       })
 
 
