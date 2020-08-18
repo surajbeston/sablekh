@@ -80,7 +80,7 @@ export default {
           })
           .then(res => {
             this.sending = true
-            this.btn_txt = "Create"
+            this.btn_txt = "Sending"
             var token = res.data.token
             if (token != undefined){
                 window.localStorage.setItem("token", token)
@@ -185,8 +185,11 @@ export default {
   top: 10vh;
   right: -50px;
   opacity: 50%;
+  z-index: 5;
 }
 .login-wrapper1 {
+  position: relative;
+  z-index: 10;
   display: grid;
   grid-template-columns: 60% 40%;
 }
@@ -223,6 +226,7 @@ export default {
 }
 
 .login-button{
+  cursor: pointer;
   font-size: 150%;
   letter-spacing: .8px;
   background-color: rgb(40, 43, 42);
@@ -299,6 +303,10 @@ export default {
         display: block;
       }
 
+  }
+
+  @media screen {
+    
   }
 
 </style>

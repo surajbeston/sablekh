@@ -164,7 +164,7 @@ export default {
 
     like_clicked() {
       if (!this.token) {
-        window.location.href = "login";
+        window.location.href = "/login";
       }
       axios({
         url: this.server_address + "/like",

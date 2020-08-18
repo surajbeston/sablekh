@@ -116,7 +116,7 @@ export default {
 
     @media screen and (max-width: 1200px){
        .footer{
-            height: 150px;
+           height: 150px;
        }
        #main-img{
            height: 45%;
@@ -169,6 +169,19 @@ export default {
            font-size: 80%;
        }
 
+    }
+
+    @media screen and (max-width: 370px){
+        .footer {
+            height: 300px;
+        }
+        .footer-wrapper1 {
+            flex-direction: column;
+        }
+        .foot-link {
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
     }
 
 </style>
