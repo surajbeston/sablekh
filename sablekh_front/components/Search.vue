@@ -81,14 +81,7 @@ export default {
             current_tag: "",
             tags: [],
             avialable_tags: [],
-            all_tags: [
-                'Science',
-                'Math',
-                'Social',
-                'English',
-                'Dont think of this',
-                'shit man'
-            ],
+            all_tags: [],
             search: "",
             search_books: [],
             likes: [],
@@ -262,7 +255,7 @@ export default {
             method: "get",
             headers: this.implicit_data()
         }).then(res => {
-            this.to_search = res.dats.tags
+            this.all_tags = res.data.tags
         })
     }
 }
@@ -370,6 +363,7 @@ export default {
 
     .no_search{
         margin-top: 5%;
+        text-align: center;
         font-family: 'Rajdhani', sans-serif;
 
     }

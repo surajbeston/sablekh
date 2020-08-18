@@ -25,7 +25,7 @@ class Library(models.Model):
     title = models.CharField(max_length = 300)
     user = models.ForeignKey(Visitor, on_delete = models.CASCADE, blank = True, null = True)
     description = models.CharField(max_length = 1500)
-    thumbnail = models.URLField(default="https://postimg.cc/qNT1Hgy5")
+    thumbnail = models.URLField(default="https://api.sabekh.com/thumbnails/default.jpg")
     link_str = models.CharField(max_length = 350, unique=True)
     tags = ArrayField(models.CharField(max_length = 150), blank = True, null = True)
     finished = models.BooleanField(default=False)
@@ -93,6 +93,7 @@ def create_index(sender=None, **kwargs):
 create_index()
 
 def update_index(sender, instance, created, **kwargs):
+    if instance.finished:
         try:
             ix = open_dir("index")
         except:

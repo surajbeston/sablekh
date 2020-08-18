@@ -9,7 +9,6 @@
                         <p class = "description">Create your small library and share it with the world. You can add upto 10 files, each not exceeding 30MB in size.</p>
                         <div class="input-section" v-bind:class="{alternative: activate}">
                             <div id = "errorBox" v-show="hasError" ><p id = "errorTxt"> {{error}}<img src = "@/assets/cancel.png" @click="hasError =!hasError" class = "cancelError"></p></div>
-
                             <label for="title">Title {{letters_title}}/150</label>
                             <input class="input-box" type="text" v-model="title" id="title" autofocus >
                             <label for="description">Description {{letters_description}}/600</label>
@@ -17,7 +16,7 @@
                             <label for="file" >{{fileLabel}}</label> 
                             <input type="file" name="upload_file" id="file" @change="filesChange($event.target.files)" multiple class = "hamro">
                             <div class = "files-wrap"> 
-                                <div class = "file-box" v-for="file in files" :key = "file.random_id">
+                                <div class = "file-box" v-for="file in files" :key = "file.random_id" v-show="!file.canceled">
                                     <img :src = "file.filename" class = "extension-image"> 
                                     <div class = "middle-collection"> 
                                         <div>
@@ -29,7 +28,7 @@
                                         </div>
                                         <div class = "progressbar" ><div class = "progress" v-bind:style= "{width: file.progress}"></div></div> 
                                     </div>
-                                    <img src = "@/assets/cancel.png" class = "cancelDownload" @click="cancelUpload(file.random_id)" :class = "{invisible: !file.uploaded}">                                  
+                                    <img src = "@/assets/cancel.png" class = "cancelDownload" @click="cancelUpload(file.random_id)">                                  
                                 </div>
                             </div>
                             <div>
@@ -57,7 +56,6 @@
                             <button class="btn no-btn" @click="no_button">No</button>
                         </div>
                     </div>
-
                     <button style="margin-top: 10px;" class="btn" @click = "final_finish">{{finish}}</button>
                     <button v-show="is_owner && lib_str" class="btn delete-btn" @click="delete_button">Delete</button>
                 </div>                
@@ -123,9 +121,7 @@ export default {
         delete_button() {
             this.wants_to_delete = true;
         },
-
         yes_button() {
-
             axios({
                 url: this.url + "library",
                 method: 'delete',
@@ -139,17 +135,12 @@ export default {
                 window.location.href = "/library"
             })
             .catch(err => alert("Delete not avialable for this library!"))
-
         },
-
         no_button() {
-            
             this.wants_to_delete = false;
-
         },
 
         library_stuffs() {
-
             axios({
                 url: this.url + "all-libraries",
                 method: 'post',
@@ -169,7 +160,7 @@ export default {
                 }
             })
             .catch(e => {
-                console.log(e)
+                //.log(e)
                 alert("Internal error")
             })
 
@@ -240,7 +231,7 @@ export default {
                         }
                         var totalsize = (file.size/1024/1024).toFixed(2)
                         if (totalsize == 0){totalsize = 0.01} 
-                        this.files.push({"name": dom_file_name, "totalsize": totalsize, "uploadedsize": 0, "filename": "/filenames/" + this.get_filename(file.type), "progress": "0", "size_bytes": file.size, "random_id": String(Math.random()*10**17), "uploaded": false, "hid": ""})
+                        this.files.push({"name": dom_file_name, "totalsize": totalsize, "uploadedsize": 0, "filename": "/filenames/" + this.get_filename(file.type), "progress": "0", "size_bytes": file.size, "random_id": String(Math.random()*10**17), "uploaded": false, "hid": "", "canceled": false})
                         var file_index = this.files.length - 1
                         var formData = new FormData()
                         formData.append("_file", file) 
@@ -251,6 +242,7 @@ export default {
                             headers: {"Content-Type": "application/json", "Authorization": "Token "+this.auth_token, ...this.implicit_data()},
                             data: formData,
                             onUploadProgress: (e) => {
+                                //.log(e)
                                 for (var file of this.files){
 
                                     if (Math.abs(file.size_bytes/1024 - e.total/1024) <= 5 ){
@@ -277,7 +269,7 @@ export default {
                                 //.log(res.data)
                             })
                             .catch(err => {
-                                //.log(err)
+                                this.displayError("Something went wrong with upload.")
                             });
                     }
                     else {
@@ -348,31 +340,38 @@ export default {
                             this.displayError("Title and Description fields are required to create a library.")
                         }
                         else{
-                            var continue_on = true
-                            //.log("there is title iand description")
+
                             for (var file of this.files){
-                                if (!file.uploaded){
-                                    this.displayError("Please wait until file upload is completed.")
-                                    continue_on = false
-                                    break
+                                //.log(file)
+                                if (file.canceled) this.cancelUpload(file.random_id, true)
+                            }
+
+                            if (this.files.length >0){
+                                var continue_on = true
+                                //.log("there is title iand description")
+                                for (var file of this.files){
+                                    if (!file.uploaded){
+                                        this.displayError("Please wait until file upload is completed.")
+                                        continue_on = false
+                                        break
+                                    }
+                                }
+                                if (continue_on){
+                                    axios({
+                                        url: this.url + "library",
+                                        method: "patch",
+                                        headers: {"Content-Type": "application/json", "Authorization": "Token "+this.auth_token, ...this.implicit_data()},
+                                        data: {"hid": this.library, "title": this.title, "description": this.description, "tags": this.tags, "finished": true}
+                                    }).then(res => {
+                                        this.finish = "Just a second"
+                                        window.location.replace("/library/" + res.data.link_str)
+                                    })
+                                    .catch(err => {
+                                        //.log(err)
+                                    });       
                                 }
                             }
-                            if (continue_on){
-                                //.log("no remaining upload, started axios")
-                                axios({
-                                    url: this.url + "library",
-                                    method: "patch",
-                                    headers: {"Content-Type": "application/json", "Authorization": "Token "+this.auth_token, ...this.implicit_data()},
-                                    data: {"hid": this.library, "title": this.title, "description": this.description, "tags": this.tags, "finished": true}
-                                }).then(res => {
-                                    this.finish = "Just a second"
-                                    window.location.replace("/library/" + res.data.link_str)
-                                })
-                                .catch(err => {
-                                    //.log(err)
-                                });
-                                
-                            }
+                            else this.displayError("Please upload file/s.")
                         }
                     }
                     else {
@@ -384,21 +383,32 @@ export default {
                 this.hasError = true
                 this.error = errorText
             },
-        cancelUpload(random_id){
+        cancelUpload(random_id, plugout = false){
             //.log(random_id)
             for (var i in this.files){
                 if (this.files[i].random_id == random_id){
-                    var hid = this.files[i].hid
-                    //.log(hid)
-                    this.files.splice(i, 1)
-                    axios({
-                        url: this.url + "file",
-                        method: "delete",
-                        headers: {"Content-Type": "application/json", "Authorization": "Token "+this.auth_token , ...this.implicit_data()},
-                        data: {"hid": hid}
-                    }).then( res => {
-                        //.log(res.data)
-                    })
+                    //.log(this.files[i])
+                    if (!this.files[i].uploaded && plugout){
+                        this.files.splice(i, 1)
+                    }
+                    else if (!this.files[i].uploaded){
+                        this.files[i].canceled = true
+                        //.log("reached here")
+                    }
+                    else {
+                        var hid = this.files[i].hid
+                        //.log("reached here too")
+                        this.files.splice(i, 1)
+                        //.log(hid)
+                        axios({
+                            url: this.url + "file",
+                            method: "delete",
+                            headers: {"Content-Type": "application/json", "Authorization": "Token "+this.auth_token , ...this.implicit_data()},
+                            data: {"hid": hid}
+                        }).then( res => {
+                            //.log(res.data)
+                        })
+                    }
                 }
             }
         },

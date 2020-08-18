@@ -74,7 +74,6 @@ class UserView(APIView):
 
     def delete(self, request):
         hid = request.data["hid"]
-        try:    def get(self, request):
         try:
             user = Visitor.objects.get(email = request.user.email)
             serializer = VisitorSerializer(user)
@@ -124,7 +123,7 @@ class LibraryView(APIView):
                 for file in files:
                     thumbnail_file = generate_thumbnail(file._file.name)
                     if thumbnail_file:
-                        library.thumbnail = "https://api.sablekh.com/thumbnail/" + thumbnail_file
+                        library.thumbnail = "https://api.sablekh.com/" + thumbnail_file
                         break 
             except KeyError:
                 pass    
@@ -270,7 +269,7 @@ def download_files(request):
             down_obj = DownloadLot(zip_name = zip_name, library = library, files = filenames)
         down_obj.save()
         return Response({"filename": "https://api.sablekh.com/download/"+download_lot.zip_name, "by": "found"})
-    else DownloadLot.DoesNotExist:
+    else:
         library_name = filter_text(library.title[:20], punctuation)
         zip_name =  library_name + str(binascii.crc32(str(hids).encode()))+ ".zip"
         jungle_zip = zipfile.ZipFile('downloadable/'+zip_name, 'w')
@@ -475,4 +474,4 @@ def all_downloads(request):
 @api_view(['GET'])
 def get_tags(request):
     tags = Tag.objects.all()
-    return Response([tag.title for tag in tags], status = status.HTTP_200_OK)
+    return Response({"tags":[tag.title for tag in tags]}, status = status.HTTP_200_OK)
