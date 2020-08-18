@@ -601,7 +601,7 @@ export default {
     }
     @media screen and (max-width: 600px) {
         .logo-img {
-            width: 70px;
+            width: 50px;
         }
         .search11 > img {
             width: 200px;
