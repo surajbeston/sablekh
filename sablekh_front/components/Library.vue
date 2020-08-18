@@ -12,7 +12,6 @@
       <div class="lib-tags" v-bind:key="tag" v-for="tag in library_tags">
         <span class="each-tag">{{tag}}</span>
       </div>
-
       <div id = "successBox" v-show="hasSuccess" ><p id = "successTxt"> {{success}}<img src = "@/assets/cancel.png" @click="hasSuccess =!hasSuccess" class = "cancelSuccess"></p></div>
           <div id = "errorBox" v-show="hasError" ><p id = "errorTxt"> {{error}}<img src = "@/assets/cancel.png" @click="hasError =!hasError" class = "cancelError"></p></div>
       <div class="like-div">
@@ -136,7 +135,6 @@ export default {
 
     
     link_changed() {
-
       axios({
         url: this.server_address + "/change-link",
         headers: {
@@ -155,8 +153,7 @@ export default {
       .catch(e => {
         this.show_error("Something went wrong.")
       })
-
-    },
+  },
 
     show_change_link(){      
       this.changing = true;
@@ -184,7 +181,6 @@ export default {
         .catch((e) => {
         });
     },
-
     get_downloads() {
       axios({
         url: this.server_address + "/all-downloads",

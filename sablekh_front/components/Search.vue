@@ -205,8 +205,6 @@ export default {
         implicit_data(){
           return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
       },
-
-
     }, 
 
     computed: {
@@ -229,7 +227,7 @@ export default {
         }
     },
 
-    mounted() {
+    mounted(){
         this.time = new Date().getTime()
         this.fuse = new Fuse(this.all_tags, {}) 
         this.previous_libraries = this.retrive_from_localstorage("search")
@@ -244,12 +242,10 @@ export default {
             }).then(res => {
                 this.loaded = false
                 this.search_books.push(res.data)
-                //.log(this.search_books)
                 this.fill_extra()
                 this.loader_on = false
             })
         }
-
         axios({
             url: `${this.server_address}/tags`,
             method: "get",

@@ -87,13 +87,13 @@ export default {
     }
 
     .bottom-links{
-        background-color: black;
+        background-color: rgb(254, 227, 200);
         padding: 5px 0 5px 0;
         text-align: center;
     }
 
     .bottom-link{
-        color: rgb(254, 227, 200);
+        color: black;
         margin: 0 5% 0 5%;
         text-decoration: none;
         font-family: 'Staatliches', cursive;
