@@ -234,8 +234,12 @@ export default {
         this.fuse = new Fuse(this.all_tags, {}) 
         this.previous_libraries = this.retrive_from_localstorage("search")
         this.search_books = []
-        for (var previous_library of this.previous_libraries){
+
+        var libs = this.previous_libraries;
+
+        libs.forEach(previous_library => {
             this.loader_on = true
+        
             axios({
                 url: `${this.server_address}/get-library`,
                 method: "post",
@@ -244,11 +248,15 @@ export default {
             }).then(res => {
                 this.loaded = false
                 this.search_books.push(res.data)
-                //.log(this.search_books)
                 this.fill_extra()
                 this.loader_on = false
             })
-        }
+            .catch(err => {     // could not think of other way of handling :(
+                this.previous_libraries = this.previous_libraries.filter(e => e.hid !== previous_library.hid)
+                this.add_to_localstorage("search", this.previous_libraries)
+            })
+        })
+
 
         axios({
             url: `${this.server_address}/tags`,

@@ -93,7 +93,7 @@ export default {
           })
           .catch(err => {
             var data = err.response
-            this.btn_txt = "Create"
+            this.btn_txt = "Log In"
             this.sending = false
             if (data.status == 404) this.show_error("User with this email not found.")
             else if (data.status == 401) this.show_error("Email or password incorrect.")
