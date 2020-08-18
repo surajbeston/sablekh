@@ -39,7 +39,7 @@
                                 <div class = "tag-search"> 
                                     <div class = "tagsearchcapsule" v-bind:class="{  removeRadius: show_suggestions  }">
                                         <input class = "tag-search-input" v-model="tag_search" @click = "check_and_show"><img src = "@/assets/cancel.png" class = "addTag"  v-bind:class = "{ rotate: show_suggestions }" @click = "closeSuggestions"> 
-                                    </div> 
+                                    </div>
                                     <div class = "tag-search-box" v-show = "show_suggestions">
                                         <div v-for = "suggestion in suggestions" :key = "suggestion">
                                             <hr><div class = "tag-search-suggestion" @click = "addTag(suggestion)" >{{suggestion}}</div>
@@ -50,6 +50,14 @@
                             </div>
                         </div>
                     </div>
+                    <div v-show="is_owner && wants_to_delete && lib_str" class="alert-box">
+                        <h3>Delete this library?</h3>
+                        <div class="buttons">
+                            <button class="btn yes-btn" @click="yes_button">Yes</button>
+                            <button class="btn no-btn" @click="no_button">No</button>
+                        </div>
+                    </div>
+
                     <button style="margin-top: 10px;" class="btn" @click = "final_finish">{{finish}}</button>
                     <button v-show="is_owner && lib_str" class="btn delete-btn" @click="delete_button">Delete</button>
                 </div>                
@@ -101,7 +109,8 @@ export default {
             show_suggestions: false,
             finish: "Finish",
             time: 0,
-            to_search: ["Tribhuvan University", "Purwanchal University", "First Semester", "Second Semester", "Third Semester", "Fourth Semester", "First Year", "Second Year", "Third Year", "Fourth Year", "Pokhara University", "Kathmandu University", "Economics", "Mechanical Engineering", "Social Engineering", "Sociology"]
+            // to_search: ["Tribhuvan University", "Purwanchal University", "First Semester", "Second Semester", "Ttohird Semester", "Fourth Semester", "First Year", "Second Year", "Third Year", "Fourth Year", "Pokhara University", "Kathmandu University", "Economics", "Mechanical Engineering", "Social Engineering", "Sociology"]
+            to_search: []
         }
     },
 
@@ -542,11 +551,14 @@ export default {
                 //.log(e)
                 alert('error')
             })
-
         }
-
-
-
+        axios({
+            url: this.url + "tags",
+            method: "get",
+            headers: this.implicit_data()
+        }).then(res => {
+            this.to_search = res.data.tags
+        })
     }
 }
 </script>
@@ -555,6 +567,7 @@ export default {
     .upload-component {
         background-color: rgb(254, 227, 200);
         color:rgb(51, 47, 43);
+        overflow: hidden;
     }
     .upload-wrapper1 {
         display: flex;
@@ -1036,6 +1049,50 @@ export default {
     .extension-image{
         width: 13%;
     }
+}
+
+@media screen and (max-width: 350px){
+
+    /* .extension-image{
+        display: none;
+    }
+    .upload-img{
+        display: none;
+    }
+
+    .file-box{
+        height: 50px;
+    } */
+.download-filename {
+        font-size: 70%;
+    }
+
+        .upload-img{
+        width: 12%;
+    }
+
+    .file-size{
+       font-size: 70%;
+    }
+
+    .progressbar{
+            width: 69vw;
+            margin-right: 0;
+            padding-right: 0;
+        }
+
+    .cancelDownload{
+        width: 17px;
+    }
+
+    .tag-search-input{
+        font-size: 80%;
+    }
+
+    .addTag{
+        width: 20px;
+    }
+
 }
 
 

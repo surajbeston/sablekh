@@ -425,7 +425,7 @@ def reset_password(request):
         token_obj = PwResetToken.objects.get(token = token)
     except PwResetToken.DoesNotExist:
         return Response({"error": "invalid token"}, status = status.HTTP_404_NOT_FOUND)
-    user = token_obj.user
+    user = token_obj.user 
     if datetime.now(tz = tz.UTC) - token_obj.datetime > timedelta(days = 1):
         return Response({"error": "token expired", "email": user.email}, status = status.HTTP_403_FORBIDDEN)
     if _type == "test":

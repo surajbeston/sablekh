@@ -256,6 +256,14 @@ export default {
                 this.loader_on = false
             })
         }
+
+        axios({
+            url: `${this.server_address}/tags`,
+            method: "get",
+            headers: this.implicit_data()
+        }).then(res => {
+            this.to_search = res.dats.tags
+        })
     }
 }
 
@@ -360,8 +368,10 @@ export default {
         display: inline-block;
     }
 
-    #current-tag{
-        
+    .no_search{
+        margin-top: 5%;
+        font-family: 'Rajdhani', sans-serif;
+
     }
     .each-tag > img {
         position: absolute;

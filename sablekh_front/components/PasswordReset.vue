@@ -131,7 +131,6 @@ export default {
             .then(res => {
                 var data = res.data
                 this.email = data.email
-                
             })
             .catch(e => {
                 //.log(e)

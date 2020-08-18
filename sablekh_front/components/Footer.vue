@@ -149,8 +149,6 @@ export default {
 
     @media screen and (max-width: 500px){
        .foot-link {
-           /* margin-top: 5vh;
-           margin-bottom: 2vh; */
            font-size: 20px;
             font-weight: bold;
        }
