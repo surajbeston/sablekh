@@ -610,7 +610,7 @@ export default {
         margin: 1vh 0;
     }
     .input-section {
-        margin: 5vh 5vw;
+        margin: 5vh 0;
         display: flex;
         flex-direction: column;
     }
@@ -989,7 +989,7 @@ export default {
             margin-left: 10px;
         }
         .upload13 {
-            width: 100px;
+            width: 70px;
         }
         .upload12 {
             width: 100%;

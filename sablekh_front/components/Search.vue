@@ -232,8 +232,9 @@ export default {
         this.fuse = new Fuse(this.all_tags, {}) 
         this.previous_libraries = this.retrive_from_localstorage("search")
         this.search_books = []
+
+        var libs = this.previous_libraries;
         for (var previous_library of this.previous_libraries){
-            this.loader_on = true
             axios({
                 url: `${this.server_address}/get-library`,
                 method: "post",
@@ -244,6 +245,8 @@ export default {
                 this.search_books.push(res.data)
                 this.fill_extra()
                 this.loader_on = false
+            })
+            .catch(err => {
             })
         }
         axios({
@@ -593,11 +596,15 @@ export default {
             font-size: 100%;
         }
 
+        .no_search{
+            font-size: 100%;
+        }
+
 
     }
     @media screen and (max-width: 600px) {
         .logo-img {
-            width: 70px;
+            width: 50px;
         }
         .search11 > img {
             width: 200px;

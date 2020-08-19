@@ -375,6 +375,10 @@ export default {
         width: 90%;
         height: 120%;
     }
+
+    .no_library{
+        font-size: 100%;
+    }
 }
 
 @media screen and (max-width: 500px){
