@@ -31,7 +31,6 @@
 </template>
 
 <script>
-
 import axios from "axios";
 import CryptoJS from "crypto-js";
 import { v4 as uuidv4 } from "uuid";

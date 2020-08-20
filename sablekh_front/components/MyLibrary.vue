@@ -1,7 +1,6 @@
 <template>
     <div class="my-library-component mxw-100-mnh-100" :class = "{invisible : !authenticate}">
         <div class="header">
-            
             <img src="@/assets/sablekh.png" alt="loading img" class="logo-img">
         </div>
         <div class="my-library-wrapper1">
@@ -12,7 +11,6 @@
             <p class="email">
                 {{email}}
             </p>
-
             <span class="loader" v-show="loader_on"></span>
             <div v-show="!loader_on">
                 <h2  v-show="no_library" class = "no_library">No libraries found, please upload to find it here.</h2>
@@ -35,7 +33,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </template>
@@ -68,7 +65,6 @@ export default {
           return {"Authorization": "Token " + this.id, "site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
         }
     },
-
     computed: {
         authenticate(){
             return this.id ? true:false
@@ -82,8 +78,6 @@ export default {
             return libraries
         }
     },
-
-
     mounted() {
         this.id = window.localStorage.getItem("token")
         if (!this.id) { 
@@ -118,7 +112,6 @@ export default {
                     .catch(e => {
                         lib.likes = 0
                     })
-
                 axios({
                     url: this.server_address + "/all-downloads",
                     method: 'post',
@@ -137,7 +130,10 @@ export default {
             })
        })
        .catch(e => {
-           //.log(e)
+           if (e.response.status == 404){
+            this.no_library = true
+            this.loader_on = false
+           }
        })
     }
 }

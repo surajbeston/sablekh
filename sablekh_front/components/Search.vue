@@ -97,14 +97,15 @@ export default {
     },
 
     methods: {
-
         add_to_localstorage(name, data) {
             let s = false
-            try {
+            try{
+                window.localStorage.setItem(name, "")
                 window.localStorage.setItem(name, JSON.stringify(data))
                 s = true
             }
-            catch {}
+            catch{}
+
             return s
         },
         retrive_from_localstorage(name) {
@@ -118,9 +119,7 @@ export default {
         },
         options_clicked(e) {
             let i = e.target.innerText
-
             this.current_tag = i
-
             if (! this.tags.includes(this.current_tag) ) {
                 this.tags.push(i)
             }
@@ -149,9 +148,12 @@ export default {
                     this.no_search = res.data.length > 0 ? false: true
                     //.log(this.no_search)
                     this.search_books = res.data
+                    this.libraries = []
+                    this.hids = []
                     this.fill_extra()
+
                     this.loaded = false
-                    this.loader_on = false
+                    this.loader_on = false 
                 }) 
             }
         },
@@ -160,10 +162,8 @@ export default {
         },
         async fill_extra(){
             return await this.get_likes_downloads()
-        }
-        ,
+        },
         get_likes_downloads(){
-            //.log(this.search_books)
             if (this.search_books.length > 0){
                 this.search_books.map(lib => {
                     axios({
@@ -180,20 +180,18 @@ export default {
                                 url: this.server_address + "/all-downloads",
                                 method: 'post',
                                 headers: this.implicit_data(),
-                                data: {
-                                    library: lib.hid
+                                data: {library: lib.hid}
+                            })
+                            .then(res => {
+                                lib.downloads = res.data.downloads
+                                if (!this.hids.includes(lib.hid)){
+                                    this.hids.push(lib.hid)
+                                    this.libraries.push(lib)
                                 }
-                            })    
-                                .then(res => {
-                                    lib.downloads = res.data.downloads
-                                    if (!this.hids.includes(lib.hid)){
-                                        this.hids.push(lib.hid)
-                                        this.libraries.push(lib)
-                                    }
-                                })
-                                .catch(e => {
-                                    lib.downloads = 0
-                                })
+                            })
+                            .catch(e => {
+                                lib.downloads = 0
+                            })
                         })
                         .catch(e => {
                             lib.likes = 0
@@ -217,7 +215,6 @@ export default {
             return this.get_link ? "upload" : "login to upload";
         },
         computed_libraries(){
-            // if (!this.loaded) this.fill_extra()
             for (var book of this.libraries){
                 if (book.title.length > 50) book.title = book.title.slice(0, 67) + "..."
                 if (book.description.length > 70) book.description = book.description.slice(0, 67) + '...'

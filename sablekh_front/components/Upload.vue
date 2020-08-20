@@ -62,7 +62,7 @@
             </div>
             <div v-show="is_owner && wants_to_delete && lib_str" class="alert-wrapper">
                 <div  class="alert-box">
-                    <h3>Are you sure of deleting this library ?</h3>
+                    <h3>Are you sure, you wanna delete this?</h3>
                     <div class="buttons">
                         <button class="btn yes-btn" @click="yes_button">Yes</button>
                         <button class="btn no-btn" @click="no_button">No</button>
@@ -134,7 +134,7 @@ export default {
             .then(res => {
                 window.location.href = "/library"
             })
-            .catch(err => alert("Delete not avialable for this library!"))
+            .catch(err => this.displayError("Problem deleting library."))
         },
         no_button() {
             this.wants_to_delete = false;
@@ -160,8 +160,6 @@ export default {
                 }
             })
             .catch(e => {
-                //.log(e)
-                alert("Internal error")
             })
 
         },
@@ -483,14 +481,14 @@ export default {
         computed_files(){
             var files = []
             var altered
-            for (var file of this.files){
-                altered = file
-                altered.name = altered.name.length <= 17 ? altered.name:altered.name.slice(0, 14)+ "..."
-                files.push(altered) 
+                for (var file of this.files){
+                    altered = file
+                    altered.name = altered.name.length <= 17 ? altered.name:altered.name.slice(0, 14)+ "..."
+                    files.push(altered) 
             }
             return files
         }    },
-    mounted() {
+    mounted(){
         this.auth_token =window.localStorage.getItem('token')
         if (!this.auth_token) {
             window.location.replace("/login")
@@ -568,8 +566,6 @@ export default {
 
             })
             .catch(e => {
-                //.log(e)
-                alert('error')
             })
         }
         axios({
@@ -672,7 +668,6 @@ export default {
         font-size: 120%;
     }
 
-
     .btn {
         background-color: rgb(255, 176, 98);
         font-weight: bold;
@@ -708,7 +703,7 @@ export default {
         display: flex;
         flex-direction: column;
         border-radius: 10px;
-        background-color: rgb(255, 115, 0);
+        background-color: white;
         box-shadow: 0 5px 10px rgb(197, 165, 124);
     }
 
@@ -717,13 +712,15 @@ export default {
     }
 
     .yes-btn {
-        background-color: rgb(255, 0, 0);
+        background-color: white;
+        border: black solid 2px;
     }
 
     .no-btn {
         margin-left: 2%;
         margin-top: 2%;
-        background-color: rgb(32, 221, 32)
+        background-color: rgb(255, 176, 98);
+        border: rgb(255, 176, 98) solid 2px;
     }
 
     .input-box {
