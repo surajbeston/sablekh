@@ -25,7 +25,7 @@ class Library(models.Model):
     title = models.CharField(max_length = 300)
     user = models.ForeignKey(Visitor, on_delete = models.CASCADE, blank = True, null = True)
     description = models.CharField(max_length = 1500)
-    thumbnail = models.URLField(default="https://api.sabekh.com/thumbnails/default.jpg")
+    thumbnail = models.URLField(default="https://api.sablekh.com/thumbnails/default.jpg")
     link_str = models.CharField(max_length = 350, unique=True)
     tags = ArrayField(models.CharField(max_length = 150), blank = True, null = True)
     finished = models.BooleanField(default=False)
@@ -40,7 +40,7 @@ class File(models.Model):
     size = models.IntegerField(default = 0)
 
 class DownloadLot(models.Model):
-    zip_name = models.CharField(max_length = 56, primary_key= True)
+    zip_name = models.CharField(max_length = 300)
     visitor = models.ForeignKey(Visitor, on_delete = models.CASCADE, blank = True, null = True)
     library = models.ForeignKey(Library, on_delete = models.CASCADE)
     datetime = models.DateTimeField(auto_now = True)
@@ -53,8 +53,11 @@ class Like(models.Model):
     datetime = models.DateTimeField(auto_now = True)
 
 class Tag(models.Model):
-    title = models.CharField(max_length = 150)
+    title = models.CharField(max_length = 150, unique = True)
     datetime = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.title
 
 class PwResetToken(models.Model):
     token = models.CharField(max_length=150)

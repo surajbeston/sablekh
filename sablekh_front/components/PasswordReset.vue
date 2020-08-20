@@ -248,19 +248,27 @@ export default {
     }
 
     #errorBox{
-    background-color: rgba(255, 0, 0, 0.4);
-    color: rgb(51, 47, 43);
-    border: 1px black solid;
-    border-radius: 5px;
-    padding : 2%;
-    font-size: 110%;
-    font-family: 'Rajdhani', sans-serif;
-    animation-name: fadein;
-    animation: fadein 1s;
-    margin: 2% 0 2% 0;
-    font-weight: bold;
-    margin-top: 5%;
-}
+        background-color: rgba(255, 0, 0, 0.4);
+        color: rgb(51, 47, 43);
+        border: 1px black solid;
+        border-radius: 5px;
+        padding : 2%;
+        font-size: 110%;
+        font-family: 'Rajdhani', sans-serif;
+        animation-name: fadein;
+        animation: fadein 1s;
+        margin: 2% 0 2% 0;
+        font-weight: bold;
+        margin-top: 5%;
+        animation-name: fadein;
+        animation: fadein 1s;
+    }
+
+    @keyframes fadein {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+
 
 .cancelError{
     cursor: pointer;

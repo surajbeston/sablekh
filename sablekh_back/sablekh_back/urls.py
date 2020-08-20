@@ -42,6 +42,5 @@ urlpatterns = [
     path('all-likes', all_likes),
     path('check-like', check_like),
     path('all-downloads', all_downloads),
-    path('tags', get_tags),
-
+    path('tags', get_tags),s
 ]

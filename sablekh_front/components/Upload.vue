@@ -16,7 +16,7 @@
                             <label for="file" >{{fileLabel}}</label> 
                             <input type="file" name="upload_file" id="file" @change="filesChange($event.target.files)" multiple class = "hamro">
                             <div class = "files-wrap"> 
-                                <div class = "file-box" v-for="file in files" :key = "file.random_id" v-show="!file.canceled">
+                                <div class = "file-box" v-for="file in computed_files" :key = "file.random_id" v-show="!file.canceled">
                                     <img :src = "file.filename" class = "extension-image"> 
                                     <div class = "middle-collection"> 
                                         <div>
@@ -42,8 +42,7 @@
                                     <div class = "tag-search-box" v-show = "show_suggestions">
                                         <div v-for = "suggestion in suggestions" :key = "suggestion">
                                             <hr><div class = "tag-search-suggestion" @click = "addTag(suggestion)" >{{suggestion}}</div>
-                                        </div>
-                                            
+                                        </div>   
                                     </div>
                                 </div> 
                             </div>
@@ -105,6 +104,7 @@ export default {
             suggest_tags: [],
             tag_search: "Add tags for your library",
             show_suggestions: false,
+            suggest_suggestions: true,
             finish: "Finish",
             time: 0,
             // to_search: ["Tribhuvan University", "Purwanchal University", "First Semester", "Second Semester", "Ttohird Semester", "Fourth Semester", "First Year", "Second Year", "Third Year", "Fourth Year", "Pokhara University", "Kathmandu University", "Economics", "Mechanical Engineering", "Social Engineering", "Sociology"]
@@ -382,6 +382,8 @@ export default {
             displayError(errorText){
                 this.hasError = true
                 this.error = errorText
+                document.body.scrollTop = 0
+                document.documentElement.scrollTop = 0
             },
         cancelUpload(random_id, plugout = false){
             //.log(random_id)
@@ -418,6 +420,7 @@ export default {
         },
         addTag(tag){
             this.tags.push(tag)
+            this.suggest_suggestions = false
             this.show_suggestions = false
         },
         check_and_show(){
@@ -426,7 +429,7 @@ export default {
             }
             if (this.suggestions != undefined){
                 if (this.suggestions.length > 0){
-                    this.show_suggestions = true
+                    this.show_suggestions = false
                 }
             }
         },
@@ -445,14 +448,12 @@ export default {
                 this.show_suggestions = false
                 
             }
-            else{
+            else if(this.suggest_suggestions){
                 var options = {}
 
                 var fuse = new Fuse(this.to_search, options)
                 var results = fuse.search(this.tag_search)
-
                 var suggestion_list = []
-
                 for (var result of results){
                     if (!this.tags.includes(result.item)){suggestion_list.push(result.item)}
                 }
@@ -463,6 +464,7 @@ export default {
                 }
                 this.show_suggestions = false
             }
+            this.suggest_suggestions = true
         },
         letters_description(){
             var length = this.description.length
@@ -473,8 +475,17 @@ export default {
             var length = this.title.length
             if (length >= 150) this.title = this.title.slice(0, 14)
             return length
-        }
-    },
+        },
+        computed_files(){
+            var files = []
+            var altered
+            for (var file of this.files){
+                altered = file
+                altered.name = altered.name.length <= 17 ? altered.name:altered.name.slice(0, 14)+ "..."
+                files.push(altered) 
+            }
+            return files
+        }    },
     mounted() {
 
         this.auth_token = window.localStorage.getItem('token')
@@ -735,8 +746,7 @@ export default {
         padding : 2%;
         font-size: 110%;
         font-family: 'Rajdhani', sans-serif;
-        font-weight: 200;
-
+        font-weight: bolder;
         animation-name: fadein;
         animation: fadein 1s;
     }
@@ -789,7 +799,7 @@ export default {
     }
 
     .progressbar{
-        width: 42vw;
+        width: 52vw;
         height: 10px;
         background-color: rgba(188, 182, 216, 0.8);
         position: relative;
@@ -933,7 +943,7 @@ export default {
 
     @media screen and (max-width: 1500px){
         .progressbar{
-            width: 40vw;
+            width: 49vw;
         }
         .right-box{
             width: 70%;
@@ -942,7 +952,7 @@ export default {
 
     @media screen and (max-width: 1200px){
         .progressbar{
-            width: 47vw;
+            width: 56vw;
         }
         /* .upload13{
             display: none;
@@ -955,13 +965,11 @@ export default {
         .right-box{
             width: 60%;
         }
-
-        
     }
 
     @media screen and (max-width: 900px){
         .progressbar{
-            width: 43vw;
+            width: 50vw;
         }
         
     }

@@ -213,7 +213,10 @@ def all_libraries(request):
     try:
         visitor = Visitor.objects.get(email = request.user.email)
         libraries = Library.objects.filter(user = visitor)
-        serialiers = [LibrarySerializer(library) for library in libraries]
+        filtered_libraries = [library for library in libraries if library.finished]
+        if len(filtered_libraries) == 0:
+            return Response({"error":"not found"}, status = status.HTTP_404_NOT_FOUND)
+        serialiers = [LibrarySerializer(library) for library in filtered_libraries]
         data = [serializer.data for serializer in serialiers]
         return Response(data, status = status.HTTP_200_OK)
     except Visitor.DoesNotExist:
@@ -268,7 +271,7 @@ def download_files(request):
         else:
             down_obj = DownloadLot(zip_name = zip_name, library = library, files = filenames)
         down_obj.save()
-        return Response({"filename": "https://api.sablekh.com/download/"+download_lot.zip_name, "by": "found"})
+        return Response({"filename": "https://api.sablekh.com/download/"+zip_name, "by": "found"})
     else:
         library_name = filter_text(library.title[:20], punctuation)
         zip_name =  library_name + str(binascii.crc32(str(hids).encode()))+ ".zip"
@@ -361,6 +364,8 @@ def auth_token(request):
 def change_link(request):
     hid = request.data["hid"]
     link_str = request.data["link_str"]
+    if len(link_str) < 3:
+        return Response({"error": "small link size"}, status = status.HTTP_403_FORBIDDEN)
     try:
         library = Library.objects.get(hid = hid)
         if library.user.email == request.user.email:
@@ -425,7 +430,7 @@ def reset_password(request):
     except PwResetToken.DoesNotExist:
         return Response({"error": "invalid token"}, status = status.HTTP_404_NOT_FOUND)
     user = token_obj.user 
-    if datetime.now(tz = tz.UTC) - token_obj.datetime > timedelta(days = 1):
+    if datetime.now(tz = tz.UTC) - token_obj.datetime > timedelta(days = 1) or token_obj.is_used:
         return Response({"error": "token expired", "email": user.email}, status = status.HTTP_403_FORBIDDEN)
     if _type == "test":
         return Response({"message": "token valid", "email": user.email}, status = status.HTTP_200_OK)
@@ -433,6 +438,8 @@ def reset_password(request):
         password = request.data["password"]
         user.password = make_password(password)
         user.save() 
+        token_obj = False
+        token_obj.save()
         return Response({"message": "password reset", "email": user.email}, status= status.HTTP_205_RESET_CONTENT)
     else:
         return Response({"error": "invalid type", "email": user.email}, status = status.HTTP_303_SEE_OTHER)

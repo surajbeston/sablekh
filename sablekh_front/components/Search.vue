@@ -229,7 +229,6 @@ export default {
 
     mounted(){
         this.time = new Date().getTime()
-        this.fuse = new Fuse(this.all_tags, {}) 
         this.previous_libraries = this.retrive_from_localstorage("search")
         this.search_books = []
 
@@ -255,6 +254,7 @@ export default {
             headers: this.implicit_data()
         }).then(res => {
             this.all_tags = res.data.tags
+            this.fuse = new Fuse(this.all_tags, {}) 
         })
     }
 }
@@ -672,7 +672,7 @@ export default {
 
         .all-tags > input{
             font-size: 80%;
-            width: 170px;
+            width: 200px;
         }
 
         .input-options > span{
@@ -713,8 +713,5 @@ export default {
             font-size: 80%;
             text-align: left;
         }
-
     }
-
-
 </style>

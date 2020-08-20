@@ -1,68 +1,72 @@
 <template>
   <div class="library-component mxw-100-mnh-100">
     <img src="@/assets/logo1.png" alt="loading image" class="logo-img" />
-    <div>
-      <span class="loader" v-show = "loader_on"></span>
+    <div v-if = "loader_on">
+      <span class="loader"></span>
     </div>
-    <div class="library-wrapper1" v-show="!loader_on">
-
-      <img class="book-img" :src="library_thumbnail" alt="book" />
-      <h1 class="library-title">{{library_name}}</h1>
-      <p class="library-desc">{{library_desc}}</p>
-      <div class="lib-tags" v-bind:key="tag" v-for="tag in library_tags">
-        <span class="each-tag">{{tag}}</span>
+    <div v-else>
+      <div v-if = "not_found" class = "not_found">
+        <h1>Library not found 404</h1>
       </div>
-      <div id = "successBox" v-show="hasSuccess" ><p id = "successTxt"> {{success}}<img src = "@/assets/cancel.png" @click="hasSuccess =!hasSuccess" class = "cancelSuccess"></p></div>
-          <div id = "errorBox" v-show="hasError" ><p id = "errorTxt"> {{error}}<img src = "@/assets/cancel.png" @click="hasError =!hasError" class = "cancelError"></p></div>
-      <div class="like-div">
-        <div class="like1">
-          <span class="like-span">{{likes}}</span>
-          <img
-            @click="like_clicked"
-            v-show="!is_liked"
-            src="@/assets/like.png"
-            alt="like"
-            class="blk-like"
-          />
-          <img v-show="is_liked" src="@/assets/like1.png" alt="like" class="blu-like" />
+      <div v-else class="library-wrapper1">
+        <img class="book-img" :src="library_thumbnail" alt="book" />
+        <h1 class="library-title">{{library_name}}</h1>
+        <p class="library-desc">{{library_desc}}</p>
+        <div class="lib-tags" v-bind:key="tag" v-for="tag in library_tags">
+          <span class="each-tag">{{tag}}</span>
         </div>
-        <div class="like2">
-          <span class="like-span">{{downloads}}</span>
-          <img src="@/assets/download1.png" alt="download img" class="download-img">
+        <div id = "successBox" v-show="hasSuccess" ><p id = "successTxt"> {{success}}<img src = "@/assets/cancel.png" @click="hasSuccess =!hasSuccess" class = "cancelSuccess"></p></div>
+            <div id = "errorBox" v-show="hasError" ><p id = "errorTxt"> {{error}}<img src = "@/assets/cancel.png" @click="hasError =!hasError" class = "cancelError"></p></div>
+        <div class="like-div">
+          <div class="like1">
+            <span class="like-span">{{likes}}</span>
+            <img
+              @click="like_clicked"
+              v-show="!is_liked"
+              src="@/assets/like.png"
+              alt="like"
+              class="blk-like"
+            />
+            <img v-show="is_liked" src="@/assets/like1.png" alt="like" class="blu-like" />
+          </div>
+          <div class="like2">
+            <span class="like-span">{{downloads}}</span>
+            <img src="@/assets/download1.png" alt="download img" class="download-img">
+          </div>
+          <div class="like3" @click = "copy(library_name)">
+              <img src="@/assets/copy.png" alt="share img" class="copy-img">
+          </div> 
         </div>
-        <div class="like3" @click = "copy(library_name)">
-            <img src="@/assets/copy.png" alt="share img" class="copy-img">
-        </div> 
-      </div>
-      <div class="files-wrapper" v-show = "!loader_on">
-        <div class="fw-each" :key="file.hid" v-for="file in refined_files">
-          <div @click="download_middle(file.hid)" class="fw1">
-            <img src="@/assets/filenames/pdf.png" alt="png" />
-            <h3>{{file.title}}</h3> 
-            <div class="size-div">
-              <img src="@/assets/file.png" alt="file png" class="file-img">
-              <span>{{(file.size/1024).toFixed(2)}} MB</span>
+        <div class="files-wrapper" v-show = "!loader_on">
+          <div class="fw-each" :key="file.hid" v-for="file in refined_files">
+            <div @click="download_middle(file.hid)" class="fw1">
+              <img src="@/assets/filenames/pdf.png" alt="png" />
+              <h3>{{file.title}}</h3> 
+              <div class="size-div">
+                <img src="@/assets/file.png" alt="file png" class="file-img">
+                <span>{{(file.size/1024).toFixed(2)}} MB</span>
+              </div>
+            </div>
+            <div class="fw2">
+              <input type="checkbox" :id="file.hid" @input="checkbox_clicked(file.hid)" />
             </div>
           </div>
-          <div class="fw2">
-            <input type="checkbox" :id="file.hid" @input="checkbox_clicked(file.hid)" />
-          </div>
         </div>
+        <div v-show="downloading" class="progress-bar">
+          <div class="progress" :style="progress_bar_style"></div>
+        </div>
+        <div class="download-container">
+          <button @click="download_clicked" class="btn download">Download</button>
+          <button @click="download_all_clicked" class="btn download-all">Download all</button>
+        </div>
+        <button @click="show_change_link" v-show="!changing && authenticated && is_in_user_library" class="btn" >
+          Change Link
+        </button>
+        <div v-show="changing && authenticated" class="change-link">
+          <input type="text" v-model="new_link" :placeholder="lib_id">
+          <button @click="link_changed" class="btn change-link-button">Change</button>
+        </div> 
       </div>
-      <div v-show="downloading" class="progress-bar">
-        <div class="progress" :style="progress_bar_style"></div>
-      </div>
-      <div class="download-container">
-        <button @click="download_clicked" class="btn download">Download</button>
-        <button @click="download_all_clicked" class="btn download-all">Download all</button>
-      </div>
-      <button @click="show_change_link" v-show="!changing && authenticated && is_in_user_library" class="btn" >
-        Change Link
-      </button>
-      <div v-show="changing && authenticated" class="change-link">
-        <input type="text" v-model="new_link" :placeholder="lib_id">
-        <button @click="link_changed" class="btn change-link-button">Change</button>
-      </div> 
     </div>
   </div>
 </template>
@@ -98,16 +102,16 @@ export default {
       downloads: 0,
       is_in_user_library: false,
       user_libraries: [],
-      loader_on: false,
+      loader_on: true,
       hasSuccess: false,
       success: "This is success",
       error: "This is error",
-      hasError: false
+      hasError: false,
+      not_found: false
     };
   },
 
   methods: {
-
     library_stuffs(){
       this.loader_on = true
       axios({
@@ -124,39 +128,38 @@ export default {
         if(this.user_libraries.filter(e => e.hid === this.hid).length > 0){
           this.is_in_user_library = true;
         }
-        
       })
       .catch(e => {
         alert("Internal error")
       })
-
-
     },
-
-    
     link_changed() {
-      axios({
-        url: this.server_address + "/change-link",
-        headers: {
-          ...this.implicit_data(),
-          Authorization: "Token " + this.token
-        },
-        method: 'post',
-        data: {
-          hid: this.hid,
-          link_str: this.new_link
-        }
-      })
-      .then(res => {
-        window.location.href = "/library/" + res.data.link_str
-      })
-      .catch(e => {
-        this.show_error("Something went wrong.")
-      })
+      if (this.new_link.length < 3) this.show_error("At least 3 letters required.")
+      else{
+        axios({
+          url: this.server_address + "/change-link",
+          headers: {
+            ...this.implicit_data(),
+            Authorization: "Token " + this.token
+          },
+          method: 'post',
+          data: {
+            hid: this.hid,
+            link_str: this.new_link
+          }
+        })
+        .then(res => {
+          window.location.href = "/library/" + res.data.link_str
+        })
+        .catch(e => {
+          this.show_error("Something went wrong.")
+        })
+      }
   },
 
     show_change_link(){      
       this.changing = true;
+      this.show_success("Warning: This link won't exist.")
     },
 
     like_clicked() {
@@ -258,40 +261,35 @@ export default {
 
       this.download_middle(a.join(","));
 
-      this.progress = 20;
-
     },
 
     download_clicked() {
       var file_hids = "";
-
       if (!this.selected_file.length > 0) {
-        this.show_error("Please select files to downoad. ")
+        this.show_error("Please select files to downoad.")
         return null;
       }
-
-      this.downloading = true;
-      this.progress = 0;
-
-      if (this.selected_file.length === 1) {
+      else if (this.selected_file.length === 1) {
         // let file = this.files.filter(e => e.hid === this.selected_file[0]) i guess its not necessary
 
         // if (file.link) {
         //   download(file.link)
         // }
         // else {
+        this.downloading = true;
+        this.progress = 0;
         file_hids = this.selected_file[0];
-        // }
-      } else {
+      } 
+      else {
         file_hids = this.selected_file.join(",");
+        this.downloading = true;        
+        this.progress = 0
       }
-      this.progress = 20
       this.download_middle(file_hids);
     },
 
     download_middle(file_hids) {
       if (file_hids !== "") {
-        this.progress = 60;
         axios({
           url: this.server_address + "/download",
           method: "post",
@@ -303,10 +301,11 @@ export default {
         })
           .then((res) => {
             // //.log(res)
-            this.download(res.data.filename);
-            this.progress = 80;
+            this.download(res.data.filename)
           })
           .catch((e) => {
+            this.progress = 0
+            this.downloading = false
             this.show_error("Download interrupted. Try again.")
           });
       }
@@ -314,11 +313,13 @@ export default {
 
     download(url) {
       let file_name = url.split("/");
-
       axios({
         url,
         method: "GET",
         responseType: "blob",
+        onDownloadProgress: (e) => {
+          this.progress = Math.round(e.loaded/e.total*100)
+        }
       }).then((response) => {
         var fileURL = window.URL.createObjectURL(new Blob([response.data]));
         var fileLink = document.createElement("a");
@@ -360,12 +361,18 @@ export default {
       this.show_success("Link Copied. Share it now!")
     },
     show_success(successTxt){
+      this.hasError = false      
       this.hasSuccess = true
       this.success = successTxt
+      document.body.scrollTop = 0
+      document.documentElement.scrollTop = 0
     },
     show_error(errorTxt){
+      this.hasSuccess = false
       this.hasError = true 
       this.error = errorTxt 
+      document.body.scrollTop = 0
+      document.documentElement.scrollTop = 0
     },
   },
 
@@ -427,7 +434,10 @@ export default {
           .catch((err) =>{} );
       })
       .catch((e) => {
-        //.log(e);
+        if (e.response.status == 404){
+          this.loader_on = false
+          this.not_found = true
+        }
       });
   },
 };
@@ -626,6 +636,11 @@ export default {
   font-family: 'Ubuntu', sans-serif;
 }
 
+.not_found{
+  text-align: center;
+  font-family: 'Rajdhani', sans-serif;
+}
+
   #successBox{
       background-color: rgba(134, 190, 87, 0.4);
       color: rgb(51, 47, 43);
@@ -638,7 +653,14 @@ export default {
       animation-name: fadein;
       animation: fadein 1s;
       width: 50%;
-  }
+      animation-name: fadein;
+      animation: fadein 1s;
+    }
+
+    @keyframes fadein {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
   .cancelSuccess{
       cursor: pointer;
       float: right;
@@ -657,8 +679,9 @@ export default {
     margin: 2% 0 2% 0;
     font-weight: bold;
     width: 50%;
-
-}
+    animation-name: fadein;
+    animation: fadein 1s;
+    }
 
 .cancelError{
     cursor: pointer;
@@ -799,6 +822,10 @@ export default {
 
   .cancelError{
     width: 20px;
+  }
+
+  .not_found{
+    font-size: 80%;
   }
 
 }

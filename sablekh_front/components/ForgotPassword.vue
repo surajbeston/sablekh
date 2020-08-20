@@ -73,10 +73,12 @@ export default {
           return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
       },
       show_success(successTxt){
+        this.hasError = false
         this.hasSuccess = true
         this.success = successTxt
       },
       show_error(errorTxt){
+        this.hasSuccess = false
         this.hasError = true 
         this.error = errorTxt 
       },
@@ -179,7 +181,7 @@ export default {
     }
 
 
-      #successBox{
+    #successBox{
       background-color: rgba(134, 190, 87, 0.4);
       color: rgb(51, 47, 43);
       border: 1px black solid;
@@ -191,7 +193,15 @@ export default {
       animation-name: fadein;
       animation: fadein 1s;
       width: 100%;
-  }
+      animation-name: fadein;
+      animation: fadein 1s;
+    }
+
+    @keyframes fadein {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+
   .cancelSuccess{
       cursor: pointer;
       float: right;
@@ -210,6 +220,8 @@ export default {
     margin: 2% 0 2% 0;
     font-weight: bold;
     width: 100%;
+    animation-name: fadein;
+    animation: fadein 1s;
 
 }
 
