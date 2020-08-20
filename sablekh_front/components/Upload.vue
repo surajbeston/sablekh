@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="upload-component mxw-100-mnh-100">
+        <div class="upload-component mxw-100-mnh-100" :class = "{invisible : !authenticate}">
             <div v-show="!wants_to_delete" class="upload-wrapper1" ref = "fileform" >
                 <img src="@/assets/upload/upload-top.png" alt="loading image" class="upload11" >
                 <div class="upload12" >
@@ -207,7 +207,7 @@ export default {
                 for (var file of files){
                         if (file === undefined){
                             this.displayError("Problem uploading file. Please try again.")
-                            continue
+                            continue 
                         }
                         var already_uploaded = false
                         //.log("reached here")
@@ -357,6 +357,7 @@ export default {
                                     }
                                 }
                                 if (continue_on){
+                                    this.finish = "Finishing"
                                     axios({
                                         url: this.url + "library",
                                         method: "patch",
@@ -443,6 +444,9 @@ export default {
         }
     },
     computed: {
+        authenticate(){
+            return this.auth_token ? true:false
+        },
         suggestions(){
             if (this.tag_search == "" || this.tag_search == "Add tags for your library"){
                 this.show_suggestions = false
@@ -487,8 +491,7 @@ export default {
             return files
         }    },
     mounted() {
-
-        this.auth_token = window.localStorage.getItem('token')
+        this.auth_token =window.localStorage.getItem('token')
         if (!this.auth_token) {
             window.location.replace("/login")
             }
@@ -512,20 +515,16 @@ export default {
         }.bind(this));
 
         this.$refs.fileform.addEventListener('drop', function(e){
-
             this.activate = false
             this.fileLabel = "Drag & drop/click to add file"
             document.getElementById("file").style.backgroundColor = "sky-blue";
             this.filesChange(e.dataTransfer.files)
-            
         }.bind(this));
 
         this.time = new Date().getTime()
 
         if (this.lib_str) {
-
-            var i = 0;
-
+            var i = 0
             axios({
                 url: this.url + "link",
                 method: 'post',
@@ -538,8 +537,8 @@ export default {
                 this.title = res.data.title,
                 this.description = res.data.description
                 this.library = res.data.hid
+                this.tags = res.data.tags
                 this.library_stuffs()
-
 
                 axios({
                     url: this.url + "all-files",
@@ -843,8 +842,9 @@ export default {
         left: 10px;
     }
     .invisible{
-        display: none;
+        visibility: hidden;
     }
+
 
     .cancelDownload:hover{
         cursor: pointer;

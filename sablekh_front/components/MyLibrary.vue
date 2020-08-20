@@ -1,5 +1,5 @@
 <template>
-    <div class="my-library-component mxw-100-mnh-100">
+    <div class="my-library-component mxw-100-mnh-100" :class = "{invisible : !authenticate}">
         <div class="header">
             
             <img src="@/assets/sablekh.png" alt="loading img" class="logo-img">
@@ -51,7 +51,8 @@ export default {
             libraries: [],
             email: "dummy@sablekh.com",
             no_library: false,
-            loader_on: false
+            loader_on: false,
+            id: ""
         }
     },
 
@@ -69,12 +70,8 @@ export default {
     },
 
     computed: {
-        id(){
-            var id = window.localStorage.getItem("token")
-            if (!id) {
-                window.location.replace("/login")
-            }
-            return id
+        authenticate(){
+            return this.id ? true:false
         },
         up_libraries(){
             var libraries =  Object.values(this.libraries)
@@ -88,7 +85,10 @@ export default {
 
 
     mounted() {
-
+        this.id = window.localStorage.getItem("token")
+        if (!this.id) { 
+            window.location.replace("/login") 
+        }
       this.time = new Date().getTime()
         this.loader_on = true
         if (window.localStorage.getItem("email")) this.email = window.localStorage.getItem("email")
@@ -244,6 +244,10 @@ export default {
         font-family: 'Rajdhani', sans-serif;
 
     }
+
+    .invisible{
+  visibility: hidden;
+}
 
     .library-info > p {
         margin-top: 5%;

@@ -1,71 +1,73 @@
 <template>
-  <div class="library-component mxw-100-mnh-100">
-    <img src="@/assets/logo1.png" alt="loading image" class="logo-img" />
-    <div v-if = "loader_on">
-      <span class="loader"></span>
-    </div>
-    <div v-else>
-      <div v-if = "not_found" class = "not_found">
-        <h1>Library not found 404</h1>
+  <div>
+    <div class="library-component mxw-100-mnh-100" >
+      <img src="@/assets/logo1.png" alt="loading image" class="logo-img" />
+      <div v-if = "loader_on">
+        <span class="loader"></span>
       </div>
-      <div v-else class="library-wrapper1">
-        <img class="book-img" :src="library_thumbnail" alt="book" />
-        <h1 class="library-title">{{library_name}}</h1>
-        <p class="library-desc">{{library_desc}}</p>
-        <div class="lib-tags" v-bind:key="tag" v-for="tag in library_tags">
-          <span class="each-tag">{{tag}}</span>
+      <div v-else>
+        <div v-if = "not_found" class = "not_found">
+          <h1>Library not found 404</h1>
         </div>
-        <div id = "successBox" v-show="hasSuccess" ><p id = "successTxt"> {{success}}<img src = "@/assets/cancel.png" @click="hasSuccess =!hasSuccess" class = "cancelSuccess"></p></div>
-            <div id = "errorBox" v-show="hasError" ><p id = "errorTxt"> {{error}}<img src = "@/assets/cancel.png" @click="hasError =!hasError" class = "cancelError"></p></div>
-        <div class="like-div">
-          <div class="like1">
-            <span class="like-span">{{likes}}</span>
-            <img
-              @click="like_clicked"
-              v-show="!is_liked"
-              src="@/assets/like.png"
-              alt="like"
-              class="blk-like"
-            />
-            <img v-show="is_liked" src="@/assets/like1.png" alt="like" class="blu-like" />
+        <div v-else class="library-wrapper1">
+          <img class="book-img" :src="library_thumbnail" alt="book" />
+          <h1 class="library-title">{{library_name}}</h1>
+          <p class="library-desc">{{library_desc}}</p>
+          <div class="lib-tags" v-bind:key="tag" v-for="tag in library_tags">
+            <span class="each-tag">{{tag}}</span>
           </div>
-          <div class="like2">
-            <span class="like-span">{{downloads}}</span>
-            <img src="@/assets/download1.png" alt="download img" class="download-img">
+          <div id = "successBox" v-show="hasSuccess" ><p id = "successTxt"> {{success}}<img src = "@/assets/cancel.png" @click="hasSuccess =!hasSuccess" class = "cancelSuccess"></p></div>
+              <div id = "errorBox" v-show="hasError" ><p id = "errorTxt"> {{error}}<img src = "@/assets/cancel.png" @click="hasError =!hasError" class = "cancelError"></p></div>
+          <div class="like-div">
+            <div class="like1">
+              <span class="like-span">{{likes}}</span>
+              <img
+                @click="like_clicked"
+                v-show="!is_liked"
+                src="@/assets/like.png"
+                alt="like"
+                class="blk-like"
+              />
+              <img v-show="is_liked" src="@/assets/like1.png" alt="like" class="blu-like" />
+            </div>
+            <div class="like2">
+              <span class="like-span">{{downloads}}</span>
+              <img src="@/assets/download1.png" alt="download img" class="download-img">
+            </div>
+            <div class="like3" @click = "copy(library_name)">
+                <img src="@/assets/copy.png" alt="share img" class="copy-img">
+            </div> 
           </div>
-          <div class="like3" @click = "copy(library_name)">
-              <img src="@/assets/copy.png" alt="share img" class="copy-img">
-          </div> 
-        </div>
-        <div class="files-wrapper" v-show = "!loader_on">
-          <div class="fw-each" :key="file.hid" v-for="file in refined_files">
-            <div @click="download_middle(file.hid)" class="fw1">
-              <img src="@/assets/filenames/pdf.png" alt="png" />
-              <h3>{{file.title}}</h3> 
-              <div class="size-div">
-                <img src="@/assets/file.png" alt="file png" class="file-img">
-                <span>{{(file.size/1024).toFixed(2)}} MB</span>
+          <div class="files-wrapper" v-show = "!loader_on">
+            <div class="fw-each" :key="file.hid" v-for="file in refined_files">
+              <div @click="download_middle(file.hid)" class="fw1">
+                <img src="@/assets/filenames/pdf.png" alt="png" />
+                <h3>{{file.title}}</h3> 
+                <div class="size-div">
+                  <img src="@/assets/file.png" alt="file png" class="file-img">
+                  <span>{{(file.size/1024).toFixed(2)}} MB</span>
+                </div>
+              </div>
+              <div class="fw2">
+                <input type="checkbox" :id="file.hid" @input="checkbox_clicked(file.hid)" />
               </div>
             </div>
-            <div class="fw2">
-              <input type="checkbox" :id="file.hid" @input="checkbox_clicked(file.hid)" />
-            </div>
           </div>
+          <div v-show="downloading" class="progress-bar">
+            <div class="progress" :style="progress_bar_style"></div>
+          </div>
+          <div class="download-container">
+            <button @click="download_clicked" class="btn download">Download</button>
+            <button @click="download_all_clicked" class="btn download-all">Download all</button>
+          </div>
+          <button @click="show_change_link" v-show="!changing && authenticated && is_in_user_library" class="btn" >
+            Change Link
+          </button>
+          <div v-show="changing && authenticated" class="change-link">
+            <input type="text" v-model="new_link" :placeholder="lib_id">
+            <button @click="link_changed" class="btn change-link-button">Change</button>
+          </div> 
         </div>
-        <div v-show="downloading" class="progress-bar">
-          <div class="progress" :style="progress_bar_style"></div>
-        </div>
-        <div class="download-container">
-          <button @click="download_clicked" class="btn download">Download</button>
-          <button @click="download_all_clicked" class="btn download-all">Download all</button>
-        </div>
-        <button @click="show_change_link" v-show="!changing && authenticated && is_in_user_library" class="btn" >
-          Change Link
-        </button>
-        <div v-show="changing && authenticated" class="change-link">
-          <input type="text" v-model="new_link" :placeholder="lib_id">
-          <button @click="link_changed" class="btn change-link-button">Change</button>
-        </div> 
       </div>
     </div>
   </div>
@@ -130,7 +132,7 @@ export default {
         }
       })
       .catch(e => {
-        alert("Internal error")
+        this.show_error("Internal error")
       })
     },
     link_changed() {
@@ -156,12 +158,10 @@ export default {
         })
       }
   },
-
     show_change_link(){      
       this.changing = true;
       this.show_success("Warning: This link won't exist.")
     },
-
     like_clicked() {
       if (!this.token) {
         window.location.href = "/login";
@@ -199,7 +199,6 @@ export default {
         .catch((e) => {
         });
     },
-
     get_like() {
       axios({
         url: this.server_address + "/all-likes",
@@ -216,7 +215,6 @@ export default {
           //.log(e);
         });
     },
-
     check_like() {
       axios({
         url: this.server_address + "/check-like",
@@ -377,7 +375,6 @@ export default {
   },
 
   computed: {
-
     progress_bar_style() {
       return {
         width: `${this.progress}%`
@@ -389,8 +386,9 @@ export default {
   mounted() {
     this.time = new Date().getTime();
 
-    if (!this.lib_id) window.location.replace("/");
-
+    if (!this.lib_id) {
+      window.location.replace("/");
+    }
     this.token = window.localStorage.getItem("token");
     if (this.token) {
       this.authenticated = true
@@ -561,6 +559,8 @@ export default {
   grid-template-columns: 5fr 1fr;
   grid-gap: 1em;
 }
+
+
 
 .fw1 {
   margin-bottom: 1em;

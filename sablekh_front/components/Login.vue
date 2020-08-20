@@ -14,7 +14,7 @@
           <label for="password">Password</label>
           <input @keyup.enter="login_button" type="password" v-model="password" id="password" />
           <span class="forget-password">
-            <NuxtLink to="forgot-password">Forget password ?</NuxtLink>
+            <NuxtLink to="forgot-password">Forgot password</NuxtLink>
           </span>
           <div class="remember-me-div">
             <input type="checkbox" v-model="remember" id="remember-me" />
@@ -23,7 +23,7 @@
         </div>
         <button @click="login_button" class="btn login-button">{{btn_txt}}</button>
         <div class="dont-have-account">
-          <NuxtLink to="/register">Don't have an Account ?</NuxtLink>
+          <NuxtLink to="/register">Don't have an Account</NuxtLink>
         </div>
       </div>
     </div>

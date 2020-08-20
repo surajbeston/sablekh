@@ -1,10 +1,10 @@
 <template>
     <div class="footer">
         <div class="footer-wrapper1">
-            <NuxtLink class = "foot-link" to="/library">My Libraries</NuxtLink>
-            <NuxtLink class = "foot-link" to="/upload">Upload</NuxtLink>
-            <img src="@/assets/sablekh.png" alt="loading image" id = "main-img">
             <NuxtLink class = "foot-link" to="/">Search</NuxtLink>
+            <NuxtLink class = "foot-link" to="/library">My Libraries</NuxtLink>
+            <img src="@/assets/sablekh.png" alt="loading image" id = "main-img">
+            <NuxtLink class = "foot-link" to="/upload">Upload</NuxtLink>
             <NuxtLink class = "foot-link" to="/login" v-show="!authenticated">Log in</NuxtLink>
             <a class = "foot-link" @click = "logout" v-show="authenticated">Log out</a>
         </div>
@@ -13,7 +13,7 @@
             <NuxtLink class = "bottom-link" to = "/terms-and-conditions">Terms and Conditions</NuxtLink>
         </div>
     </div>
-</template>
+</template> 
 
 <script>
 
@@ -87,6 +87,7 @@ export default {
     }
 
     .bottom-links{
+        /* background-color: rgb(254, 227, 200); */
         background-color: rgb(254, 227, 200);
         padding: 5px 0 5px 0;
         text-align: center;
@@ -96,9 +97,8 @@ export default {
         color: black;
         margin: 0 5% 0 5%;
         text-decoration: none;
-        font-family: 'Staatliches', cursive;
-        letter-spacing: 1px;
-        font-size: 110%;
+        font-family: 'Ubuntu', sans-serif;
+        font-size: 90%;
     }
 
 
@@ -126,7 +126,7 @@ export default {
         }
 
         .bottom-link{
-            font-size: 100%;
+            font-size: 90%;
         }
     }
 
@@ -141,14 +141,13 @@ export default {
             font-size: 100%;
             font-weight: bold;
         }
-
         .bottom-link{
-            font-size: 90%;
+            font-size: 80%;
         }
     }
 
     @media screen and (max-width: 500px){
-       .foot-link {
+       .foot-link{
            font-size: 20px;
             font-weight: bold;
        }
@@ -158,15 +157,12 @@ export default {
        #main-img{
            height: 25%;
        }
-
        .foot-link{
             font-size: 90%;
        }
-
        .bottom-link{
-           font-size: 80%;
+           font-size: 70%;
        }
-
     }
 
     @media screen and (max-width: 370px){
