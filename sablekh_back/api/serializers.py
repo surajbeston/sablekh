@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 import random
 from string import digits
-from .models import Library, File, DownloadLot, Like, Visitor
+from .models import Library, File, DownloadLot, Like, Visitor, LibraryGroup
 from datetime import datetime
 from hashlib import sha224
 
@@ -53,5 +53,12 @@ class LikeSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def create(self, data):
-        print (data)
         return Like.objects.create(**data)   
+
+class LibraryGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LibraryGroup
+        fields = "__all__"
+
+    def create(self, data):
+        return LibraryGroup.objects.create(**data)

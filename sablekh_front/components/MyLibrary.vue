@@ -44,7 +44,7 @@
 export default {
     data() {
         return {
-            server_address: "https://api.sablekh.com",
+            server_address: "http://localhost:8000",
             libraries: [],
             email: "dummy@sablekh.com",
             no_library: false,

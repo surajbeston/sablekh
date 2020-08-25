@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from api.views import UserView, LibraryView, all_files, all_libraries, get_library, FileView, download_files, search, auth_token, change_link, string_to_library, get_tags
-from api.views import send_password_key, reset_password, like, all_likes, check_like, all_downloads, home
+from api.views import send_password_key, reset_password, like, all_likes, check_like, all_downloads, home, LibraryGroupView, all_library_groups, get_library_group
 from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework.generics import ListCreateAPIView
 from django.contrib.auth.models import User
@@ -42,5 +42,8 @@ urlpatterns = [
     path('all-likes', all_likes),
     path('check-like', check_like),
     path('all-downloads', all_downloads),
-    path('tags', get_tags),s
+    path('tags', get_tags),
+    path('library-group', LibraryGroupView.as_view()),
+    path('all-library-groups', all_library_groups),
+    path('get-library-group', get_library_group)
 ]

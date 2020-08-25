@@ -32,6 +32,18 @@ class Library(models.Model):
     datetime = models.DateTimeField(auto_now=True)
     no_files = models.IntegerField(default = 0)
 
+class LibraryGroup(models.Model):
+    hid = models.CharField(max_length=56, primary_key=True)
+    title = models.CharField(max_length = 300)
+    user = models.ForeignKey(Visitor, on_delete = models.CASCADE)
+    description = models.CharField(max_length = 1500)   
+    thumbnail = models.URLField(default="https://api.sablekh.com/thumbnails/default.jpg")
+    link_str = models.CharField(max_length = 350, unique=True)
+    tags = ArrayField(models.CharField(max_length = 150), blank = True, null = True)
+    libraries = models.ManyToManyField(Library, blank = True, null = True)
+    datetime = models.DateTimeField(auto_now=True)
+    no_libraries = models.IntegerField(default = 0)
+
 class File(models.Model):
     hid = models.CharField(max_length = 56, primary_key= True)
     title = models.CharField(max_length = 300)
