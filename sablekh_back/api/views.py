@@ -36,7 +36,6 @@ from dateutil import tz
 from bs4 import BeautifulSoup
 
 from .thumbnail import generate_thumbnail
-
 from django.contrib.sessions.backends.db import SessionStore
 
 def home(request):
@@ -203,7 +202,8 @@ def get_library(request):
     try:
         library = Library.objects.get(hid = hid)
         serializer = LibrarySerializer(library)
-        return Response(serializer.data, status = status.HTTP_200_OK)
+        data = serializer.data
+        return Response(, status = status.HTTP_200_OK)
     except Library.DoesNotExist:
         return Response({"error":"not found"}, status = status.HTTP_404_NOT_FOUND)
 
@@ -381,7 +381,7 @@ def change_link(request):
     except Library.DoesNotExist:
         return Response({"error": "library not found"}, status = status.HTTP_404_NOT_FOUND)
 
-@api_view(['GET', 'POST'])
+@api_view(['GET', 'POST']) 
 def string_to_library(request):
     link_str = request.data["link_str"]
     try:
@@ -390,7 +390,6 @@ def string_to_library(request):
         return Response(serializer.data, status = status.HTTP_200_OK)
     except Library.DoesNotExist:
         return Response({"error": "library not found"}, status = status.HTTP_404_NOT_FOUND)
-
 
 @api_view(['GET', 'POST'])
 def send_password_key(request):
