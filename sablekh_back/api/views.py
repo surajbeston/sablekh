@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .serializers import VisitorSerializer, LibrarySerializer, FileSerializer, LikeSerializer
+from .serializers import VisitorSerializer, LibrarySerializer, FileSerializer, LikeSerializer, LibraryGroupSerializer
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework import generics
@@ -11,7 +11,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes 
 from rest_framework.exceptions import ParseError 
 from rest_framework.parsers import FileUploadParser
-from .models import Library, File, DownloadLot, Like, Visitor, Tag, PwResetToken
+from .models import Library, File, DownloadLot, Like, Visitor, Tag, PwResetToken, LibraryGroup
 import hashlib
 from datetime import datetime
 import mimetypes
@@ -167,8 +167,8 @@ class FileView(APIView):
         except Library.DoesNotExist:
             return Response({"error":"library not found"}, status = status.HTTP_404_NOT_FOUND)
         data["size"] = data["_file"].size // 1024
-        if data["size"] > 31000:
-            return Response({"error": "file size larger than 30MB"}, status = status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
+        if data["size"] > 52000:
+            return Response({"error": "file size larger than 50MB"}, status = status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
         data["title"] = data["_file"].name
         hash_str = data["title"] + str(datetime.now())
         hashed = hashlib.sha224(hash_str.encode())
@@ -196,6 +196,69 @@ class FileView(APIView):
         except File.DoesNotExist:
             return Response({"error":"file not found"}, status = status.HTTP_404_NOT_FOUND)
 
+class LibraryGroupView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        data = request.data
+        user = Visitor.objects.get(email = request.user.email)
+        data["user"] = user.hid
+        data["link_str"] = title_to_link(data["title"], punctuation)
+        hash_str = data["title"] + data["description"] + str(datetime.now())
+        hashed = hashlib.sha224(hash_str.encode())
+        data["hid"] = hashed.hexdigest()
+        libraries = data["libraries"].split(",")
+        del data["libraries"]
+        serializer = LibraryGroupSerializer(data = data)
+        if serializer.is_valid():
+            library_group = serializer.save()
+            for library in libraries:
+                try:
+                    library_obj = Library.objects.get(hid = library)
+                except Library.DoesNotExist:
+                    return Response({"error":"library not found"}, status = status.HTTP_404_NOT_FOUND)
+                library_group.libraries.add(library_obj)
+            library_group.save()
+            library_group.no_libraries = len(library_group.libraries.all())
+            library_group.save()
+            return Response(serializer.data, status = status.HTTP_201_CREATED)
+        return Response(serializer.errors, status = status.HTTP_303_SEE_OTHER)
+
+    def patch(self, request):
+        data = request.data
+        try:
+            library_group = LibraryGroup.objects.get(hid = data["hid"])
+        except LibraryGroup.DoesNotExist:
+            return Response({"error":"library group not found"}, status = status.HTTP_404_NOT_FOUND)
+        if library_group.user.email != request.user.email:
+            return Response({"error": "not authorized"}, status = status.HTTP_401_UNAUTHORIZED)
+        library_group.title, library_group.description, library_group.tags = data["title"], data["description"], data["tags"]
+        for library in data["libraries"].split(","):
+            try:
+                library_obj = Library.objects.get(hid = library)
+            except Library.DoesNotExist:
+                return Response({"error":"library not found"}, status = status.HTTP_404_NOT_FOUND)
+            library_group.libraries.add(library_obj)
+        library_group.save()
+        library_group.no_libraries = len(library_group.libraries.all())
+        library_group.save()
+        serializer = LibraryGroupSerializer(library_group)
+        return Response(serializer.data, status = status.HTTP_200_OK)
+
+    def delete(self, request):
+        data = request.data
+        try:
+            library_group = LibraryGroup.objects.get(hid = data["hid"])
+        except LibraryGroup.DoesNotExist:
+            return Response({"error":"library group not found"}, status = status.HTTP_404_NOT_FOUND)
+        if library_group.user.email != request.user.email:
+            return Response({"error": "not authorized"}, status = status.HTTP_401_UNAUTHORIZED)
+        serializer = LibraryGroupSerializer(library_group)
+        data_to_send = serializer.data
+        library_group.delete()
+        data_to_send["deleted"] = True
+        return Response(data_to_send, status = status.HTTP_200_OK)
+
 @api_view(['GET', 'POST']) 
 def get_library(request):
     hid = request.data["hid"] 
@@ -212,15 +275,41 @@ def get_library(request):
 def all_libraries(request):
     try:
         visitor = Visitor.objects.get(email = request.user.email)
-        libraries = Library.objects.filter(user = visitor)
-        filtered_libraries = [library for library in libraries if library.finished]
-        if len(filtered_libraries) == 0:
-            return Response({"error":"not found"}, status = status.HTTP_404_NOT_FOUND)
-        serialiers = [LibrarySerializer(library) for library in filtered_libraries]
-        data = [serializer.data for serializer in serialiers]
-        return Response(data, status = status.HTTP_200_OK)
+        libraries = Library.objects.filter(user = visitor, finished = True)
+        # filtered_libraries = [library for library in libraries if library.finished]
+        if len(libraries) == 0:
+            return Response({"error":"no library found"}, status = status.HTTP_404_NOT_FOUND)
+        serializers = [LibrarySerializer(library) for library in libraries]
+        _libraries = [serializer.data for serializer in serializers]
+        print (_libraries)
+        for data in _libraries:
+            print (data)
+            likes_objs = Like.objects.filter(library = data["hid"])
+            downloads = DownloadLot.objects.filter(library = data["hid"])
+            data["likes"], data["downloads"] = len(likes_objs), len(downloads)
+        return Response(_libraries, status = status.HTTP_200_OK)
     except Visitor.DoesNotExist:
         return Response({"error":"not found"}, status = status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def all_library_groups(request):
+    visitor = Visitor.objects.get(email = request.user.email)
+    library_groups = LibraryGroup.objects.filter(user = visitor)
+    if len(library_groups) == 0:
+            return Response({"error":"no library group found"}, status = status.HTTP_404_NOT_FOUND)
+    serializers = [LibraryGroupSerializer(library_group) for library_group in library_groups]
+    return Response([serializer.data for serializer in serializers], status = status.HTTP_200_OK)
+
+@api_view(['GET', 'POST'])
+def get_library_group(request):
+    data = request.data
+    try:
+        library_group = LibraryGroup.objects.get(link_str = data["link_str"])
+    except LibraryGroup.DoesNotExist:
+        return Response({"error": "no library group found"}, status = status.HTTP_404_NOT_FOUND)
+    serializer = LibraryGroupSerializer(library_group)
+    return Response(serializer.data, status = status.HTTP_200_OK)
 
 @api_view(['GET', 'POST'])
 def all_files(request):
@@ -338,6 +427,9 @@ def search(request):
     new_response = []
     for data in response:
         if data not in new_response:
+            likes_objs = Like.objects.filter(library = data["hid"])
+            downloads = DownloadLot.objects.filter(library = data["hid"])
+            data["likes"], data["downloads"] = len(likes_objs), len(downloads)
             new_response.append(data)
     return Response(new_response, status = status.HTTP_200_OK)
 
@@ -387,7 +479,18 @@ def string_to_library(request):
     try:
         library = Library.objects.get(link_str = link_str)
         serializer = LibrarySerializer(library)
-        return Response(serializer.data, status = status.HTTP_200_OK)
+        data = serializer.data
+        files = File.objects.filter(library = library)
+        if len(files) > 0:
+            serializers = [FileSerializer(file) for file in files]
+            files_data = [serializer.data for serializer in serializers]
+            data["files"] = files_data
+        else:
+            data["files"] = []
+        likes_objs = Like.objects.filter(library = library)
+        downloads = DownloadLot.objects.filter(library = library)
+        data["likes"], data["downloads"] = len(likes_objs), len(downloads)
+        return Response(data, status = status.HTTP_200_OK)
     except Library.DoesNotExist:
         return Response({"error": "library not found"}, status = status.HTTP_404_NOT_FOUND)
 
@@ -446,7 +549,7 @@ def reset_password(request):
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def like(request):
-    data = request.data
+    data = request.data 
     visitor = Visitor.objects.get(email = request.user.email)
     data["user"] = visitor.hid
     serializer = LikeSerializer(data = data)

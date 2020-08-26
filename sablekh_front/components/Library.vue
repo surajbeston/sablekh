@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- <pre>{{data}}</pre> -->
     <div class="library-component mxw-100-mnh-100" >
       <img src="@/assets/logo1.png" alt="loading image" class="logo-img" />
       <div v-if = "loader_on">
@@ -10,17 +11,17 @@
           <h1>Library not found 404</h1>
         </div>
         <div v-else class="library-wrapper1">
-          <img class="book-img" :src="library_thumbnail" alt="book" />
-          <h1 class="library-title">{{library_name}}</h1>
-          <p class="library-desc">{{library_desc}}</p>
-          <div class="lib-tags" v-bind:key="tag" v-for="tag in library_tags">
+          <img class="book-img" :src="{library_thumbnail}" alt="book" />
+          <h1 class="library-title">{{data.library_name}}</h1>
+          <p class="library-desc">{{data.library_desc}}</p>
+          <div class="lib-tags" v-bind:key="tag" v-for="tag in data.library_tags">
             <span class="each-tag">{{tag}}</span>
           </div>
           <div id = "successBox" v-show="hasSuccess" ><p id = "successTxt"> {{success}}<img src = "@/assets/cancel.png" @click="hasSuccess =!hasSuccess" class = "cancelSuccess"></p></div>
               <div id = "errorBox" v-show="hasError" ><p id = "errorTxt"> {{error}}<img src = "@/assets/cancel.png" @click="hasError =!hasError" class = "cancelError"></p></div>
           <div class="like-div">
             <div class="like1">
-              <span class="like-span">{{likes}}</span>
+              <span class="like-span">{{data.likes}}</span>
               <img
                 @click="like_clicked"
                 v-show="!is_liked"
@@ -31,7 +32,7 @@
               <img v-show="is_liked" src="@/assets/like1.png" alt="like" class="blu-like" />
             </div>
             <div class="like2">
-              <span class="like-span">{{downloads}}</span>
+              <span class="like-span">{{data.downloads}}</span>
               <img src="@/assets/download1.png" alt="download img" class="download-img">
             </div>
             <div class="like3" @click = "copy(library_name)">
@@ -39,10 +40,10 @@
             </div> 
           </div>
           <div class="files-wrapper" v-show = "!loader_on">
-            <div class="fw-each" :key="file.hid" v-for="file in refined_files">
-              <div @click="download_middle(file.hid)" class="fw1">
+            <div class="fw-each" :key="file.hid" v-for="file of data.files">
+              <div @click="download_middle(file.hid)" class="fw1"> 
                 <img src="@/assets/filenames/pdf.png" alt="png" />
-                <h3>{{file.title}}</h3> 
+                <h3>{{file.title}}</h3>
                 <div class="size-div">
                   <img src="@/assets/file.png" alt="file png" class="file-img">
                   <span>{{(file.size/1024).toFixed(2)}} MB</span>
@@ -59,10 +60,10 @@
           <div class="download-container">
             <button @click="download_clicked" class="btn download">Download</button>
             <button @click="download_all_clicked" class="btn download-all">Download all</button>
-          </div>
+          </div> 
           <button @click="show_change_link" v-show="!changing && authenticated && is_in_user_library" class="btn" >
             Change Link
-          </button>
+          </button> 
           <div v-show="changing && authenticated" class="change-link">
             <input type="text" v-model="new_link" :placeholder="lib_id">
             <button @click="link_changed" class="btn change-link-button">Change</button>
@@ -78,11 +79,11 @@ import axios from "axios";
 
 export default {
 
-  props: ["lib_id"],
+  props: ["lib_id", "data"],
 
   data() {
     return {
-      server_address: "https://api.sablekh.com",
+      server_address: "http://localhost:8000",
       library_name: "",
       library_desc: "",
       library_image_link: "https://pngimg.com/uploads/book/book_PNG51074.png",
@@ -92,7 +93,7 @@ export default {
       files: [],
       refined_files: [],
       hid: "",
-      library_thumbnail: "",
+      library_thumbnail: "https://api.sablekh.com/thumbnails/default.jpg",
       likes: 0,
       is_liked: false,
       downloading: false,
@@ -104,7 +105,7 @@ export default {
       downloads: 0,
       is_in_user_library: false,
       user_libraries: [],
-      loader_on: true,
+      loader_on: false,
       hasSuccess: false,
       success: "This is success",
       error: "This is error",
@@ -132,10 +133,10 @@ export default {
         }
       })
       .catch(e => {
-        this.show_error("Internal error")
+        // this.show_error("Internal error") //Check this for reason
       })
     },
-    link_changed() {
+    link_changed(){
       if (this.new_link.length < 3) this.show_error("At least 3 letters required.")
       else{
         axios({
@@ -146,7 +147,7 @@ export default {
           },
           method: 'post',
           data: {
-            hid: this.hid,
+            hid: this.data.hid,
             link_str: this.new_link
           }
         })
@@ -163,7 +164,7 @@ export default {
       this.show_success("Warning: This link won't exist.")
     },
     like_clicked() {
-      if (!this.token) {
+      if (!this.token){
         window.location.href = "/login";
       }
       axios({
@@ -174,15 +175,15 @@ export default {
           Authorization: "Token " + this.token,
         },
         data: {
-          library: this.hid,
+          library: this.data.hid,
         },
       })
-        .then((res) => {
-          this.get_like()
-          this.is_liked = true;
-        })
-        .catch((e) => {
-        });
+      .then((res) => {
+        this.get_like()
+        this.is_liked = true;
+      }) 
+      .catch((e) => {
+      });
     },
     get_downloads() {
       axios({
@@ -190,7 +191,7 @@ export default {
         method: "post",
         headers: this.implicit_data(),
         data: {
-          library: this.hid,
+          library: this.data.hid,
         },
       })
         .then((res) => {
@@ -209,7 +210,7 @@ export default {
         },
       })
         .then((res) => {
-          this.likes = res.data.likes;
+          this.data.likes = res.data.likes;
         })
         .catch((e) => {
           //.log(e);
@@ -236,7 +237,6 @@ export default {
           //.log(e);
         });
     },
-
     checkbox_clicked(id) {
       if (this.selected_file.includes(id)) {
         let i = this.selected_file.indexOf(id);
@@ -248,14 +248,14 @@ export default {
 
     download_all_clicked() {
       
-      if (this.files.length == 0 ) {
+      if (this.data.files.length == 0 ) {
         return null
       }
 
       this.downloading = true;
       this.progress = 0
 
-      let a = this.files.map((e) => e.hid);
+      let a = this.data.files.map((e) => e.hid);
 
       this.download_middle(a.join(","));
 
@@ -293,12 +293,13 @@ export default {
           method: "post",
           data: {
             hids: file_hids,
-            library: this.hid,
+            library: this.data.hid,
           },
           headers: this.implicit_data(),
         })
           .then((res) => {
             // //.log(res)
+            console.log(res.data.filename)
             this.download(res.data.filename)
           })
           .catch((e) => {
@@ -348,9 +349,9 @@ export default {
       });
     },
     implicit_data() {
-      return {
+      return  {
         site: document.referrer,
-        link: window.location.href.toString().split(window.location.host)[1],
+        link: process.server ? "" : window.location.href.toString().split(window.location.host)[1],
         timetaken: new Date().getTime() - this.time,
       };
     },
@@ -384,16 +385,16 @@ export default {
   },
 
   mounted() {
+    console.log("wallah")
     this.time = new Date().getTime();
 
     if (!this.lib_id) {
       window.location.replace("/");
     }
     this.token = window.localStorage.getItem("token");
-    if (this.token) {
+    if (this.token){
       this.authenticated = true
     }
-    this.loader_on = true
     axios({
       url: `${this.server_address}/link`,
       method: "post",
@@ -408,28 +409,13 @@ export default {
         this.library_desc = res.data.description;
          this.library_thumbnail = res.data.thumbnail
          this.library_tags = res.data.tags
+         this.files = res.data.files
         this.get_like()
         this.get_downloads()
         if (this.token) {
           this.check_like()
           this.library_stuffs()
         }
-        axios({
-          url: `${this.server_address}/all-files`,
-          method: "post",
-          data: {
-            hid: this.hid,
-          },
-          headers: this.implicit_data(),
-        })
-          .then((res) => {
-            this.loader_on = false
-            this.files = res.data;
-            this.clean_title();
-            //.log(res);
-           
-          })
-          .catch((err) =>{} );
       })
       .catch((e) => {
         if (e.response.status == 404){

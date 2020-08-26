@@ -6,7 +6,7 @@
                 <div class="upload12" >
                     <div class = "content">
                         <h1 class = "head1">Upload</h1>
-                        <p class = "description">Create your small library and share it with the world. You can add upto 10 files, each not exceeding 30MB in size.</p>
+                        <p class = "description">Create your small library and share it with the world. You can add upto 10 files, each not exceeding 50MB in size.</p>
                         <div class="input-section" v-bind:class="{alternative: activate}">
                             <div id = "errorBox" v-show="hasError" ><p id = "errorTxt"> {{error}}<img src = "@/assets/cancel.png" @click="hasError =!hasError" class = "cancelError"></p></div>
                             <label for="title">Title {{letters_title}}/150</label>
@@ -16,11 +16,11 @@
                             <label for="file" >{{fileLabel}}</label> 
                             <input type="file" name="upload_file" id="file" @change="filesChange($event.target.files)" multiple class = "hamro">
                             <div class = "files-wrap"> 
-                                <div class = "file-box" v-for="file in computed_files" :key = "file.random_id" v-show="!file.canceled">
+                                <div class = "file-box" v-for="file of computed_files" :key = "file.random_id" v-show="!file.canceled">
                                     <img :src = "file.filename" class = "extension-image"> 
                                     <div class = "middle-collection"> 
                                         <div>
-                                            <div class = "download-filename">{{file.name}}</div>
+                                            <div class = "download-filename">{{file.title}}</div>
                                             <div class = "right-box">
                                                 <img src = "@/assets/upload/upload.png" class = "upload-img" v-show = "!file.uploaded" ><img src = "@/assets/upload/upload-green1.png" class = "upload-img" v-show = "file.uploaded">
                                                 <div class = "file-size"> {{file.uploadedsize}}MB/{{file.totalsize}}MB</div>
@@ -37,7 +37,7 @@
                                 </div> 
                                 <div class = "tag-search"> 
                                     <div class = "tagsearchcapsule" v-bind:class="{  removeRadius: show_suggestions  }">
-                                        <input class = "tag-search-input" v-model="tag_search" @click = "check_and_show"><img src = "@/assets/cancel.png" class = "addTag"  v-bind:class = "{ rotate: show_suggestions }" @click = "closeSuggestions"> 
+                                        <input class = "tag-search-input" v-model="tag_search" @click = "check_and_show" @focus="check_and_show"><img src = "@/assets/cancel.png" class = "addTag"  v-bind:class = "{ rotate: show_suggestions }" @click = "closeSuggestions"> 
                                     </div>
                                     <div class = "tag-search-box" v-show = "show_suggestions">
                                         <div v-for = "suggestion in suggestions" :key = "suggestion">
@@ -88,7 +88,7 @@ export default {
             description: "",
             // files: [{"name": "something.pdf", "filename": "/filenames/pdf.png", "uploadedsize": "12", "totalsize": "25"}, {"name": "something.txt", "filename": "/filenames/text.png", "uploadedsize": "12", "totalsize": "25"}],
             files: [],
-            url: "https://api.sablekh.com/",
+            url: "http://localhost:8000/",
             library: "",
             auth_token: "",
             last_title: "",
@@ -111,11 +111,9 @@ export default {
             to_search: []
         }
     },
-
     props: [
         'lib_str'
     ],
-
     methods: {
 
         delete_button() {
@@ -139,7 +137,6 @@ export default {
         no_button() {
             this.wants_to_delete = false;
         },
-
         library_stuffs() {
             axios({
                 url: this.url + "all-libraries",
@@ -182,14 +179,13 @@ export default {
                     data: {"title": title, "description": description, "tags": this.tags}
                 }).then(res => {
                     this.library = res.data.hid
-                    //.log(this.library)
                     this.last_title = res.data.title
                     this.last_description = res.data.description
                     this.last_tags = res.data.tags
                     this.send_files(files)
                 })
                 .catch(err => {
-                    //.log(err)
+                    console.log(err)
                     this.displayError("Problem uploading file, please try again.")
                 })
             }
@@ -215,13 +211,13 @@ export default {
                             //.log(file.size)
                             if (already_file.size_bytes == file.size){
                                 //.log("already reaced here")
-                                this.displayError(file.name + " already uploaded/in queue.")
+                                this.displayError(file.title + " already uploaded/in queue.")
                                 already_uploaded = true
                                 break
                             } 
                         }
                         if (already_uploaded){continue}
-                        if (file.size/1024/1024 <=30){
+                        if (file.size/1024/1024 <=50){
                         //.log(file.size)
                         var dom_file_name = file.name;
                         if (dom_file_name.length > 20){
@@ -229,11 +225,11 @@ export default {
                         }
                         var totalsize = (file.size/1024/1024).toFixed(2)
                         if (totalsize == 0){totalsize = 0.01} 
-                        this.files.push({"name": dom_file_name, "totalsize": totalsize, "uploadedsize": 0, "filename": "/filenames/" + this.get_filename(file.type), "progress": "0", "size_bytes": file.size, "random_id": String(Math.random()*10**17), "uploaded": false, "hid": "", "canceled": false})
+                        this.files.push({"title": dom_file_name, "totalsize": totalsize, "uploadedsize": 0, "filename":  this.get_filename(file.type), "progress": "0", "size_bytes": file.size, "random_id": String(Math.random()*10**17), "uploaded": false, "hid": "", "canceled": false})
                         var file_index = this.files.length - 1
                         var formData = new FormData()
                         formData.append("_file", file) 
-                        formData.append("library", this.library) 
+                        formData.append("library", this.library)
                         axios({
                             url: this.url+"file",
                             method: "post",
@@ -242,7 +238,6 @@ export default {
                             onUploadProgress: (e) => {
                                 //.log(e)
                                 for (var file of this.files){
-
                                     if (Math.abs(file.size_bytes/1024 - e.total/1024) <= 5 ){
                                         //.log("reached here")
                                         file.uploadedsize = (e.loaded/1024/1024).toFixed(2);
@@ -271,65 +266,66 @@ export default {
                             });
                     }
                     else {
-                        this.displayError(file.name + " exceeds file size limit of 30MB.")
+                        this.displayError(file.title + " exceeds file size limit of 50MB.")
                     }
                 }
             },
             get_filename(fileType){
                     //.log(fileType)
                     var filename;
-                    if (file.size/1024/1024 <= 30)
-                        var category = fileType.split("/")[0] 
-                        var extension = fileType.split("/")[1]
-                         if ( category == "application"){
-                             if (extension == "pdf"){
-                                 filename = "pdf.png"
-                             }
-                             else if (extension == "msword"){
-                                 filename = "word.png"
-                             }
-                             else if (extension == "vnd.ms-excel"){
-                                 fiename = "excel.png"
-                             }
-                             else if (extension == "vnd.ms-powerpoint"){
-                                 filename = "powerpoint.png"
-                             }
-                             else if (extension == "zip"){
-                                 filename = "zip.png"
-                             }
-                             else if (extension == "x-tar"){
-                                 filename = "zip.png"
-                             }
-                             else if (extension == "octet-stream"){
-                                 filename = "binary.png"
-                             }
-                             else if (extension == "vnd.openxmlformats-officedocument.spreadsheetml.sheet"){
-                                 filename = "excel.png"
-                             }
-                             else{
-                                 //.log("reached here")
-                                 filename == "text.png"
-                             }
-                         }
-                         else if (category == "audio"){
-                             filename = "audio.png"
-                         }
-                         else if (category == "image"){
-                             filename = "image.png"
-                         }
-                         else if (category == "text"){
-                             filename = "text.png"
-                         }
-                         else if (category == "video"){
-                             filename = "video.png"
-                         }
-                         else{
-                             filename = "text.png"
+                    console.log(fileType)
+                    if (!fileType) return "/filenames/text.png"
+                    var category = fileType.split("/")[0]
+                    var extension = fileType.split("/")[1]
+                        if ( category == "application"){
+                            if (extension == "pdf"){
+                                filename = "pdf.png"
                             }
-                        if (filename === undefined){
+                            else if (extension == "msword"){
+                                filename = "word.png"
+                            }
+                            else if (extension == "vnd.ms-excel"){
+                                fiename = "excel.png"
+                            }
+                            else if (extension == "vnd.ms-powerpoint"){
+                                filename = "powerpoint.png"
+                            }
+                            else if (extension == "zip"){
+                                filename = "zip.png"
+                            }
+                            else if (extension == "x-tar"){
+                                filename = "zip.png"
+                            }
+                            else if (extension == "octet-stream"){
+                                filename = "binary.png"
+                            }
+                            else if (extension == "vnd.openxmlformats-officedocument.spreadsheetml.sheet"){
+                                filename = "excel.png"
+                            }
+                            else{
+                                //.log("reached here")
+                                filename == "text.png"
+                            }
+                        }
+                        else if (category == "audio"){
+                            filename = "audio.png"
+                        }
+                        else if (category == "image"){
+                            filename = "image.png"
+                        }
+                        else if (category == "text"){
                             filename = "text.png"
-                        } 
-                        return filename
+                        }
+                        else if (category == "video"){
+                            filename = "video.png"
+                        }
+                        else{
+                            filename = "text.png"
+                        }
+                    if (filename === undefined){
+                        filename = "text.png"
+                    } 
+                    return "/filenames/"+filename
             },
             final_finish(){
                 if (this.finish == "Finish"){
@@ -365,7 +361,7 @@ export default {
                                         this.finish = "Just a second"
                                         window.location.replace("/library/" + res.data.link_str)
                                     })
-                                    .catch(err => {
+                                    .catch(err => { 
                                         //.log(err)
                                     });       
                                 }
@@ -480,20 +476,22 @@ export default {
         },
         computed_files(){
             var files = []
+            console.log(this.files)
             var altered
                 for (var file of this.files){
                     altered = file
-                    altered.name = altered.name.length <= 17 ? altered.name:altered.name.slice(0, 14)+ "..."
+                    altered.title = altered.title.length <= 17 ? altered.title:altered.title.slice(0, 14)+ "..."
                     files.push(altered) 
             }
-            return files
-        }    },
+            console.log(files)
+            return files 
+        }    
+    },
     mounted(){
         this.auth_token =window.localStorage.getItem('token')
         if (!this.auth_token) {
             window.location.replace("/login")
             }
-
         ['drag', 'dragstart', 'dragend', 'dragover', 'dragenter', 'drop'].forEach( function( evt ) {
             this.$refs.fileform.addEventListener(evt, function(e){
                 e.preventDefault();
@@ -526,7 +524,7 @@ export default {
             axios({
                 url: this.url + "link",
                 method: 'post',
-                data: {
+                data: { 
                     link_str: this.lib_str
                 },
                 headers: this.implicit_data()
@@ -536,45 +534,25 @@ export default {
                 this.description = res.data.description
                 this.library = res.data.hid
                 this.tags = res.data.tags
+                this.files = res.data.files
+                for (var file of this.files){
+                    file.totalsize = file.size
+                    file.uploadedsize = file.size
+                    file.uploaded = true
+                    file.progress = "100%"
+                    file.filename = this.get_filename(Mime.lookup(file.title))
+                }
                 this.library_stuffs()
-
-                axios({
-                    url: this.url + "all-files",
-                    method: 'post',
-                    data: {
-                        hid: this.library
-                    },
-                    headers: this.implicit_data()
-                })
-                .then(res => {
-                    this.files = res.data
-                    this.files = this.files.map(e => {
-                        let a = {   
-                                    ...e,
-                                    name: e.title,
-                                    filename: this.get_filename(e.title),
-                                    progress: '100%',
-                                    totalsize: (e.size / 1024).toFixed(2),
-                                    uploadedsize: (e.size / 1024).toFixed(2),
-                                    filename: "/filenames/" + this.get_filename(Mime.lookup(e.title)),
-                                    random_id: i++,
-                                    uploaded: true
-                                }
-                        return a
-                    })
-                })
-
-            })
-            .catch(e => {
             })
         }
-        axios({
-            url: this.url + "tags",
-            method: "get",
-            headers: this.implicit_data()
+    axios({
+        url: this.url + "tags",
+        method: "get",
+        headers: this.implicit_data()
         }).then(res => {
             this.to_search = res.data.tags
-        })
+            console.log(this.to_search)
+    })
     }
 }
 </script>

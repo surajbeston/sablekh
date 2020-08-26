@@ -74,7 +74,7 @@ import {setCookie} from "@/extras/cookie";
 export default {
     data() {
         return {
-            server_address: "https://api.sablekh.com",
+            server_address: "http://localhost:8000",
             image_address: "https://pngimg.com/uploads/book/book_PNG51083.png",
             show_suggessions: true,
             off_width: 0,

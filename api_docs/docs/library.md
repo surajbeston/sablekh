@@ -95,7 +95,15 @@
     "link_str": "History-Notes-wAsDr",
     "description": "Contains brief notes about WWI and WWII",
     "tags": ["Tribhuvan University", "Anthropology", "Third Semester", "Social History"],
-    "datetime": "2020-07-26T19:47:53.353703Z"
+    "datetime": "2020-07-26T19:47:53.353703Z",
+    "likes": 2,
+    "downloads": 5,
+    "files": [{
+    "hid": "6c7b8f7c6e684eb9b9e18b1e107f968dc506cbd9af56b3838cbfc8ef",
+    "title": [file],
+    "size": 379,
+    "library": "fafbb99e6283af52dd2b2c20814fb4f9e8acadae52a73160b01ca069"
+}]
   }
 ]`
 
