@@ -41,7 +41,7 @@ export default {
 
   data() {
     return {
-      server_address: "http://localhost:8000",
+      server_address: "http://104.248.39.254",
       email: "",
       password: "",
       remember: false,

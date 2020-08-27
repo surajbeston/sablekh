@@ -1,8 +1,6 @@
 <template>
     <div class="my-library-component mxw-100-mnh-100" :class = "{invisible : !authenticate}">
-        <div class="header">
-            <img src="@/assets/sablekh.png" alt="loading img" class="logo-img">
-        </div>
+        <Header />
         <div class="my-library-wrapper1">
             <img class="top-img" src="@/assets/library/library-top.png" alt="vector img">
             <h1 class="your-library">
@@ -44,7 +42,7 @@
 export default {
     data() {
         return {
-            server_address: "http://localhost:8000",
+            server_address: "http://104.248.39.254",
             libraries: [],
             email: "dummy@sablekh.com",
             no_library: false,
@@ -96,38 +94,7 @@ export default {
            if (res.data.length == 0){
                this.no_library = true
            }
-           this.libraries = []
-            res.data.map(lib => {
-                axios({
-                    url: this.server_address + "/all-likes",
-                    method: 'post',
-                    headers: this.implicit_data(),
-                    data: {
-                        library: lib.hid
-                    }
-                })    
-                    .then(res => {
-                        lib.likes = res.data.likes
-                    })
-                    .catch(e => {
-                        lib.likes = 0
-                    })
-                axios({
-                    url: this.server_address + "/all-downloads",
-                    method: 'post',
-                    headers: this.implicit_data(),
-                    data: {
-                        library: lib.hid
-                    }
-                })    
-                    .then(res => {
-                        lib.downloads = res.data.downloads
-                        this.libraries.push(lib)
-                    })
-                    .catch(e => {
-                        lib.downloads = 0
-                    })
-            })
+           this.libraries = res.data
        })
        .catch(e => {
            if (e.response.status == 404){
@@ -169,6 +136,7 @@ export default {
         flex-direction: column;
         align-items: center;
         width: 100%;
+        margin-top: 20px;
     }
 
     .top-img {

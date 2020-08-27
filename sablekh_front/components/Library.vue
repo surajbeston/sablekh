@@ -2,7 +2,8 @@
   <div>
     <!-- <pre>{{data}}</pre> -->
     <div class="library-component mxw-100-mnh-100" >
-      <img src="@/assets/logo1.png" alt="loading image" class="logo-img" />
+      <Header />
+      <!-- <img src="@/assets/logo1.png" alt="loading image" class="logo-img" /> -->
       <div v-if = "loader_on">
         <span class="loader"></span>
       </div>
@@ -83,7 +84,7 @@ export default {
 
   data() {
     return {
-      server_address: "http://localhost:8000",
+      server_address: "http://104.248.39.254",
       library_name: "",
       library_desc: "",
       library_image_link: "https://pngimg.com/uploads/book/book_PNG51074.png",
@@ -410,8 +411,8 @@ export default {
          this.library_thumbnail = res.data.thumbnail
          this.library_tags = res.data.tags
          this.files = res.data.files
-        this.get_like()
-        this.get_downloads()
+        // this.get_like()
+        // this.get_downloads()
         if (this.token) {
           this.check_like()
           this.library_stuffs()
@@ -578,7 +579,7 @@ export default {
 
 .library-component {
   background-color: rgb(254, 227, 200);
-  padding: 150px 0 10px 0;
+  padding: 0px 0 10px 0;
   position: relative;
 }
 .back-arrow {
@@ -598,7 +599,7 @@ export default {
 }
 .library-wrapper1 {
   width: 50%;
-  margin: 0 auto;
+  margin: 100px auto 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -724,10 +725,6 @@ export default {
   .library-wrapper1 {
     width: 80%;
   }
-
-  .library-component {
-    padding: 120px 0 10px 0;
-  }
   .logo-img {
     width: 100px;
   }
@@ -768,6 +765,7 @@ export default {
   }
   .library-wrapper1 {
     width: 72%;
+    margin: 50px auto 0 auto;
   }
 
   .files-wrapper {

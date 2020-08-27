@@ -1,6 +1,7 @@
 <template>
     <div>
         <div class="upload-component mxw-100-mnh-100" :class = "{invisible : !authenticate}">
+            <Header />
             <div v-show="!wants_to_delete" class="upload-wrapper1" ref = "fileform" >
                 <img src="@/assets/upload/upload-top.png" alt="loading image" class="upload11" >
                 <div class="upload12" >
@@ -88,7 +89,7 @@ export default {
             description: "",
             // files: [{"name": "something.pdf", "filename": "/filenames/pdf.png", "uploadedsize": "12", "totalsize": "25"}, {"name": "something.txt", "filename": "/filenames/text.png", "uploadedsize": "12", "totalsize": "25"}],
             files: [],
-            url: "http://localhost:8000/",
+            url: "http://104.248.39.254/",
             library: "",
             auth_token: "",
             last_title: "",

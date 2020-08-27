@@ -1,9 +1,10 @@
 <template>
     <div class="search-component">
         <div class="search-wrapper1 mxw-100-mnh-100">
-            <div class="header">
+            <!-- <div class="header">
                 <img src="@/assets/logo1.png" alt="log0" class="logo-img">
-            </div>
+            </div> -->
+            <Header />
             <div class="search11">
                 <img src="@/assets/search/top.png" alt="loading image">
             </div>
@@ -74,7 +75,7 @@ import {setCookie} from "@/extras/cookie";
 export default {
     data() {
         return {
-            server_address: "http://localhost:8000",
+            server_address: "http://104.248.39.254",
             image_address: "https://pngimg.com/uploads/book/book_PNG51083.png",
             show_suggessions: true,
             off_width: 0,
@@ -343,7 +344,7 @@ export default {
         font-family: 'Comfortaa', cursive;
         margin-left: 0;
         text-align: left;
-        width: 200px;
+        width: 100%;
         display: inline-block;
     }
     .each-tag {
@@ -529,7 +530,7 @@ export default {
             font-size: 40px;
         }
         .search13 > input {
-            width: 90vw;
+            width: 70vw;
         }
         .search151-each {
             width: 90vw;
