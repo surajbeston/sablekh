@@ -330,7 +330,7 @@ export default {
         overflow: hidden;
     } 
     .all-tags {
-        min-width: 10px;
+        /* min-width: 10px; */
         background-color: white;
         display: flex;
         flex-wrap: wrap;
@@ -618,7 +618,7 @@ export default {
             margin: 0 5vw;
         }
         .all-tags > input {
-            max-width: 80%;
+            max-width: 100%;
         }
         .search12 > h1 {
             font-size: 24px;

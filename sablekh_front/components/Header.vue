@@ -7,47 +7,67 @@
                 <NuxtLink class = "header-link" to="/">Search</NuxtLink>
                 <NuxtLink class = "header-link" to="/library">My Libraries</NuxtLink>
                 <NuxtLink class = "header-link" to="/upload">Upload</NuxtLink>
+                <NuxtLink class = "header-link" to="/group">Group</NuxtLink>
                 <NuxtLink class = "header-link" to="/about">About Us</NuxtLink>
-                <NuxtLink class = "header-link" to="/login" v-show="!authenticated">Log in</NuxtLink>
-                <a class = "header-link" @click = "logout" v-show="authenticated">Log out</a>
+                <!-- <NuxtLink class = "header-link" to="/login" v-show="!authenticated">Log in</NuxtLink>
+                <a class = "header-link" @click = "logout" v-show="authenticated">Log out</a> -->
             </div>
         </transition>  
-        <img v-show="!is_extended" src="@/assets/logo1.png" alt="logo" class="logo">
+        <img src="@/assets/logo1.png" alt="logo" class="logo logo1">
+        <img v-show="!is_extended" src="@/assets/logo1.png" alt="logo" class="logo logo2">
     </div>
 </template>
 
 <script>
 
-import {setCookie} from "@/extras/cookie"
+// import {setCookie} from "@/extras/cookie"
 
 export default {
     data() {
         return {
             is_extended: false,
-            authenticated: false,
+            // authenticated: false,
         }
     },
     methods: {
-        logout(){
-            if (process.browser){
-                setCookie("ikmrfs", "", -1)
-                window.localStorage.removeItem("token");
-                window.location.reload()
-            }
-        },
+        // logout(){
+        //     if (process.browser){
+        //         setCookie("ikmrfs", "", -1)
+        //         window.localStorage.removeItem("token");
+        //         window.location.reload()
+        //     }
+        // },
         icon_clicked() {
             this.is_extended = !this.is_extended;
+        },
+        some_stuffs(){
+            if (window.innerWidth <= 700) {
+                this.is_extended = false;
+            }
+            else {
+                this.is_extended = true;
+            }
         }
-    },
-    computed: {
     },
     mounted() {
-        if (window.localStorage.getItem("token")){
-            this.authenticated = true
-        }
-        else{
-            this.authenticated = false
-        }
+        // if (window.localStorage.getItem("token")){
+        //     this.authenticated = true
+        // }
+        // else{
+        //     this.authenticated = false
+        // }
+
+        window.addEventListener('resize', () => {
+            this.some_stuffs()
+        })
+        
+        this.some_stuffs()
+
+
+
+
+
+
     }
     
 }
@@ -91,10 +111,15 @@ export default {
     right: 3%;
 }
 
+.logo2 {
+    display: none;
+}
+
 .menu-icon,
 .cancel-icon {
     width: 2%;
     cursor: pointer;
+    display: none;
 }
 
 .header-main {
@@ -107,6 +132,7 @@ export default {
     align-items: center;
     background-image: linear-gradient(to right bottom, rgb(255, 232, 206), rgb(240, 214, 185));
     position: relative;
+
 }
 
 @media screen and (max-width: 1300px) {
@@ -126,6 +152,16 @@ export default {
 }
 
 @media screen and (max-width: 700px) {
+    .logo1 {
+        display: none;
+    }
+    .logo2 {
+        display: block;
+    }
+    .menu-icon,
+    .cancel-icon {
+        display: block;
+    }
     .header-link {
         font-size: 100%;
     }

@@ -411,6 +411,7 @@ export default {
          this.library_thumbnail = res.data.thumbnail
          this.library_tags = res.data.tags
          this.files = res.data.files
+         console.log(res.data)
         // this.get_like()
         // this.get_downloads()
         if (this.token) {
