@@ -19,7 +19,7 @@
             <span v-show="check_len" class="av-lib">Available Libraries</span>
 
            <div v-show="check_len" class="results-section">
-               <div :key="lib.id" v-for="lib in available_libs" class="each-lib">
+               <div :key="lib.hid" v-for="lib in selected_libs" class="each-lib">
                    <div class="each1">
                        <img class="lib-img"  src="@/assets/search/book2.png" alt="book image">
                        <div class="lib-info">
@@ -38,8 +38,8 @@
                        </div>
                    </div>
                    <div class="each2">
-                       <div @click="checkbox_clicked(lib.id)" class="check-box">
-                           <img v-show="lib.selected" src="@/assets/tick.png" alt="tick" class="tick">
+                       <div @click="checkbox_clicked(lib.hid)" class="check-box">
+                           <img v-show="show_tick(lib.hid)" src="@/assets/tick.png" alt="tick" class="tick">
                        </div>
                    </div>
                </div>
@@ -50,34 +50,40 @@
 </template>
 
 <script>
+
+import axios from "axios";
+import Fuse from "fuse.js";
+
 export default {
     data() {
         return{
+            url: "http://104.248.39.254/",
             username: "user_name",
             name: "",
             description: "",
             search: "",
             available_libs: [
-                {
-                    id: 1,
-                    image: "",
-                    title: "ANSI C",
-                    description: "lorem sadf asdf adsfjadfasdjf fkjgnsdfg jsirsf sfg asjfksdfg dfgnsdf gsldfgs fdgsdfg",
-                    selected: false,
-                    likes: 1,
-                    downloads: 1,
-                },
-                {
-                    id: 2,
-                    image: "",
-                    title: "ANSI C",
-                    description: "lorem sadf asdf adsfjadfasdjf fkjgnsdfg jsirsf sfg asjfksdfg dfgnsdf gsldfgs fdgsdfg",
-                    selected: true,
-                    likes: 3,
-                    downloads: 3,
-                },
+                // {
+                //     id: 1,
+                //     image: "",
+                //     title: "ANSI C",
+                //     description: "lorem sadf asdf adsfjadfasdjf fkjgnsdfg jsirsf sfg asjfksdfg dfgnsdf gsldfgs fdgsdfg",
+                //     selected: false,
+                //     likes: 1,
+                //     downloads: 1,
+                // },
+                // {
+                //     id: 2,
+                //     image: "",
+                //     title: "ANSI C",
+                //     description: "lorem sadf asdf adsfjadfasdjf fkjgnsdfg jsirsf sfg asjfksdfg dfgnsdf gsldfgs fdgsdfg",
+                //     selected: true,
+                //     likes: 3,
+                //     downloads: 3,
+                // },
             ],
-            selected_libs: []
+            selected_libs: [],
+            checked_libs: []
         }
     },
 
@@ -86,28 +92,50 @@ export default {
         create_clicked(){
 
             axios({
-                method: 'post',
+                url: this.url + "library-group",
+                method: this.give_method,
                 headers: {
+                    Authorization: "Token " + this.token, 
                     ...this.implicit_data()
                 },
                 data: {
-                    token: "",
                     title: this.name,
                     description: this.description,
-                    tags: [],
-                    libraries: this.fetch_libs
+                    // tags: [],
+                    libraries: this.checked_libs.join(",")
 
                 }
             })
+            .then(res => {
+                console.log(res.data)
+            })
+            .catch(e => console.log(e))
 
         },
 
         checkbox_clicked(id) {
+            var filter_list = this.checked_libs.filter(e => e === id)
+            
+            if (filter_list.length === 0) {
+                this.checked_libs.push(id)
+            }
+            else {
+                this.checked_libs = this.checked_libs.filter(e => e !== id)
+            }
 
         },
 
         search_clicked(){
-
+            this.selected_libs = this.fuse.search(this.search)
+            this.selected_libs = this.selected_libs.map(e => e.item)
+            this.checked_libs.forEach(id => {
+                if (this.selected_libs.filter(e => e.hid === id).length == 0) {
+                    this.selected_libs.push(this.available_libs.filter(e => e.hid === id)[0])
+                }
+            })
+        },
+        show_tick(id){
+            return this.checked_libs.includes(id)
         },
         implicit_data(){
           return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
@@ -117,9 +145,14 @@ export default {
     },
 
     computed: {
-        fetch_libs(){
-            return ['adfadsfasdf']
+
+        give_method() {
+            if (this.$route.params.id) {
+                return "patch"
+            }
+            return "post"
         },
+        
         check_len() {
             return this.available_libs.length > 0
         } 
@@ -130,6 +163,47 @@ export default {
         if (!this.token) { 
             window.location.href = "/login"
         }
+
+        axios({
+            url: this.url + "all-libraries",
+            method: 'post',
+            headers: {
+                Authorization: "Token " + this.token, 
+                ...this.implicit_data()
+            }
+        })
+        .then(res => {
+            this.available_libs = res.data.data
+            this.selected_libs = res.data.data
+            this.fuse = new Fuse(this.available_libs, {
+            keys: ['title', 'description']
+            })
+        })
+        .catch(err => console.log(err))
+
+
+        if (this.$route.params.id) {
+            axios({
+                url: this.url + "get-library-group",
+                method: 'post',
+                headers: {
+                    Authorization: "Token " + this.token, 
+                    ...this.implicit_data()
+                },
+                data: {
+                    link_str: this.$route.params.id
+                }
+            })
+            .then(res => {
+                // console.log(res)
+                this.name = res.data.title
+                this.description = res.data.description
+                this.checked_libs = res.data.libraries.map(lib => lib.hid)
+            })
+            .catch(e => console.log(e))
+        }
+
+
     }
     
 }
