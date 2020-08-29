@@ -1,10 +1,10 @@
 <template>
     <div class="group-main mxw-100-mnh-100">
         <Header />
-        <div class="group1">
+        <div v-show="!is_deleting" class="group1">
            <img class="top-img" src="@/assets/library/library-top.png" alt="image"> 
            <span class="username">{{username}}</span>
-           <span class="create-group">Create your Group</span>
+           <span class="create-group">{{create_or_update}} your Group</span>
            <div class="input-div">
                <label for="name">Name</label>
                <input type="text" v-model="name" id="name" autofocus>
@@ -44,7 +44,15 @@
                    </div>
                </div>
            </div>
-           <button class="btn create-btn" @click="create_clicked">Create</button>
+           <button class="btn create-btn" @click="create_clicked">{{create_or_update}}</button>
+           <button v-show="show_delete" class="btn delete-btn" @click="delete_clicked">Delete</button>
+        </div>
+        <div v-show="is_deleting" class="alert-box">
+            <h3>Are you sure, you wanna delete this?</h3>
+            <div class="buttons">
+                <button class="btn yes-btn" @click="yes_button">Yes</button>
+                <button class="btn no-btn" @click="no_button">No</button>
+            </div>
         </div>
     </div>
 </template>
@@ -83,11 +91,41 @@ export default {
                 // },
             ],
             selected_libs: [],
-            checked_libs: []
+            checked_libs: [],
+            is_deleting: false,
+            hid: "",
+            tags: [],
         }
     },
 
     methods: {
+
+        no_button(){
+            this.is_deleting = false;
+        },
+
+        yes_button(){
+            axios({
+                url: this.url + "library-group",
+                method: 'delete',
+                headers: {
+                    Authorization: "Token " + this.token, 
+                    ...this.implicit_data()
+                },
+                data: {
+                    hid: this.hid,
+                }
+            })
+            .then(res => {
+                window.location.href = "/"
+            })
+            .catch(e => console.log(e))
+        },
+
+        delete_clicked() {
+            window.scrollTo(0, 0)
+            this.is_deleting = true;
+        },
 
         create_clicked(){
 
@@ -99,15 +137,16 @@ export default {
                     ...this.implicit_data()
                 },
                 data: {
+                    hid: this.hid,
                     title: this.name,
                     description: this.description,
-                    // tags: [],
+                    tags: this.tags,
                     libraries: this.checked_libs.join(",")
 
                 }
             })
             .then(res => {
-                console.log(res.data)
+                window.location.href = "/group/" + res.data.link_str;
             })
             .catch(e => console.log(e))
 
@@ -139,12 +178,52 @@ export default {
         },
         implicit_data(){
           return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
+        },
+
+        check_lib(){
+            if (this.$route.params.id) {
+                axios({
+                    url: this.url + "get-library-group",
+                    method: 'post',
+                    headers: {
+                        Authorization: "Token " + this.token, 
+                        ...this.implicit_data()
+                    },
+                    data: {
+                        link_str: this.$route.params.id
+                    }
+                })
+                .then(res => {
+                    // console.log(res)
+                    this.name = res.data.title
+                    this.description = res.data.description
+                    this.checked_libs = res.data.libraries.map(lib => lib.hid)
+                    this.hid = res.data.hid
+                    this.tags = res.data.tags
+
+                    var user_libs = this.available_libs.map(e => e.hid)
+                    if (!user_libs.includes(this.checked_libs[0])) {
+                        window.location.replace("/group")
+                    }
+                })
+                .catch(e => {
+                    alert("library not available")
+                })
+            }
         }
 
 
     },
 
     computed: {
+
+        create_or_update(){
+            return (this.show_delete) ? "Update" : "Create";
+        },
+
+        show_delete(){
+            return (this.$route.params.id) ? true : false;
+        },
 
         give_method() {
             if (this.$route.params.id) {
@@ -178,30 +257,11 @@ export default {
             this.fuse = new Fuse(this.available_libs, {
             keys: ['title', 'description']
             })
+
+            this.check_lib()
+
         })
         .catch(err => console.log(err))
-
-
-        if (this.$route.params.id) {
-            axios({
-                url: this.url + "get-library-group",
-                method: 'post',
-                headers: {
-                    Authorization: "Token " + this.token, 
-                    ...this.implicit_data()
-                },
-                data: {
-                    link_str: this.$route.params.id
-                }
-            })
-            .then(res => {
-                // console.log(res)
-                this.name = res.data.title
-                this.description = res.data.description
-                this.checked_libs = res.data.libraries.map(lib => lib.hid)
-            })
-            .catch(e => console.log(e))
-        }
 
 
     }
@@ -211,7 +271,45 @@ export default {
 
 <style scoped>
 
+.alert-box {
+        width: 50%;
+        padding: 2%;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        border-radius: 10px;
+        background-color: white;
+        box-shadow: 0 5px 10px rgb(197, 165, 124);
+        margin: 30vh auto;
+    }
 
+    .buttons {
+        display: inline;
+    }
+
+    .yes-btn {
+        background-color: white;
+        border: black solid 2px;
+        cursor: pointer;
+    }
+
+    .no-btn {
+        margin-left: 2%;
+        margin-top: 2%;
+        background-color: rgb(255, 176, 98);
+        border: rgb(255, 176, 98) solid 2px;
+        cursor: pointer;
+    }
+
+
+.delete-btn {
+    font-size: 20px;
+    border-radius: 5px;
+    padding: 10px 30px;
+    margin-top: 2vh;
+    background-color: rgb(255, 127, 22);
+    cursor: pointer;
+}
 
 .create-btn {
     font-size: 20px;

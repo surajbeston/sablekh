@@ -12,17 +12,17 @@
           <h1>Library not found 404</h1>
         </div>
         <div v-else class="library-wrapper1">
-          <img class="book-img" :src="{library_thumbnail}" alt="book" />
-          <h1 class="library-title">{{data.library_name}}</h1>
-          <p class="library-desc">{{data.library_desc}}</p>
-          <div class="lib-tags" v-bind:key="tag" v-for="tag in data.library_tags">
+          <img class="book-img" :src="library_thumbnail" alt="book" />
+          <h1 class="library-title">{{library_name}}</h1>
+          <p class="library-desc">{{library_desc}}</p>
+          <div class="lib-tags" v-bind:key="tag" v-for="tag in library_tags">
             <span class="each-tag">{{tag}}</span>
           </div>
           <div id = "successBox" v-show="hasSuccess" ><p id = "successTxt"> {{success}}<img src = "@/assets/cancel.png" @click="hasSuccess =!hasSuccess" class = "cancelSuccess"></p></div>
               <div id = "errorBox" v-show="hasError" ><p id = "errorTxt"> {{error}}<img src = "@/assets/cancel.png" @click="hasError =!hasError" class = "cancelError"></p></div>
           <div class="like-div">
             <div class="like1">
-              <span class="like-span">{{data.likes}}</span>
+              <span class="like-span">{{likes}}</span>
               <img
                 @click="like_clicked"
                 v-show="!is_liked"
@@ -33,7 +33,7 @@
               <img v-show="is_liked" src="@/assets/like1.png" alt="like" class="blu-like" />
             </div>
             <div class="like2">
-              <span class="like-span">{{data.downloads}}</span>
+              <span class="like-span">{{downloads}}</span>
               <img src="@/assets/download1.png" alt="download img" class="download-img">
             </div>
             <div class="like3" @click = "copy(library_name)">
@@ -41,7 +41,7 @@
             </div> 
           </div>
           <div class="files-wrapper" v-show = "!loader_on">
-            <div class="fw-each" :key="file.hid" v-for="file of data.files">
+            <div class="fw-each" :key="file.hid" v-for="file of files">
               <div @click="download_middle(file.hid)" class="fw1"> 
                 <img src="@/assets/filenames/pdf.png" alt="png" />
                 <h3>{{file.title}}</h3>
@@ -184,6 +184,7 @@ export default {
         this.is_liked = true;
       }) 
       .catch((e) => {
+        console.log(e)
       });
     },
     get_downloads() {
@@ -249,14 +250,14 @@ export default {
 
     download_all_clicked() {
       
-      if (this.data.files.length == 0 ) {
+      if (this.files.length == 0 ) {
         return null
       }
 
       this.downloading = true;
       this.progress = 0
 
-      let a = this.data.files.map((e) => e.hid);
+      let a = this.files.map((e) => e.hid);
 
       this.download_middle(a.join(","));
 
@@ -294,7 +295,7 @@ export default {
           method: "post",
           data: {
             hids: file_hids,
-            library: this.data.hid,
+            library: this.hid,
           },
           headers: this.implicit_data(),
         })
@@ -405,13 +406,15 @@ export default {
       headers: this.implicit_data(),
     })
       .then((res) => {
+        console.log(res.data)
         this.hid = res.data.hid;
         this.library_name = res.data.title;
         this.library_desc = res.data.description;
          this.library_thumbnail = res.data.thumbnail
          this.library_tags = res.data.tags
          this.files = res.data.files
-         console.log(res.data)
+         this.likes = res.data.likes
+         this.downloads = res.data.downloads
         // this.get_like()
         // this.get_downloads()
         if (this.token) {
@@ -600,7 +603,7 @@ export default {
 }
 .library-wrapper1 {
   width: 50%;
-  margin: 100px auto 0 auto;
+  margin: 100px auto 50px auto;
   display: flex;
   flex-direction: column;
   align-items: center;

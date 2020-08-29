@@ -287,6 +287,9 @@ export default {
         width: 7%;
         margin-right: 2vw;
     }
+    .search11 {
+        margin-top: 5vh;
+    }
     .search11 > img {
         width: 25vw;
     }

@@ -94,7 +94,7 @@ export default {
            if (res.data.length == 0){
                this.no_library = true
            }
-           this.libraries = res.data
+           this.libraries = res.data.data
        })
        .catch(e => {
            if (e.response.status == 404){
