@@ -86,6 +86,7 @@ export default {
     return {
       server_address: "http://104.248.39.254",
       library_name: "",
+      library_username: "",
       library_desc: "",
       library_image_link: "https://pngimg.com/uploads/book/book_PNG51074.png",
       library_tags: [],
@@ -117,25 +118,12 @@ export default {
 
   methods: {
     library_stuffs(){
-      this.loader_on = true
-      axios({
-        url: this.server_address + "/all-libraries",
-        method: 'post',
-        headers: {
-          ...this.implicit_data(),
-          Authorization: "Token " + this.token
-        }
-      })
-      .then(res => {
-        this.loader_on = false
-        this.user_libraries = res.data
-        if(this.user_libraries.filter(e => e.hid === this.hid).length > 0){
-          this.is_in_user_library = true;
-        }
-      })
-      .catch(e => {
-        // this.show_error("Internal error") //Check this for reason
-      })
+      // this.loader_on = true
+
+      if(window.localStorage.getItem("username") === this.library_username) {
+        this.is_in_user_library = true
+      }
+
     },
     link_changed(){
       if (this.new_link.length < 3) this.show_error("At least 3 letters required.")
@@ -166,6 +154,7 @@ export default {
     },
     like_clicked() {
       if (!this.token){
+        window.localStorage.setItem("link_str", this.$route.params.id)
         window.location.href = "/login";
       }
       axios({
@@ -176,7 +165,7 @@ export default {
           Authorization: "Token " + this.token,
         },
         data: {
-          library: this.data.hid,
+          library: this.hid,
         },
       })
       .then((res) => {
@@ -184,7 +173,7 @@ export default {
         this.is_liked = true;
       }) 
       .catch((e) => {
-        console.log(e)
+        console.log(e.response)
       });
     },
     get_downloads() {
@@ -193,7 +182,7 @@ export default {
         method: "post",
         headers: this.implicit_data(),
         data: {
-          library: this.data.hid,
+          library: this.hid,
         },
       })
         .then((res) => {
@@ -212,7 +201,7 @@ export default {
         },
       })
         .then((res) => {
-          this.data.likes = res.data.likes;
+          this.likes = res.data.likes;
         })
         .catch((e) => {
           //.log(e);
@@ -388,6 +377,7 @@ export default {
 
   mounted() {
     console.log("wallah")
+    window.localStorage.removeItem("link_str")
     this.time = new Date().getTime();
 
     if (!this.lib_id) {
@@ -415,6 +405,7 @@ export default {
          this.files = res.data.files
          this.likes = res.data.likes
          this.downloads = res.data.downloads
+         this.library_username = res.data.username
         // this.get_like()
         // this.get_downloads()
         if (this.token) {

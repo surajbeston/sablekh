@@ -43,6 +43,9 @@ export default {
             id: "",
             no_library: false,
             loader_on: false,
+            page: 0,
+            total_page: 0,
+            is_axios : false,
         }
     },
 
@@ -93,6 +96,8 @@ export default {
                this.no_library = true
            }
            this.groups = res.data.data
+           this.page = res.data.page
+           this.total_page = res.data.total_pages
         })
         .catch(e => {
            if (e.response.status == 404){
@@ -100,6 +105,38 @@ export default {
             this.loader_on = false
            }
        })
+
+
+        window.addEventListener("scroll" ,(e) => {
+            if (document.getElementsByClassName("my-library-wrapper1")[0].scrollHeight - window.scrollY < 500 ) {
+                if (this.page < this.total_page && !this.is_axios) {
+                    this.is_axios = true
+                    axios({
+                        url: this.server_address + '/all-library-groups',
+                        method: 'post',
+                        headers: this.implicit_data(),
+                        data: {
+                            page: this.page + 1
+                        }
+                    })
+                    .then(res => {
+                        this.groups.concat(res.data.data)
+                        this.total_page = res.data.total_pages
+                        this.page = res.data.page
+                        this.is_axios = false
+                    })
+                    .catch(e => {
+                        // if (e.response.status == 404){
+                        //     this.no_library = true
+                        //     this.loader_on = false
+                        // }
+                        
+                    })
+                }
+            }
+        })
+
+
     }
 }
 </script>

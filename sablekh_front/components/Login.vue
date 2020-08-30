@@ -49,7 +49,8 @@ export default {
       error: "",
       sending: false,
       btn_txt: "Log in",
-      time: 0
+      time: 0,
+      link: "",
     }
   },
 
@@ -78,6 +79,7 @@ export default {
             data: {"email": this.email, "password": this.password}
           })
           .then(res => {
+            console.log(res.data)
             this.sending = true
             this.btn_txt = "Sending"
             var token = res.data.token
@@ -88,7 +90,24 @@ export default {
             if (this.remember) {
               this.cookie_setter(token)
             }
-            window.location.replace("/login")
+
+            axios({
+              url: this.server_address + "/users",
+              method: 'get',
+              headers: {
+                ...this.implicit_data(),
+                Authorization: "Token " + token
+              }
+            })
+            .then(res => {
+              window.localStorage.setItem("username", res.data.username)
+              if (this.link) {
+                window.location.replace("/library/" + this.link)
+              }
+              else {
+                window.location.replace("/login")
+              }
+            })
           })
           .catch(err => {
             var data = err.response
@@ -151,6 +170,8 @@ export default {
 
         window.location.replace("/")
       }
+
+      this.link = window.localStorage.getItem("link_str")
 
       this.time = new Date().getTime()
   },

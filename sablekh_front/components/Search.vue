@@ -36,13 +36,13 @@
             <span class="loader" v-show = "loader_on"></span>
             <h2  v-show="no_search && !loader_on" class = "no_search">No libraries found for the query.</h2>
             <div id="results-div" class="search15" v-show = "!loader_on && !no_search">
-                <NuxtLink :to="`library/${book.link_str}`" v-bind:key="book.hid" v-for="(book, index) in computed_libraries" >
+                <NuxtLink :to="`library/${book.link_str}`" v-bind:key="book.hid" v-for="book in computed_libraries" >
                     <div class="search151">
                         <div class="search151-each">
                             <img :src="book.thumbnail" alt="loading image">
                             <div class="search1512">
                                 <p> 
-                                   <span class = "tag">Notes</span><span v-for="tag in book.tags" class = "tag">{{tag}}</span> 
+                                   <span class = "tag">Notes</span><span :key="tag" v-for="tag in book.tags" class = "tag">{{tag}}</span> 
                                 </p>
                                 <h1>{{book.title}}</h1>
                                 <p>{{book.description}}</p>
@@ -151,56 +151,57 @@ export default {
                     this.search_books = res.data
                     this.libraries = []
                     this.hids = []
-                    this.fill_extra()
+                    // this.fill_extra()
 
                     this.loaded = false
                     this.loader_on = false 
+                    console.log(res)
                 }) 
             }
         },
         to_link() {
             this.get_link ? window.location.replace("/upload") : window.location.replace("/login");
         },
-        async fill_extra(){
-            return await this.get_likes_downloads()
-        },
-        get_likes_downloads(){
-            if (this.search_books.length > 0){
-                this.search_books.map(lib => {
-                    axios({
-                        url: this.server_address + "/all-likes",
-                        method: 'post',
-                        headers: this.implicit_data(),
-                        data: {
-                            library: lib.hid
-                        }
-                        })    
-                        .then(res => {
-                            lib.likes = res.data.likes
-                            axios({
-                                url: this.server_address + "/all-downloads",
-                                method: 'post',
-                                headers: this.implicit_data(),
-                                data: {library: lib.hid}
-                            })
-                            .then(res => {
-                                lib.downloads = res.data.downloads
-                                if (!this.hids.includes(lib.hid)){
-                                    this.hids.push(lib.hid)
-                                    this.libraries.push(lib)
-                                }
-                            })
-                            .catch(e => {
-                                lib.downloads = 0
-                            })
-                        })
-                        .catch(e => {
-                            lib.likes = 0
-                        })
+        // async fill_extra(){
+        //     return await this.get_likes_downloads()
+        // },
+        // get_likes_downloads(){
+        //     if (this.search_books.length > 0){
+        //         this.search_books.map(lib => {
+        //             axios({
+        //                 url: this.server_address + "/all-likes",
+        //                 method: 'post',
+        //                 headers: this.implicit_data(),
+        //                 data: {
+        //                     library: lib.hid
+        //                 }
+        //                 })    
+        //                 .then(res => {
+        //                     lib.likes = res.data.likes
+        //                     axios({
+        //                         url: this.server_address + "/all-downloads",
+        //                         method: 'post',
+        //                         headers: this.implicit_data(),
+        //                         data: {library: lib.hid}
+        //                     })
+        //                     .then(res => {
+        //                         lib.downloads = res.data.downloads
+        //                         if (!this.hids.includes(lib.hid)){
+        //                             this.hids.push(lib.hid)
+        //                             this.libraries.push(lib)
+        //                         }
+        //                     })
+        //                     .catch(e => {
+        //                         lib.downloads = 0
+        //                     })
+        //                 })
+        //                 .catch(e => {
+        //                     lib.likes = 0
+        //                 })
 
-                    })
-                }
-        },
+        //             })
+        //         }
+        // },
         implicit_data(){
           return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
       },
@@ -216,12 +217,12 @@ export default {
             return this.get_link ? "upload" : "login to upload";
         },
         computed_libraries(){
-            for (var book of this.libraries){
+            for (var book of this.search_books){
                 if (book.title.length > 50) book.title = book.title.slice(0, 67) + "..."
                 if (book.description.length > 70) book.description = book.description.slice(0, 67) + '...'
                 if (book.tags.length > 2) book.tags = book.tags.splice(0, 3)
             }
-            return this.libraries
+            return this.search_books
         }
     },
 
@@ -240,7 +241,7 @@ export default {
             }).then(res => {
                 this.loaded = false
                 this.search_books.push(res.data)
-                this.fill_extra()
+                // this.fill_extra()
                 this.loader_on = false
             })
             .catch(err => {

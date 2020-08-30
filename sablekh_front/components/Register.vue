@@ -102,7 +102,23 @@ export default {
                     if (this.remember) {
                     this.cookie_setter(token)
                     }
-                    window.location.replace("/")
+                    axios({
+                        url: this.server_address + "/users",
+                        method: 'get',
+                        headers: {
+                            ...this.implicit_data(),
+                            Authorization: "Token " + token
+                        }
+                    })
+                    .then(res => {
+                    window.localStorage.setItem("username", res.data.username)
+                    if (this.link) {
+                        window.location.replace("/library/" + this.link)
+                    }
+                    else {
+                        window.location.replace("/login")
+                    }
+                    })
                 })
                 .catch(err => {
                     var data = err.response
