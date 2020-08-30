@@ -114,9 +114,13 @@ export default {
             return data ? JSON.parse(data) : [];
         },
         current_tag_changed() {
-            this.show_suggessions = true
-            this.avialable_tags = this.fuse.search(this.current_tag)
-            this.avialable_tags = this.avialable_tags.filter(e => !this.tags.includes(e.item))
+            try {
+
+                this.show_suggessions = true
+                this.avialable_tags = this.fuse.search(this.current_tag)
+                this.avialable_tags = this.avialable_tags.filter(e => !this.tags.includes(e.item))
+            }
+            catch{}
         },
         options_clicked(e) {
             let i = e.target.innerText
@@ -252,6 +256,7 @@ export default {
             method: "get",
             headers: this.implicit_data()
         }).then(res => {
+            console.log(res)
             this.all_tags = res.data.tags
             this.fuse = new Fuse(this.all_tags, {}) 
         })
@@ -716,4 +721,61 @@ export default {
             text-align: left;
         }
     }
+
+
+
+    /* iphones */
+
+@media only screen and (min-device-width: 375px)
+  and (max-device-width: 667px)
+  and (orientation: landscape)
+  and (-webkit-min-device-pixel-ratio: 2)
+{
+
+    
+
+}
+
+/* iPhone 6 portrait */
+@media only screen
+  and (min-device-width: 375px)
+  and (max-device-width: 667px)
+  and (orientation: portrait)
+  and (-webkit-min-device-pixel-ratio: 2)
+{ 
+    
+}
+
+/* iPhone 6 Plus landscape */
+@media only screen
+  and (min-device-width: 414px)
+  and (max-device-width: 736px)
+  and (orientation: landscape)
+  and (-webkit-min-device-pixel-ratio: 3)
+{
+
+}
+
+/* iPhone 6 Plus portrait */
+@media only screen 
+  and (min-device-width: 414px) 
+  and (max-device-width: 736px) 
+  and (orientation: portrait) 
+  and (-webkit-min-device-pixel-ratio: 3)
+{
+
+}
+
+/* iPhone 6 and 6 Plus */
+@media only screen
+  and (max-device-width: 640px),
+  only screen and (max-device-width: 667px),
+  only screen and (max-width: 480px)
+{ 
+
+}
+
+
+
+
 </style>
