@@ -1,6 +1,6 @@
 <template>
-    <div class="each-group">
-        <EachGroup />
+    <div class="group-main">
+        <MyGroup />
         <Footer />
     </div>
 </template>

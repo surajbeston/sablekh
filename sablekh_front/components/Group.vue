@@ -18,7 +18,7 @@
 
             <span v-show="check_len" class="av-lib">Available Libraries</span>
 
-           <div v-show="check_len" class="results-section">
+            <div v-show="check_len" class="results-section">
                <div :key="lib.hid" v-for="lib in selected_libs" class="each-lib">
                    <div class="each1">
                        <img class="lib-img"  src="@/assets/search/book2.png" alt="book image">
@@ -146,7 +146,7 @@ export default {
                 }
             })
             .then(res => {
-                window.location.href = "/group/" + res.data.link_str;
+                window.location.href = "/create-group/" + res.data.link_str;
             })
             .catch(e => console.log(e))
 

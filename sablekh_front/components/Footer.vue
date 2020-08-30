@@ -28,7 +28,7 @@
             <div class="each-footer1 footer13">
                 <hr class="hr-top">
                 <NuxtLink class = "top-link" to="/upload">Upload</NuxtLink>
-                <NuxtLink class = "top-link" to="/group">Group</NuxtLink>
+                <NuxtLink class = "top-link" to="/group">My Groups</NuxtLink>
                 <NuxtLink class = "top-link" to="/login" v-show="!authenticated">Log in</NuxtLink>
                 <a class = "top-link" @click = "logout" v-show="authenticated">Log out</a>
             </div>

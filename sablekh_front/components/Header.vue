@@ -7,7 +7,7 @@
                 <NuxtLink class = "header-link" to="/">Search</NuxtLink>
                 <NuxtLink class = "header-link" to="/library">My Libraries</NuxtLink>
                 <NuxtLink class = "header-link" to="/upload">Upload</NuxtLink>
-                <NuxtLink class = "header-link" to="/group">Group</NuxtLink>
+                <NuxtLink class = "header-link" to="/group">My Groups</NuxtLink>
                 <NuxtLink class = "header-link" to="/about">About Us</NuxtLink>
                 <!-- <NuxtLink class = "header-link" to="/login" v-show="!authenticated">Log in</NuxtLink>
                 <a class = "header-link" @click = "logout" v-show="authenticated">Log out</a> -->
