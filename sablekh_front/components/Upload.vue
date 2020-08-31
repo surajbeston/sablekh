@@ -362,7 +362,7 @@ export default {
                                         url: this.url + "library",
                                         method: "patch",
                                         headers: {"Content-Type": "application/json", "Authorization": "Token "+this.auth_token, ...this.implicit_data()},
-                                        data: {"hid": this.library, "title": this.title, "description": this.description, "tags": this.tags, "finished": true}
+                                        data: {"hid": this.library, "title": this.title, "description": this.description, "tags": this.tags, "finished": true, searchable: this.searchable}
                                     }).then(res => {
                                         this.finish = "Just a second"
                                         window.location.replace("/library/" + res.data.link_str)

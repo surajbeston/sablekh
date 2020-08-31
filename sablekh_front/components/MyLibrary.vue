@@ -111,7 +111,7 @@ export default {
         // scroll event 
 
         window.addEventListener("scroll" ,(e) => {
-            if (document.getElementsByClassName("my-library-wrapper1")[0].scrollHeight - window.scrollY < 1000 ) {
+            if (window.innerHeight - window.scrollY < 200 ) {
                 if (this.page < this.total_page && !this.is_axios) {
                     this.is_axios = true
                     axios({
@@ -127,7 +127,6 @@ export default {
                         this.total_page = res.data.total_pages
                         this.page = res.data.page
                         this.is_axios = false
-                        console.log("here")
                     })
                     .catch(e => {
                         // if (e.response.status == 404){

@@ -108,7 +108,7 @@ export default {
 
 
         window.addEventListener("scroll" ,(e) => {
-            if (document.getElementsByClassName("my-library-wrapper1")[0].scrollHeight - window.scrollY < 1000 ) {
+            if (window.innerHeight - window.scrollY < 200 ) {
                 if (this.page < this.total_page && !this.is_axios) {
                     this.is_axios = true
                     axios({
