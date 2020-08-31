@@ -372,6 +372,7 @@ export default {
 }
 
 @media screen and (max-width: 700px) {
+    
     .each-library {
         padding: 5% 1%;
         width: 95%;

@@ -437,7 +437,7 @@ export default {
 
 .username {
   margin-top: 2vh;
-  font-size: 150%;
+  font-size: 120%;
   letter-spacing: 1px;
   font-family: 'Ubuntu', sans-serif;
 }
@@ -772,6 +772,11 @@ export default {
 }
 
 @media screen and (max-width: 700px) {
+
+.username {
+        font-size: 100%;
+    }
+
   .progress-bar {
     height: 10px;
   }
