@@ -66,7 +66,7 @@ export default {
     data() {
         return{
             url: "http://104.248.39.254/",
-            username: "user_name",
+            username: "",
             name: "",
             description: "",
             search: "",
@@ -150,21 +150,17 @@ export default {
                 window.location.href = "/create-group/" + res.data.link_str;
             })
             .catch(e => console.log(e))
-
         },
 
         checkbox_clicked(id) {
             var filter_list = this.checked_libs.filter(e => e === id)
-            
             if (filter_list.length === 0) {
                 this.checked_libs.push(id)
             }
             else {
                 this.checked_libs = this.checked_libs.filter(e => e !== id)
             }
-
         },
-
         search_clicked(){
             this.selected_libs = this.fuse.search(this.search)
             this.selected_libs = this.selected_libs.map(e => e.item)
@@ -212,8 +208,6 @@ export default {
                 })
             }
         }
-
-
     },
 
     computed: {
@@ -243,6 +237,7 @@ export default {
         if (!this.token) { 
             window.location.href = "/login"
         }
+        this.username = window.localStorage.getItem("username")
 
         axios({
             url: this.url + "all-libraries",

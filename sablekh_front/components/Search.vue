@@ -166,6 +166,60 @@ export default {
         to_link() {
             this.get_link ? window.location.replace("/upload") : window.location.replace("/login");
         },
+
+        async fill_extra(){
+            return await this.get_likes_downloads()
+        },
+        get_likes_downloads(){
+            if (this.search_books.length > 0){
+                this.search_books.map(lib => {
+                    axios({
+                        url: this.server_address + "/all-likes",
+                        method: 'post',
+                        headers: this.implicit_data(),
+                        data: {
+                            library: lib.hid
+                        }
+                        })    
+                        .then(res => {
+                            lib.likes = res.data.likes
+                            axios({
+                                url: this.server_address + "/all-downloads",
+                                method: 'post',
+                                headers: this.implicit_data(),
+                                data: {library: lib.hid}
+                            })
+                            .then(res => {
+                                lib.downloads = res.data.downloads
+                                if (!this.hids.includes(lib.hid)){
+                                    this.hids.push(lib.hid)
+                                    this.libraries.push(lib)
+                                }
+                            })
+                            .catch(e => {
+                                lib.downloads = 0
+                            })
+                        })
+                        .catch(e => {
+                            lib.likes = 0
+                        })
+
+                    })
+                }
+        },
+    implicit_data(){
+        var session_key = window.localStorage.getItem('session_key')
+        if (!session_key){
+            var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+                session_key = ""
+                for (var i = 0; i<50; i++) {
+                    session_key += letters.charAt(Math.round(Math.random()*letters.length))
+            }
+            window.localStorage.setItem("session_key", session_key)
+        }
+        return {"site": document.referrer+"---"+session_key, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
+        }
+        ,
         // async fill_extra(){
         //     return await this.get_likes_downloads()
         // },
@@ -206,9 +260,6 @@ export default {
         //             })
         //         }
         // },
-        implicit_data(){
-          return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
-      },
     }, 
 
     computed: {

@@ -134,13 +134,15 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',  # <-- And here
     ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 2
 }
 CORS_ORIGIN_ALLOW_ALL = True
 
 SESSION_SAVE_EVERY_REQUEST = True
 
 CORS_ALLOW_HEADERS = ('content-disposition', 'accept-encoding',
-                      'content-type', 'accept', 'origin', 'authorization', 'timetaken', 'site', 'link', 'method')
+                      'content-type', 'accept', 'origin', 'authorization', 'timetaken', 'site', 'link', 'method', 'session_keyss')
 
 CORS_ORIGIN_WHITELIST = [
 'http://localhost:3000',

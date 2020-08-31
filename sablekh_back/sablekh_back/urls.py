@@ -43,11 +43,7 @@ urlpatterns = [
     path('check-like', check_like),
     path('all-downloads', all_downloads),
     path('tags', get_tags),
-<<<<<<< HEAD
-]
-=======
     path('library-group', LibraryGroupView.as_view()),
     path('all-library-groups', all_library_groups),
     path('get-library-group', get_library_group)
 ]
->>>>>>> second_lot
