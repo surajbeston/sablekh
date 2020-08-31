@@ -74,7 +74,6 @@ export default {
         })
         .then(res => {
             this.group = res.data
-            this.group.tags = ['adfadsfasf', 'adfasdfasdfasdf']
         })
         .catch(err => {
             console.log(err)

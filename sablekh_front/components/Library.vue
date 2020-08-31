@@ -13,6 +13,7 @@
         </div>
         <div v-else class="library-wrapper1">
           <img class="book-img" :src="library_thumbnail" alt="book" />
+          <span class="username">{{}}</span>
           <h1 class="library-title">{{library_name}}</h1>
           <p class="library-desc">{{library_desc}}</p>
           <div class="lib-tags" v-bind:key="tag" v-for="tag in library_tags">
@@ -84,6 +85,7 @@ export default {
 
   data() {
     return {
+      username: "",
       server_address: "http://104.248.39.254",
       library_name: "",
       library_username: "",
@@ -406,6 +408,7 @@ export default {
          this.likes = res.data.likes
          this.downloads = res.data.downloads
          this.library_username = res.data.username
+         this.username = res.data.username
         // this.get_like()
         // this.get_downloads()
         if (this.token) {
