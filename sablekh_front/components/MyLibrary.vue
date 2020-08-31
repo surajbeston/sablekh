@@ -72,7 +72,7 @@ export default {
             }
             window.localStorage.setItem("session_key", session_key)
         }
-        return {"site": document.referrer+"---"+session_key, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
+        return {"site": document.referrer+"---"+session_key, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time, "Authorization": "Token "+ this.id }
         }
     },
     computed: {
@@ -147,8 +147,6 @@ export default {
                 }
             }
         })
-
-
 
     }
 }

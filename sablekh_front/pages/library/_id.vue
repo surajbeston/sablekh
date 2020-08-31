@@ -26,7 +26,8 @@ export default {
           library_tags: res.data.tags,
           files: res.data.files,
           likes: res.data.likes,
-          downloads: res.data.downloads
+          downloads: res.data.downloads,
+          username: res.data.username
           }
       }
     }).catch(res => {

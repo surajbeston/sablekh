@@ -166,7 +166,7 @@ export default {
         to_link() {
             this.get_link ? window.location.replace("/upload") : window.location.replace("/login");
         },
-<<<<<<< HEAD
+
         async fill_extra(){
             return await this.get_likes_downloads()
         },
@@ -220,7 +220,6 @@ export default {
         return {"site": document.referrer+"---"+session_key, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
         }
         ,
-=======
         // async fill_extra(){
         //     return await this.get_likes_downloads()
         // },
@@ -261,10 +260,6 @@ export default {
         //             })
         //         }
         // },
-        implicit_data(){
-          return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
-      },
->>>>>>> fdeff0a67edfc806f22d361da1f76ee341f707de
     }, 
 
     computed: {
