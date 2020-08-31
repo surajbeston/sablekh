@@ -13,7 +13,7 @@
         </div>
         <div v-else class="library-wrapper1">
           <img class="book-img" :src="library_thumbnail" alt="book" />
-          <span class="username">{{}}</span>
+          <span class="username">{{username}}</span>
           <h1 class="library-title">{{library_name}}</h1>
           <p class="library-desc">{{library_desc}}</p>
           <div class="lib-tags" v-bind:key="tag" v-for="tag in library_tags">
@@ -434,6 +434,13 @@ export default {
 </script>
 
 <style scoped>
+
+.username {
+  margin-top: 2vh;
+  font-size: 150%;
+  letter-spacing: 1px;
+  font-family: 'Ubuntu', sans-serif;
+}
 
 .lib-tags{
   display: flex;

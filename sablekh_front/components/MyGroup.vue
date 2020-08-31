@@ -12,7 +12,7 @@
             </p>
             <span class="loader" v-show="loader_on"></span>
             <div v-show="!loader_on">
-                <h2  v-show="no_library" class = "no_library">No libraries found, please upload to find it here.</h2>
+                <h2  v-show="no_library" class = "no_library">No groups found, please upload to find it here.</h2>
                 <div class="ml-libraries"  v-show="!no_library"> 
                     <div class="each-library" :key="group.hid" v-for="group in up_groups">
                         <button @click="edit_clicked(group)" class="btn edit-btn">
