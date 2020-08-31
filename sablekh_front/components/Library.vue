@@ -2,7 +2,8 @@
   <div>
     <!-- <pre>{{data}}</pre> -->
     <div class="library-component mxw-100-mnh-100" >
-      <img src="@/assets/logo1.png" alt="loading image" class="logo-img" />
+      <Header />
+      <!-- <img src="@/assets/logo1.png" alt="loading image" class="logo-img" /> -->
       <div v-if = "loader_on">
         <span class="loader"></span>
       </div>
@@ -11,17 +12,17 @@
           <h1>Library not found 404</h1>
         </div>
         <div v-else class="library-wrapper1">
-          <img class="book-img" :src="{library_thumbnail}" alt="book" />
-          <h1 class="library-title">{{data.library_name}}</h1>
-          <p class="library-desc">{{data.library_desc}}</p>
-          <div class="lib-tags" v-bind:key="tag" v-for="tag in data.library_tags">
+          <img class="book-img" :src="library_thumbnail" alt="book" />
+          <h1 class="library-title">{{library_name}}</h1>
+          <p class="library-desc">{{library_desc}}</p>
+          <div class="lib-tags" v-bind:key="tag" v-for="tag in library_tags">
             <span class="each-tag">{{tag}}</span>
           </div>
           <div id = "successBox" v-show="hasSuccess" ><p id = "successTxt"> {{success}}<img src = "@/assets/cancel.png" @click="hasSuccess =!hasSuccess" class = "cancelSuccess"></p></div>
               <div id = "errorBox" v-show="hasError" ><p id = "errorTxt"> {{error}}<img src = "@/assets/cancel.png" @click="hasError =!hasError" class = "cancelError"></p></div>
           <div class="like-div">
             <div class="like1">
-              <span class="like-span">{{data.likes}}</span>
+              <span class="like-span">{{likes}}</span>
               <img
                 @click="like_clicked"
                 v-show="!is_liked"
@@ -32,7 +33,7 @@
               <img v-show="is_liked" src="@/assets/like1.png" alt="like" class="blu-like" />
             </div>
             <div class="like2">
-              <span class="like-span">{{data.downloads}}</span>
+              <span class="like-span">{{downloads}}</span>
               <img src="@/assets/download1.png" alt="download img" class="download-img">
             </div>
             <div class="like3" @click = "copy(library_name)">
@@ -40,7 +41,7 @@
             </div> 
           </div>
           <div class="files-wrapper" v-show = "!loader_on">
-            <div class="fw-each" :key="file.hid" v-for="file of data.files">
+            <div class="fw-each" :key="file.hid" v-for="file of files">
               <div @click="download_middle(file.hid)" class="fw1"> 
                 <img src="@/assets/filenames/pdf.png" alt="png" />
                 <h3>{{file.title}}</h3>
@@ -83,8 +84,9 @@ export default {
 
   data() {
     return {
-      server_address: "http://localhost:8000",
+      server_address: "http://104.248.39.254",
       library_name: "",
+      library_username: "",
       library_desc: "",
       library_image_link: "https://pngimg.com/uploads/book/book_PNG51074.png",
       library_tags: [],
@@ -116,25 +118,12 @@ export default {
 
   methods: {
     library_stuffs(){
-      this.loader_on = true
-      axios({
-        url: this.server_address + "/all-libraries",
-        method: 'post',
-        headers: {
-          ...this.implicit_data(),
-          Authorization: "Token " + this.token
-        }
-      })
-      .then(res => {
-        this.loader_on = false
-        this.user_libraries = res.data
-        if(this.user_libraries.filter(e => e.hid === this.hid).length > 0){
-          this.is_in_user_library = true;
-        }
-      })
-      .catch(e => {
-        // this.show_error("Internal error") //Check this for reason
-      })
+      // this.loader_on = true
+
+      if(window.localStorage.getItem("username") === this.library_username) {
+        this.is_in_user_library = true
+      }
+
     },
     link_changed(){
       if (this.new_link.length < 3) this.show_error("At least 3 letters required.")
@@ -165,6 +154,7 @@ export default {
     },
     like_clicked() {
       if (!this.token){
+        window.localStorage.setItem("link_str", this.$route.params.id)
         window.location.href = "/login";
       }
       axios({
@@ -175,7 +165,7 @@ export default {
           Authorization: "Token " + this.token,
         },
         data: {
-          library: this.data.hid,
+          library: this.hid,
         },
       })
       .then((res) => {
@@ -183,6 +173,7 @@ export default {
         this.is_liked = true;
       }) 
       .catch((e) => {
+        console.log(e.response)
       });
     },
     get_downloads() {
@@ -191,7 +182,7 @@ export default {
         method: "post",
         headers: this.implicit_data(),
         data: {
-          library: this.data.hid,
+          library: this.hid,
         },
       })
         .then((res) => {
@@ -210,7 +201,7 @@ export default {
         },
       })
         .then((res) => {
-          this.data.likes = res.data.likes;
+          this.likes = res.data.likes;
         })
         .catch((e) => {
           //.log(e);
@@ -248,14 +239,14 @@ export default {
 
     download_all_clicked() {
       
-      if (this.data.files.length == 0 ) {
+      if (this.files.length == 0 ) {
         return null
       }
 
       this.downloading = true;
       this.progress = 0
 
-      let a = this.data.files.map((e) => e.hid);
+      let a = this.files.map((e) => e.hid);
 
       this.download_middle(a.join(","));
 
@@ -293,7 +284,7 @@ export default {
           method: "post",
           data: {
             hids: file_hids,
-            library: this.data.hid,
+            library: this.hid,
           },
           headers: this.implicit_data(),
         })
@@ -393,6 +384,7 @@ export default {
 
   mounted() {
     console.log("wallah")
+    window.localStorage.removeItem("link_str")
     this.time = new Date().getTime();
 
     if (!this.lib_id) {
@@ -411,14 +403,18 @@ export default {
       headers: this.implicit_data(),
     })
       .then((res) => {
+        console.log(res.data)
         this.hid = res.data.hid;
         this.library_name = res.data.title;
         this.library_desc = res.data.description;
          this.library_thumbnail = res.data.thumbnail
          this.library_tags = res.data.tags
          this.files = res.data.files
-        this.get_like()
-        this.get_downloads()
+         this.likes = res.data.likes
+         this.downloads = res.data.downloads
+         this.library_username = res.data.username
+        // this.get_like()
+        // this.get_downloads()
         if (this.token) {
           this.check_like()
           this.library_stuffs()
@@ -585,7 +581,7 @@ export default {
 
 .library-component {
   background-color: rgb(254, 227, 200);
-  padding: 150px 0 10px 0;
+  padding: 0px 0 10px 0;
   position: relative;
 }
 .back-arrow {
@@ -605,7 +601,7 @@ export default {
 }
 .library-wrapper1 {
   width: 50%;
-  margin: 0 auto;
+  margin: 100px auto 50px auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -731,10 +727,6 @@ export default {
   .library-wrapper1 {
     width: 80%;
   }
-
-  .library-component {
-    padding: 120px 0 10px 0;
-  }
   .logo-img {
     width: 100px;
   }
@@ -775,6 +767,7 @@ export default {
   }
   .library-wrapper1 {
     width: 72%;
+    margin: 50px auto 0 auto;
   }
 
   .files-wrapper {

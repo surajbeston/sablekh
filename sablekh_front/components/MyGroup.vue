@@ -2,9 +2,10 @@
     <div class="my-library-component mxw-100-mnh-100" :class = "{invisible : !authenticate}">
         <Header />
         <div class="my-library-wrapper1">
+            <button @click="create_clicked" class="btn create-btn">New</button>
             <img class="top-img" src="@/assets/library/library-top.png" alt="vector img">
             <h1 class="your-library">
-                Your Library
+                Your Groups
             </h1>
             <p class="email">
                 {{email}}
@@ -13,20 +14,14 @@
             <div v-show="!loader_on">
                 <h2  v-show="no_library" class = "no_library">No libraries found, please upload to find it here.</h2>
                 <div class="ml-libraries"  v-show="!no_library"> 
-                    <div class="each-library" :key="library.hid" v-for="library in up_libraries">
-                        <button @click="edit_clicked(library)" class="btn edit-btn">
+                    <div class="each-library" :key="group.hid" v-for="group in up_groups">
+                        <button @click="edit_clicked(group)" class="btn edit-btn">
                             Edit
                         </button>
-                        <img @click="heading_clicked(library.link_str)" :src="library.thumbnail" alt="loading image" class="book-img">
-                        <div @click="heading_clicked(library.link_str)" class="library-info">
-                            <h1 >{{library.title}}</h1>
-                            <p>{{library.description}}</p>
-                        </div>
-                        <div class="likes-div">
-                            <span>{{library.likes}}</span>
-                            <img src="@/assets/like.png" alt="like img" class="like-img">
-                            <span id="span">{{library.downloads}}</span>
-                            <img src="@/assets/download1.png" alt="download img" class="download-img">
+                        <img @click="heading_clicked(group)" :src="group.thumbnail" alt="loading image" class="book-img">
+                        <div @click="heading_clicked(group)" class="library-info">
+                            <h1 >{{group.title}}</h1>
+                            <p>{{group.description}}</p>
                         </div>
                     </div>
                 </div>
@@ -43,44 +38,38 @@ export default {
     data() {
         return {
             server_address: "http://104.248.39.254",
-            libraries: [],
+            groups: [],
             email: "dummy@sablekh.com",
+            id: "",
             no_library: false,
             loader_on: false,
-            id: "",
-            total_page: 0,
             page: 0,
-            is_axios: false,
+            total_page: 0,
+            is_axios : false,
         }
     },
 
     methods: {
+        create_clicked(){
+            window.location.href = "/create-group"
+        },
         edit_clicked(lib) {
-            window.location.href = "upload/" + lib.link_str
+            window.location.href = "/create-group/" + lib.link_str
         },
 
-        heading_clicked(link_str){
-            window.location.href = "library/" + link_str
+        heading_clicked(lib){
+            window.location.href = "/group/" + lib.link_str
         },
-    implicit_data(){
-        var session_key = window.localStorage.getItem('session_key')
-        if (!session_key){
-            var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-                session_key = ""
-                for (var i = 0; i<50; i++) {
-                    session_key += letters.charAt(Math.round(Math.random()*letters.length))
-            }
-            window.localStorage.setItem("session_key", session_key)
-        }
-        return {"site": document.referrer+"---"+session_key, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
+        implicit_data(){
+          return {"Authorization": "Token " + this.id, "site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
         }
     },
     computed: {
         authenticate(){
             return this.id ? true:false
         },
-        up_libraries(){
-            var libraries =  Object.values(this.libraries)
+        up_groups(){
+            var libraries =  Object.values(this.groups)
             for (var library of libraries){
                 if (library.title.length > 50) library.title = library.title.slice(0, 47) + "..."
                 if (library.description.length > 70) library.description = library.description.slice(0, 67) + "..."
@@ -93,38 +82,37 @@ export default {
         if (!this.id) { 
             window.location.replace("/login") 
         }
-      this.time = new Date().getTime()
+        this.time = new Date().getTime()
         this.loader_on = true
         if (window.localStorage.getItem("email")) this.email = window.localStorage.getItem("email")
-       axios({
-           url: this.server_address + '/all-libraries',
+        axios({
+           url: this.server_address + '/all-library-groups',
            method: 'post',
            headers: this.implicit_data()
-       })
-       .then(res => {
+        })
+        .then(res => {
            this.loader_on = false
            if (res.data.length == 0){
                this.no_library = true
            }
-           this.libraries = res.data.data
-           this.total_page = res.data.total_pages
+           this.groups = res.data.data
            this.page = res.data.page
-       })
-       .catch(e => {
+           this.total_page = res.data.total_pages
+        })
+        .catch(e => {
            if (e.response.status == 404){
             this.no_library = true
             this.loader_on = false
            }
        })
 
-        // scroll event 
 
         window.addEventListener("scroll" ,(e) => {
             if (window.innerHeight - window.scrollY < 200 ) {
                 if (this.page < this.total_page && !this.is_axios) {
                     this.is_axios = true
                     axios({
-                        url: this.server_address + '/all-libraries',
+                        url: this.server_address + '/all-library-groups',
                         method: 'post',
                         headers: this.implicit_data(),
                         data: {
@@ -132,7 +120,7 @@ export default {
                         }
                     })
                     .then(res => {
-                        this.libraries = this.libraries.concat(res.data.data)
+                        this.groups = this.groups.concat(res.data.data)
                         this.total_page = res.data.total_pages
                         this.page = res.data.page
                         this.is_axios = false
@@ -142,12 +130,11 @@ export default {
                         //     this.no_library = true
                         //     this.loader_on = false
                         // }
-
+                        
                     })
                 }
             }
         })
-
 
 
     }
@@ -155,6 +142,19 @@ export default {
 </script>
 
 <style scoped>
+
+    .create-btn {
+        font-family: 'Comfortaa', cursive;
+        font-size: 20px;
+        border-radius: 5px;
+        padding: 10px 30px;
+        margin-top: 2vh;
+        background-color: rgb(255, 178, 78);
+        cursor: pointer;
+        position: absolute;
+        right: 10px;
+    }
+
     .my-library-component {
         background-color: rgb(255, 228, 197);
         display: flex;
@@ -185,6 +185,8 @@ export default {
         align-items: center;
         width: 100%;
         margin-top: 20px;
+        position: relative;
+
     }
 
     .top-img {
@@ -222,7 +224,7 @@ export default {
         padding: 1%;
         border-radius: 10px;
         display: grid;
-        grid-template-columns: 2fr 10fr 2fr;
+        grid-template-columns: 2fr 10fr;
         align-items: center;
         position: relative;
     }
@@ -249,6 +251,7 @@ export default {
         display: flex;
         flex-direction: column;
         height: 100%;
+        padding-left: 2vw;
     }
     .library-info > h1 {
         font-size: 150%;
@@ -267,7 +270,7 @@ export default {
         font-size: 120%;
     }
 
-    .likes-div {
+    /* .likes-div {
         width: 100%;
         height: 100%;
         display: flex;
@@ -288,7 +291,7 @@ export default {
         width: 15%;
         margin-bottom: 5px;
          margin-right: 10%;
-    }
+    } */
 
     .no_library{
         font-family: 'Rajdhani', sans-serif;
@@ -395,6 +398,10 @@ export default {
     .no_library{
         font-size: 100%;
     }
+    .create-btn{
+        font-size: 15px;
+        padding: 10px 10px;
+    }
 }
 
 @media screen and (max-width: 500px){
@@ -423,7 +430,7 @@ export default {
     span {
         font-size: 10px;
     }
-    .likes-div > span{
+    /* .likes-div > span{
         margin-right: 80%;
     }
 
@@ -435,12 +442,16 @@ export default {
         width: 30%;
         margin-bottom: 0;
         margin-right: 80%;
-    }
+    } */
 
     .book-img {
         cursor: pointer;
         width: 90%;
         height: 120%;
+    }
+    .create-btn {
+        font-size: 12px;
+        padding: 5px 10px;
     }
 
 }

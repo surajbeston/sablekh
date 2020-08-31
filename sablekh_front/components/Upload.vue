@@ -1,6 +1,7 @@
 <template>
     <div>
         <div class="upload-component mxw-100-mnh-100" :class = "{invisible : !authenticate}">
+            <Header />
             <div v-show="!wants_to_delete" class="upload-wrapper1" ref = "fileform" >
                 <img src="@/assets/upload/upload-top.png" alt="loading image" class="upload11" >
                 <div class="upload12" >
@@ -55,6 +56,10 @@
                             <button class="btn no-btn" @click="no_button">No</button>
                         </div>
                     </div>
+                    <div class="searchable">
+                        <input type="checkbox" v-model="searchable" id="searchable">
+                        <label for="searchable">Make it searchable</label>
+                    </div>
                     <button style="margin-top: 10px;" class="btn" @click = "final_finish">{{finish}}</button>
                     <button v-show="is_owner && lib_str" class="btn delete-btn" @click="delete_button">Delete</button>
                 </div>                
@@ -82,13 +87,14 @@ import Mime from 'mime-types'
 export default {
     data() {
         return{
+            searchable: true,
             is_owner: false,
             wants_to_delete: false,
             title: "",
             description: "",
             // files: [{"name": "something.pdf", "filename": "/filenames/pdf.png", "uploadedsize": "12", "totalsize": "25"}, {"name": "something.txt", "filename": "/filenames/text.png", "uploadedsize": "12", "totalsize": "25"}],
             files: [],
-            url: "http://localhost:8000/",
+            url: "http://104.248.39.254/",
             library: "",
             auth_token: "",
             last_title: "",
@@ -356,7 +362,7 @@ export default {
                                         url: this.url + "library",
                                         method: "patch",
                                         headers: {"Content-Type": "application/json", "Authorization": "Token "+this.auth_token, ...this.implicit_data()},
-                                        data: {"hid": this.library, "title": this.title, "description": this.description, "tags": this.tags, "finished": true}
+                                        data: {"hid": this.library, "title": this.title, "description": this.description, "tags": this.tags, "finished": true, searchable: this.searchable}
                                     }).then(res => {
                                         this.finish = "Just a second"
                                         window.location.replace("/library/" + res.data.link_str)
@@ -567,6 +573,21 @@ export default {
 </script>
 
 <style scoped>
+
+
+    .searchable {
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 140%;
+       text-align: center;
+       margin: 2vh 0;
+    }
+    .searchable > input {
+        width: 15px;
+        height: 15px;
+        cursor: pointer;
+    }
+
+
     .upload-component {
         background-color: rgb(254, 227, 200);
         color:rgb(51, 47, 43);

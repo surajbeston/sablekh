@@ -1,9 +1,10 @@
 <template>
     <div class="search-component">
         <div class="search-wrapper1 mxw-100-mnh-100">
-            <div class="header">
+            <!-- <div class="header">
                 <img src="@/assets/logo1.png" alt="log0" class="logo-img">
-            </div>
+            </div> -->
+            <Header />
             <div class="search11">
                 <img src="@/assets/search/top.png" alt="loading image">
             </div>
@@ -35,13 +36,13 @@
             <span class="loader" v-show = "loader_on"></span>
             <h2  v-show="no_search && !loader_on" class = "no_search">No libraries found for the query.</h2>
             <div id="results-div" class="search15" v-show = "!loader_on && !no_search">
-                <NuxtLink :to="`library/${book.link_str}`" v-bind:key="book.hid" v-for="(book, index) in computed_libraries" >
+                <NuxtLink :to="`library/${book.link_str}`" v-bind:key="book.hid" v-for="book in computed_libraries" >
                     <div class="search151">
                         <div class="search151-each">
                             <img :src="book.thumbnail" alt="loading image">
                             <div class="search1512">
                                 <p> 
-                                   <span class = "tag">Notes</span><span v-for="tag in book.tags" class = "tag">{{tag}}</span> 
+                                   <span class = "tag">Notes</span><span :key="tag" v-for="tag in book.tags" class = "tag">{{tag}}</span> 
                                 </p>
                                 <h1>{{book.title}}</h1>
                                 <p>{{book.description}}</p>
@@ -74,7 +75,7 @@ import {setCookie} from "@/extras/cookie";
 export default {
     data() {
         return {
-            server_address: "http://localhost:8000",
+            server_address: "http://104.248.39.254",
             image_address: "https://pngimg.com/uploads/book/book_PNG51083.png",
             show_suggessions: true,
             off_width: 0,
@@ -113,9 +114,13 @@ export default {
             return data ? JSON.parse(data) : [];
         },
         current_tag_changed() {
-            this.show_suggessions = true
-            this.avialable_tags = this.fuse.search(this.current_tag)
-            this.avialable_tags = this.avialable_tags.filter(e => !this.tags.includes(e.item))
+            try {
+
+                this.show_suggessions = true
+                this.avialable_tags = this.fuse.search(this.current_tag)
+                this.avialable_tags = this.avialable_tags.filter(e => !this.tags.includes(e.item))
+            }
+            catch{}
         },
         options_clicked(e) {
             let i = e.target.innerText
@@ -150,16 +155,18 @@ export default {
                     this.search_books = res.data
                     this.libraries = []
                     this.hids = []
-                    this.fill_extra()
+                    // this.fill_extra()
 
                     this.loaded = false
                     this.loader_on = false 
+                    console.log(res)
                 }) 
             }
         },
         to_link() {
             this.get_link ? window.location.replace("/upload") : window.location.replace("/login");
         },
+<<<<<<< HEAD
         async fill_extra(){
             return await this.get_likes_downloads()
         },
@@ -213,6 +220,51 @@ export default {
         return {"site": document.referrer+"---"+session_key, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
         }
         ,
+=======
+        // async fill_extra(){
+        //     return await this.get_likes_downloads()
+        // },
+        // get_likes_downloads(){
+        //     if (this.search_books.length > 0){
+        //         this.search_books.map(lib => {
+        //             axios({
+        //                 url: this.server_address + "/all-likes",
+        //                 method: 'post',
+        //                 headers: this.implicit_data(),
+        //                 data: {
+        //                     library: lib.hid
+        //                 }
+        //                 })    
+        //                 .then(res => {
+        //                     lib.likes = res.data.likes
+        //                     axios({
+        //                         url: this.server_address + "/all-downloads",
+        //                         method: 'post',
+        //                         headers: this.implicit_data(),
+        //                         data: {library: lib.hid}
+        //                     })
+        //                     .then(res => {
+        //                         lib.downloads = res.data.downloads
+        //                         if (!this.hids.includes(lib.hid)){
+        //                             this.hids.push(lib.hid)
+        //                             this.libraries.push(lib)
+        //                         }
+        //                     })
+        //                     .catch(e => {
+        //                         lib.downloads = 0
+        //                     })
+        //                 })
+        //                 .catch(e => {
+        //                     lib.likes = 0
+        //                 })
+
+        //             })
+        //         }
+        // },
+        implicit_data(){
+          return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
+      },
+>>>>>>> fdeff0a67edfc806f22d361da1f76ee341f707de
     }, 
 
     computed: {
@@ -225,12 +277,12 @@ export default {
             return this.get_link ? "upload" : "login to upload";
         },
         computed_libraries(){
-            for (var book of this.libraries){
+            for (var book of this.search_books){
                 if (book.title.length > 50) book.title = book.title.slice(0, 67) + "..."
                 if (book.description.length > 70) book.description = book.description.slice(0, 67) + '...'
                 if (book.tags.length > 2) book.tags = book.tags.splice(0, 3)
             }
-            return this.libraries
+            return this.search_books
         }
     },
 
@@ -249,7 +301,7 @@ export default {
             }).then(res => {
                 this.loaded = false
                 this.search_books.push(res.data)
-                this.fill_extra()
+                // this.fill_extra()
                 this.loader_on = false
             })
             .catch(err => {
@@ -260,6 +312,7 @@ export default {
             method: "get",
             headers: this.implicit_data()
         }).then(res => {
+            console.log(res)
             this.all_tags = res.data.tags
             this.fuse = new Fuse(this.all_tags, {}) 
         })
@@ -295,6 +348,9 @@ export default {
     .logo-img {
         width: 7%;
         margin-right: 2vw;
+    }
+    .search11 {
+        margin-top: 5vh;
     }
     .search11 > img {
         width: 25vw;
@@ -339,7 +395,7 @@ export default {
         overflow: hidden;
     } 
     .all-tags {
-        min-width: 10px;
+        /* min-width: 10px; */
         background-color: white;
         display: flex;
         flex-wrap: wrap;
@@ -353,7 +409,7 @@ export default {
         font-family: 'Comfortaa', cursive;
         margin-left: 0;
         text-align: left;
-        width: 200px;
+        width: 100%;
         display: inline-block;
     }
     .each-tag {
@@ -539,7 +595,7 @@ export default {
             font-size: 40px;
         }
         .search13 > input {
-            width: 90vw;
+            width: 70vw;
         }
         .search151-each {
             width: 90vw;
@@ -627,7 +683,7 @@ export default {
             margin: 0 5vw;
         }
         .all-tags > input {
-            max-width: 80%;
+            max-width: 100%;
         }
         .search12 > h1 {
             font-size: 24px;
@@ -721,4 +777,61 @@ export default {
             text-align: left;
         }
     }
+
+
+
+    /* iphones */
+
+@media only screen and (min-device-width: 375px)
+  and (max-device-width: 667px)
+  and (orientation: landscape)
+  and (-webkit-min-device-pixel-ratio: 2)
+{
+
+    
+
+}
+
+/* iPhone 6 portrait */
+@media only screen
+  and (min-device-width: 375px)
+  and (max-device-width: 667px)
+  and (orientation: portrait)
+  and (-webkit-min-device-pixel-ratio: 2)
+{ 
+    
+}
+
+/* iPhone 6 Plus landscape */
+@media only screen
+  and (min-device-width: 414px)
+  and (max-device-width: 736px)
+  and (orientation: landscape)
+  and (-webkit-min-device-pixel-ratio: 3)
+{
+
+}
+
+/* iPhone 6 Plus portrait */
+@media only screen 
+  and (min-device-width: 414px) 
+  and (max-device-width: 736px) 
+  and (orientation: portrait) 
+  and (-webkit-min-device-pixel-ratio: 3)
+{
+
+}
+
+/* iPhone 6 and 6 Plus */
+@media only screen
+  and (max-device-width: 640px),
+  only screen and (max-device-width: 667px),
+  only screen and (max-width: 480px)
+{ 
+
+}
+
+
+
+
 </style>
