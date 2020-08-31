@@ -6,6 +6,7 @@ nav:
     - Authentication & Authorization: auth.md
     - User: user.md
     - Library: library.md
+    - Library Group: library-group.md
     - File: file.md
     - Download: download.md
     - Search: search.md

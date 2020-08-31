@@ -29,8 +29,12 @@ class Library(models.Model):
     link_str = models.CharField(max_length = 350, unique=True)
     tags = ArrayField(models.CharField(max_length = 150), blank = True, null = True)
     finished = models.BooleanField(default=False)
+    searchable = models.BooleanField(default = True)
     datetime = models.DateTimeField(auto_now=True)
     no_files = models.IntegerField(default = 0)
+
+    class Meta:
+        order_with_respect_to = 'datetime'
 
 class LibraryGroup(models.Model):
     hid = models.CharField(max_length=56, primary_key=True)
@@ -43,6 +47,9 @@ class LibraryGroup(models.Model):
     libraries = models.ManyToManyField(Library, blank = True, null = True)
     datetime = models.DateTimeField(auto_now=True)
     no_libraries = models.IntegerField(default = 0)
+
+    class Meta:
+        order_with_respect_to = 'datetime'
 
 class File(models.Model):
     hid = models.CharField(max_length = 56, primary_key= True)
@@ -79,6 +86,7 @@ class PwResetToken(models.Model):
 
 class ImplicitData(models.Model):
     user = models.ForeignKey(Visitor, on_delete = models.CASCADE, null = True, blank = True)
+    session_key = models.CharField(max_length=60)
     user_agent = models.CharField(max_length = 600)
     referer = models.CharField(max_length = 300)
     link = models.CharField(max_length=200)
@@ -99,7 +107,7 @@ class RestrictedIP(models.Model):
     datetime = models.DateTimeField(auto_now= True)
 
 stem_ana = StemmingAnalyzer()
-WHOOSH_SCHEMA = Schema(hid = KEYWORD(stored = True), title=TEXT(analyzer = stem_ana), description=TEXT(analyzer = stem_ana))
+WHOOSH_SCHEMA = Schema(hid = KEYWORD(stored = True), title=TEXT(analyzer = stem_ana), description=TEXT(analyzer = stem_ana), tags = KEYWORD())
 
 def create_index(sender=None, **kwargs):
     if not os.path.exists(settings.WHOOSH_INDEX):
@@ -113,19 +121,23 @@ def update_index(sender, instance, created, **kwargs):
             ix = open_dir("index")
         except:
             ix = create_in("index", WHOOSH_SCHEMA)
-        while True:
-            try:
-                writer = ix.writer()
-                break
-            except LockError:
-                time.sleep(0.2)
-
-        if created:
-            writer.add_document(hid = instance.hid, title=instance.title, description=instance.description)
-            writer.commit()
+        if instance.searchable:    
+            while True:
+                try:
+                    writer = ix.writer()
+                    break
+                except LockError:
+                    time.sleep(0.2)
+            if created:
+                str_tags = ",".join([tag for tag in instance.tags])
+                writer.add_document(hid = instance.hid, title=instance.title, description=instance.description, tags=str_tags)
+                writer.commit()
+            else:
+                str_tags = ",".join([tag for tag in tags])
+                writer.update_document(hid = instance.hid, title=instance.title, description=instance.description, tags=str_tags)
+                writer.commit()
         else:
-            writer.update_document(hid = instance.hid, title=instance.title, description=instance.description)
-            writer.commit()
+            ix.delete_by_term("hid", instance.hid)
 
 signals.post_save.connect(update_index, sender=Library)
 

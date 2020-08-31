@@ -22,6 +22,7 @@ import binascii
 from .misc import filter_text, title_to_link
 from subprocess import Popen
 import django
+import math
 from django.shortcuts import redirect
 
 from django.conf import settings
@@ -116,6 +117,10 @@ class LibraryView(APIView):
             library.title = request.data["title"]
             library.description = request.data["description"] 
             library.tags = request.data["tags"]
+            try:
+                library.searchable = request.data["searchable"]
+            except KeyError:
+                pass 
             try:
                 library.finished = request.data["finished"]
                 files = File.objects.filter(library = library)
@@ -261,12 +266,22 @@ class LibraryGroupView(APIView):
 
 @api_view(['GET', 'POST']) 
 def get_library(request):
-    hid = request.data["hid"] 
+    hid = request.data["hid"]
     try:
         library = Library.objects.get(hid = hid)
         serializer = LibrarySerializer(library)
         data = serializer.data
-        return Response(, status = status.HTTP_200_OK)
+        files = File.objects.filter(library = library)
+        if len(files) > 0:
+            serializers = [FileSerializer(file) for file in files]
+            files_data = [serializer.data for serializer in serializers]
+            data["files"] = files_data
+        else:
+            data["files"] = []
+        likes_objs = Like.objects.filter(library = library)
+        downloads = DownloadLot.objects.filter(library = library)
+        data["likes"], data["downloads"], data["username"] = len(likes_objs), len(downloads), library.user.username
+        return Response(data, status = status.HTTP_200_OK) 
     except Library.DoesNotExist:
         return Response({"error":"not found"}, status = status.HTTP_404_NOT_FOUND)
 
@@ -274,32 +289,63 @@ def get_library(request):
 @permission_classes([IsAuthenticated])
 def all_libraries(request):
     try:
+        page = int(request.data["page"])
+        if page < 1:
+            return Response({"error": "invalid page number"}, status = status.HTTP_303_SEE_OTHER)
+    except KeyError:
+        page = 1
+    try:
         visitor = Visitor.objects.get(email = request.user.email)
         libraries = Library.objects.filter(user = visitor, finished = True)
+        pages = math.ceil(len(libraries)/10)
+        libraries = libraries[(page-1)*10:page*10]
         # filtered_libraries = [library for library in libraries if library.finished]
         if len(libraries) == 0:
             return Response({"error":"no library found"}, status = status.HTTP_404_NOT_FOUND)
         serializers = [LibrarySerializer(library) for library in libraries]
         _libraries = [serializer.data for serializer in serializers]
-        print (_libraries)
         for data in _libraries:
-            print (data)
             likes_objs = Like.objects.filter(library = data["hid"])
             downloads = DownloadLot.objects.filter(library = data["hid"])
             data["likes"], data["downloads"] = len(likes_objs), len(downloads)
-        return Response(_libraries, status = status.HTTP_200_OK)
+        to_send = {"data": _libraries, "page": page, "total_pages": pages, "number": len(_libraries)}
+        return Response(to_send, status = status.HTTP_200_OK)
     except Visitor.DoesNotExist:
         return Response({"error":"not found"}, status = status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def all_library_groups(request):
+    try:
+        page = int(request.data["page"])
+        if page < 1:
+            return Response({"error": "invalid page number"}, status = status.HTTP_303_SEE_OTHER)
+    except KeyError:
+        page = 1
     visitor = Visitor.objects.get(email = request.user.email)
     library_groups = LibraryGroup.objects.filter(user = visitor)
+    pages = math.ceil(len(library_groups)/10)
+    library_groups = library_groups[(page-1)*10:page*10]
     if len(library_groups) == 0:
             return Response({"error":"no library group found"}, status = status.HTTP_404_NOT_FOUND)
     serializers = [LibraryGroupSerializer(library_group) for library_group in library_groups]
-    return Response([serializer.data for serializer in serializers], status = status.HTTP_200_OK)
+    data = [serializer.data for serializer in serializers]
+    for group in data:
+        libraries = []
+        for library in group["libraries"]:
+            try:
+                library_obj = Library.objects.get(hid = library)
+                serializer = LibrarySerializer(library_obj)
+                library_data = serializer.data
+                likes_objs = Like.objects.filter(library = data["hid"])
+                downloads = DownloadLot.objects.filter(library = data["hid"])
+                library_data["likes"], library_data["downloads"] = len(likes_objs), len(download)
+                libraries.append(library_data)
+            except Library.DoesNotExist:
+                pass
+        group["libraries"] = libraries
+    to_send = {"data": data, "page": page, "total_pages": pages, "number": len(data)}
+    return Response(to_send, status = status.HTTP_200_OK)
 
 @api_view(['GET', 'POST'])
 def get_library_group(request):
@@ -309,7 +355,21 @@ def get_library_group(request):
     except LibraryGroup.DoesNotExist:
         return Response({"error": "no library group found"}, status = status.HTTP_404_NOT_FOUND)
     serializer = LibraryGroupSerializer(library_group)
-    return Response(serializer.data, status = status.HTTP_200_OK)
+    data = serializer.data
+    libraries = []
+    for library in data["libraries"]:
+        try:
+            library_obj = Library.objects.get(hid = library)
+            serializer = LibrarySerializer(library_obj)
+            library_data = serializer.data 
+            likes_objs = Like.objects.filter(library = library_data["hid"])
+            downloads = DownloadLot.objects.filter(library = library_data["hid"])
+            library_data["likes"], library_data["downloads"] = len(likes_objs), len(download)
+            libraries.append(library_data)
+        except Library.DoesNotExist:
+            pass 
+    data["libraries"] = libraries
+    return Response(data, status = status.HTTP_200_OK)
 
 @api_view(['GET', 'POST'])
 def all_files(request):
@@ -383,55 +443,46 @@ def download_files(request):
 def search(request):
     ix = open_dir("index")
     query = request.data["query"]
-    tags = request.data["tags"]
+    try:
+        page = request.data["page"]
+    except KeyError:
+        page = 1
     if query is not None and query != "":
         title_parser = QueryParser("title", schema=ix.schema)
         descri_parser = QueryParser("description", schema=ix.schema)
+        tags_parser = QueryParser("tags", schema = ix.schema)
         try:
             title_qry = title_parser.parse(query)
             descri_qry = descri_parser.parse(query)
+            tags_qry = tags_parser.parse(query)
         except:
             return Response([])
         searcher = ix.searcher()
-        results = searcher.search(title_qry, limit = 20)
-        descrip_results = searcher.search(descri_qry, limit = 20)
+        results = searcher.search(title_qry)
+        descrip_results = searcher.search(descri_qry)
+        tags_results = searcher.search(tags_qry)
         results.upgrade_and_extend(descrip_results)
-    result_objs = [] 
-    max_whoosh_score  = 0
-    max_tag_score = 0
+        results.upgrade_and_extend(tags_results)
+    if results.has_exact_length():
+        len_results = len(results)
+    else:
+        len_results = results.estimated_length()
+    total_page = math.ceil(len_results/10)
+    results = results[(page-1)*10:page*10]
+    data = []
     for result in results:
         try:
-            obj = Library.objects.get(hid = result["hid"])
-            tag_score = 0
-            if obj.tags == None:
-                obj_tags = []
-            else:
-                obj_tags = obj.tags
-            for obj_tag in obj_tags:
-                if obj_tag in tags:
-                    tag_score += 1
-            if tag_score > max_tag_score:
-                max_tag_score = tag_score
-            if result.score > max_whoosh_score:
-                max_whoosh_score = result.score
-            result_objs.append((result.score, tag_score, obj))
+            library = Library.objects.get(hid = result["hid"])
+            serializer = LibrarySerializer(library)
+            library_data = serializer.data
+            likes_objs = Like.objects.filter(library = library)
+            downloads = DownloadLot.objects.filter(library = library)
+            library_data["likes"], library_data["downloads"] = len(likes_objs), len(downloads)
+            data.append(library_data)
         except Library.DoesNotExist:
-            pass 
-    if max_tag_score > 0:
-        whoosh_per_tag = max_whoosh_score/max_tag_score
-    else:
-        whoosh_per_tag = 0
-    tuple_data = [(whoosh_score+tag_score*whoosh_per_tag, LibrarySerializer(result_obj)) for whoosh_score, tag_score, result_obj in result_objs]
-    tuple_data.sort(key = lambda x: x[0], reverse = True) 
-    response = [serializer.data for score, serializer in tuple_data]
-    new_response = []
-    for data in response:
-        if data not in new_response:
-            likes_objs = Like.objects.filter(library = data["hid"])
-            downloads = DownloadLot.objects.filter(library = data["hid"])
-            data["likes"], data["downloads"] = len(likes_objs), len(downloads)
-            new_response.append(data)
-    return Response(new_response, status = status.HTTP_200_OK)
+            pass
+    response = {"data": data, "page": page, "total_page": total_page, "number": len(data)}
+    return Response(response, status = status.HTTP_200_OK)
 
 @api_view(['GET', 'POST'])
 def auth_token(request):
@@ -489,7 +540,7 @@ def string_to_library(request):
             data["files"] = []
         likes_objs = Like.objects.filter(library = library)
         downloads = DownloadLot.objects.filter(library = library)
-        data["likes"], data["downloads"] = len(likes_objs), len(downloads)
+        data["likes"], data["downloads"], data["username"] = len(likes_objs), len(downloads), library.user.username
         return Response(data, status = status.HTTP_200_OK)
     except Library.DoesNotExist:
         return Response({"error": "library not found"}, status = status.HTTP_404_NOT_FOUND)

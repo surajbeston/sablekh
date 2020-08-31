@@ -61,8 +61,17 @@ export default {
         heading_clicked(link_str){
             window.location.href = "library/" + link_str
         },
-        implicit_data(){
-          return {"Authorization": "Token " + this.id, "site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
+    implicit_data(){
+        var session_key = window.localStorage.getItem('session_key')
+        if (!session_key){
+            var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+                session_key = ""
+                for (var i = 0; i<50; i++) {
+                    session_key += letters.charAt(Math.round(Math.random()*letters.length))
+            }
+            window.localStorage.setItem("session_key", session_key)
+        }
+        return {"site": document.referrer+"---"+session_key, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
         }
     },
     computed: {

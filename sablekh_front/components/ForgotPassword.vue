@@ -69,9 +69,18 @@ export default {
       const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
       return re.test(String(this.email).toLowerCase());
     },
-        implicit_data(){
-          return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
-      },
+    implicit_data(){
+    var session_key = window.localStorage.getItem('session_key')
+        if (!session_key){
+            var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+                session_key = ""
+                for (var i = 0; i<50; i++) {
+                    session_key += letters.charAt(Math.round(Math.random()*letters.length))
+            }
+            window.localStorage.setItem("session_key", session_key)
+        }
+        return {"site": document.referrer+"---"+session_key, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
+        },
       show_success(successTxt){
         this.hasError = false
         this.hasSuccess = true
