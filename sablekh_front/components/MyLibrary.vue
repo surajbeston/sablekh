@@ -111,7 +111,7 @@ export default {
         // scroll event 
 
         window.addEventListener("scroll" ,(e) => {
-            if (document.getElementsByClassName("my-library-wrapper1")[0].scrollHeight - window.scrollY < 500 ) {
+            if (document.getElementsByClassName("my-library-wrapper1")[0].scrollHeight - window.scrollY < 1000 ) {
                 if (this.page < this.total_page && !this.is_axios) {
                     this.is_axios = true
                     axios({
@@ -123,10 +123,11 @@ export default {
                         }
                     })
                     .then(res => {
-                        this.libraries.concat(res.data.data)
+                        this.libraries = this.libraries.concat(res.data.data)
                         this.total_page = res.data.total_pages
                         this.page = res.data.page
                         this.is_axios = false
+                        console.log("here")
                     })
                     .catch(e => {
                         // if (e.response.status == 404){

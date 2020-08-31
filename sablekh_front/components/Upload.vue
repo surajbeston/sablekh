@@ -56,6 +56,10 @@
                             <button class="btn no-btn" @click="no_button">No</button>
                         </div>
                     </div>
+                    <div class="searchable">
+                        <input type="checkbox" v-model="searchable" id="searchable">
+                        <label for="searchable">Make it searchable</label>
+                    </div>
                     <button style="margin-top: 10px;" class="btn" @click = "final_finish">{{finish}}</button>
                     <button v-show="is_owner && lib_str" class="btn delete-btn" @click="delete_button">Delete</button>
                 </div>                
@@ -83,6 +87,7 @@ import Mime from 'mime-types'
 export default {
     data() {
         return{
+            searchable: true,
             is_owner: false,
             wants_to_delete: false,
             title: "",
@@ -559,6 +564,21 @@ export default {
 </script>
 
 <style scoped>
+
+
+    .searchable {
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 140%;
+       text-align: center;
+       margin: 2vh 0;
+    }
+    .searchable > input {
+        width: 15px;
+        height: 15px;
+        cursor: pointer;
+    }
+
+
     .upload-component {
         background-color: rgb(254, 227, 200);
         color:rgb(51, 47, 43);

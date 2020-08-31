@@ -95,6 +95,7 @@ export default {
             is_deleting: false,
             hid: "",
             tags: [],
+            is_axios: false,
         }
     },
 
@@ -252,6 +253,8 @@ export default {
             }
         })
         .then(res => {
+            this.page = res.data.page
+            this.total_page = res.data.total_pages
             this.available_libs = res.data.data
             this.selected_libs = res.data.data
             this.fuse = new Fuse(this.available_libs, {
@@ -262,6 +265,40 @@ export default {
 
         })
         .catch(err => console.log(err))
+
+
+        window.addEventListener("scroll" ,(e) => {
+            if (document.getElementsByClassName("group-main")[0].scrollHeight - window.scrollY < 1000 ) {
+                if (this.page < this.total_page && !this.is_axios) {
+                    this.is_axios = true
+                    axios({
+                        url: this.url+ 'all-libraries',
+                        method: 'post',
+                        headers: {
+                                Authorization: "Token " + this.token, 
+                                ...this.implicit_data()
+                            },
+                        data: {
+                            page: this.page + 1
+                        }
+                    })
+                    .then(res => {
+                        this.available_libs = this.available_libs.concat(res.data.data)
+                        this.selected_libs = this.selected_libs.concat(res.data.data)
+                        this.total_page = res.data.total_pages
+                        this.page = res.data.page
+                        this.is_axios = false
+                    })
+                    .catch(e => {
+                        // if (e.response.status == 404){
+                        //     this.no_library = true
+                        //     this.loader_on = false
+                        // }
+                        
+                    })
+                }
+            }
+        })
 
 
     }
@@ -577,6 +614,16 @@ label {
 }
 
 @media screen and (max-width: 500px){
+
+    .each-lib {
+        height: 100px;
+    }
+    .lib-name {
+        font-size: 15px;
+    }
+
+
+
     .likes,
     .downloads {
         width: 100%;
@@ -594,7 +641,7 @@ label {
         font-size: 150%;
     }
     .lib-img {
-        display: none;
+        height: 60px;
     }
     .lib-info {
         width: 85%;

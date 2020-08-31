@@ -2,7 +2,7 @@
     <div class="my-library-component mxw-100-mnh-100" :class = "{invisible : !authenticate}">
         <Header />
         <div class="my-library-wrapper1">
-            <button @click="create_clicked" class="btn create-btn">Create</button>
+            <button @click="create_clicked" class="btn create-btn">New</button>
             <img class="top-img" src="@/assets/library/library-top.png" alt="vector img">
             <h1 class="your-library">
                 Your Groups
@@ -108,7 +108,7 @@ export default {
 
 
         window.addEventListener("scroll" ,(e) => {
-            if (document.getElementsByClassName("my-library-wrapper1")[0].scrollHeight - window.scrollY < 500 ) {
+            if (document.getElementsByClassName("my-library-wrapper1")[0].scrollHeight - window.scrollY < 1000 ) {
                 if (this.page < this.total_page && !this.is_axios) {
                     this.is_axios = true
                     axios({
@@ -120,7 +120,7 @@ export default {
                         }
                     })
                     .then(res => {
-                        this.groups.concat(res.data.data)
+                        this.groups = this.groups.concat(res.data.data)
                         this.total_page = res.data.total_pages
                         this.page = res.data.page
                         this.is_axios = false
@@ -144,6 +144,7 @@ export default {
 <style scoped>
 
     .create-btn {
+        font-family: 'Comfortaa', cursive;
         font-size: 20px;
         border-radius: 5px;
         padding: 10px 30px;
