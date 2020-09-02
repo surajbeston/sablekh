@@ -12,7 +12,7 @@
             </p>
             <span class="loader" v-show="loader_on"></span>
             <div v-show="!loader_on">
-                <h2  v-show="no_library" class = "no_library">No groups found, please upload to find it here.</h2>
+                <h2  v-show="no_library" class = "no_library">{{ err_content }}</h2>
                 <div class="ml-libraries"  v-show="!no_library"> 
                     <div class="each-library" :key="group.hid" v-for="group in up_groups">
                         <button @click="edit_clicked(group)" class="btn edit-btn">
@@ -42,6 +42,7 @@ export default {
             email: "dummy@sablekh.com",
             id: "",
             no_library: false,
+            err_content: "",
             loader_on: false,
             page: 0,
             total_page: 0,
@@ -62,7 +63,8 @@ export default {
         },
         implicit_data(){
           return {"Authorization": "Token " + this.id, "site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
-        }
+        },
+        
     },
     computed: {
         authenticate(){
@@ -103,6 +105,12 @@ export default {
            if (e.response.status == 404){
             this.no_library = true
             this.loader_on = false
+            this.err_content = "No groups found, please upload to find it here."
+           }
+           else if (e.response.status == 500){
+                this.no_library = true
+                this.loader_on = false
+                this.err_content = "Unable to load data. Server Error."
            }
        })
 

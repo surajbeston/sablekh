@@ -5,6 +5,7 @@
            <img class="top-img" src="@/assets/library/library-top.png" alt="image"> 
            <span class="username">{{username}}</span>
            <span class="create-group">{{create_or_update}} your Group</span>
+           <div id = "errorBox" v-show="hasError" ><p id = "errorTxt"> {{error}}<img src = "@/assets/cancel.png" @click="hasError =!hasError" class = "cancelError"></p></div>
            <div class="input-div">
                <label for="name">Name</label>
                <input type="text" v-model="name" id="name" autofocus>
@@ -12,7 +13,7 @@
                <textarea v-model="description" id="description" rows="7 "></textarea>
            </div>
            <div class="search-section">
-               <input type="text" v-model="search" id="search" placeholder="search for library" @keyup.enter="search_clicked">
+               <input type="text" v-model="search" id="search" placeholder="Search for Library" @keyup.enter="search_clicked">
                <img src="@/assets/search/search.png" alt="icon" class="search-icon" @click="search_clicked">
            </div>
 
@@ -96,6 +97,8 @@ export default {
             hid: "",
             tags: [],
             is_axios: false,
+            hasError: false,
+            error: "Aejhg kj kug"
         }
     },
 
@@ -127,31 +130,32 @@ export default {
             window.scrollTo(0, 0)
             this.is_deleting = true;
         },
-
         create_clicked(){
+            if (this.check_len) this.displayError("Please add some library to create a group.")
+            else if (!this.check_name_des) this.displayError("Please add name and description to create a group.")
+            else{
+                axios({
+                    url: this.url + "library-group",
+                    method: this.give_method,
+                    headers: {
+                        Authorization: "Token " + this.token, 
+                        ...this.implicit_data()
+                    },
+                    data: {
+                        hid: this.hid,
+                        title: this.name,
+                        description: this.description,
+                        tags: this.tags,
+                        libraries: this.checked_libs.join(",")
 
-            axios({
-                url: this.url + "library-group",
-                method: this.give_method,
-                headers: {
-                    Authorization: "Token " + this.token, 
-                    ...this.implicit_data()
-                },
-                data: {
-                    hid: this.hid,
-                    title: this.name,
-                    description: this.description,
-                    tags: this.tags,
-                    libraries: this.checked_libs.join(",")
-
-                }
-            })
-            .then(res => {
-                window.location.href = "/create-group/" + res.data.link_str;
-            })
-            .catch(e => console.log(e))
+                    }
+                })
+                .then(res => {
+                    window.location.href = "/create-group/" + res.data.link_str;
+                })
+                .catch(e => console.log(e))
+           }
         },
-
         checkbox_clicked(id) {
             var filter_list = this.checked_libs.filter(e => e === id)
             if (filter_list.length === 0) {
@@ -171,12 +175,11 @@ export default {
             })
         },
         show_tick(id){
-            return this.checked_libs.includes(id)
+            return this.checked_libs.includes(id) 
         },
         implicit_data(){
           return {"site": document.referrer, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
         },
-
         check_lib(){
             if (this.$route.params.id) {
                 axios({
@@ -207,29 +210,34 @@ export default {
                     alert("library not available")
                 })
             }
-        }
+        },
+        displayError(errorText){
+                this.hasError = true
+                this.error = errorText
+                document.body.scrollTop = 0
+                document.documentElement.scrollTop = 0
+        },
     },
 
     computed: {
-
         create_or_update(){
             return (this.show_delete) ? "Update" : "Create";
         },
-
         show_delete(){
             return (this.$route.params.id) ? true : false;
         },
-
         give_method() {
             if (this.$route.params.id) {
                 return "patch"
             }
             return "post"
         },
-        
         check_len() {
             return this.available_libs.length > 0
-        } 
+        },
+        check_name_des(){
+            return this.name.length > 0 && this.description.length > 0
+        }
     },
 
     mounted() {
@@ -408,6 +416,10 @@ export default {
     font-family: 'Comfortaa', cursive;
 } 
 
+    #name #description{
+        font-family: 'Ubuntu', sans-serif;
+    }
+
 
 .lib-info {
     width: 75%;
@@ -422,6 +434,31 @@ export default {
     align-self: center;
 }
 
+
+    #errorBox{
+        background-color: rgba(255, 0, 0, 0.4);
+        color: rgb(51, 47, 43);
+        border: 1px black solid;
+        border-radius: 5px;
+        padding : 1%;
+        font-size: 110%;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: bolder;
+        animation-name: fadein;
+        animation: fadein 1s;
+    }
+
+    @keyframes fadein {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+
+    .cancelError{
+        cursor: pointer;
+        right: 0;
+        float: right;
+        margin-left: 10px;
+    }
 
 .each1 {
     background-color: white;
@@ -449,7 +486,7 @@ export default {
 }
 
 .av-lib {
-    font-size: 150%;
+    font-size: 200%;
     font-weight: bold;
     letter-spacing: 1px;
     margin: 5vh 0;
@@ -647,6 +684,11 @@ label {
     }
     .search-icon {
         width: 25px;
+    }
+
+    #errorBox{
+        margin-left: 5%;
+        margin-right: 5%;
     }
 
 }

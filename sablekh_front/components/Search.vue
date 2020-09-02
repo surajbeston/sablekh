@@ -97,6 +97,18 @@ export default {
         }
     },
 
+    head(){
+        return {
+            title: "Sablekh",
+            meta: [
+                {
+                    hid: "description",
+                    name: "description",
+                    content: "Sablekh is a platform to share small files with the world."       
+                }
+            ]
+        }
+    },
     methods: {
         add_to_localstorage(name, data) {
             let s = false

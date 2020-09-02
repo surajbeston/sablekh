@@ -5,7 +5,7 @@
         <Footer />   
     </div> 
 </template>
-
+  
 <script>
 import axios from "axios"
 
@@ -13,7 +13,7 @@ export default {
   async asyncData({params}){
     console.log("this")
     var data =  axios({
-      url: "http://localhost:8000" + "/link",
+      url: "http://104.248.39.254" + "/link",
       method: "post",
       headers: {site: "", referrer: "", timetaken : new Date().getTime(), link: ""},
       data: {link_str: params.id}

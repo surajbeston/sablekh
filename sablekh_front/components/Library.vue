@@ -12,18 +12,18 @@
           <h1>Library not found 404</h1>
         </div>
         <div v-else class="library-wrapper1">
-          <img class="book-img" :src="library_thumbnail" alt="book" />
-          <span class="username">{{username}}</span>
-          <h1 class="library-title">{{library_name}}</h1>
-          <p class="library-desc">{{library_desc}}</p>
-          <div class="lib-tags" v-bind:key="tag" v-for="tag in library_tags">
+          <img class="book-img" :src="data.library_thumbnail" alt="book" />
+          <span class="username"><b>From: </b>{{data.username}}</span>
+          <h1 class="library-title">{{data.library_name}}</h1>
+          <p class="library-desc">{{data.library_desc}}</p>
+          <div class="lib-tags" v-bind:key="tag" v-for="tag in data.library_tags">
             <span class="each-tag">{{tag}}</span>
           </div>
           <div id = "successBox" v-show="hasSuccess" ><p id = "successTxt"> {{success}}<img src = "@/assets/cancel.png" @click="hasSuccess =!hasSuccess" class = "cancelSuccess"></p></div>
               <div id = "errorBox" v-show="hasError" ><p id = "errorTxt"> {{error}}<img src = "@/assets/cancel.png" @click="hasError =!hasError" class = "cancelError"></p></div>
           <div class="like-div">
             <div class="like1">
-              <span class="like-span">{{likes}}</span>
+              <span class="like-span">{{data.likes}}</span>
               <img
                 @click="like_clicked"
                 v-show="!is_liked"
@@ -34,15 +34,15 @@
               <img v-show="is_liked" src="@/assets/like1.png" alt="like" class="blu-like" />
             </div>
             <div class="like2">
-              <span class="like-span">{{downloads}}</span>
+              <span class="like-span">{{data.downloads}}</span>
               <img src="@/assets/download1.png" alt="download img" class="download-img">
             </div>
-            <div class="like3" @click = "copy(library_name)">
+            <div class="like3" @click = "copy(data.library_name)">
                 <img src="@/assets/copy.png" alt="share img" class="copy-img">
             </div> 
           </div>
           <div class="files-wrapper" v-show = "!loader_on">
-            <div class="fw-each" :key="file.hid" v-for="file of files">
+            <div class="fw-each" :key="file.hid" v-for="file of data.files">
               <div @click="download_middle(file.hid)" class="fw1"> 
                 <img src="@/assets/filenames/pdf.png" alt="png" />
                 <h3>{{file.title}}</h3>
@@ -85,20 +85,12 @@ export default {
 
   data() {
     return {
-      username: "",
       server_address: "http://104.248.39.254",
-      library_name: "",
-      library_username: "",
-      library_desc: "",
       library_image_link: "https://pngimg.com/uploads/book/book_PNG51074.png",
       library_tags: [],
       contents: [],
       selected_file: [],
-      files: [],
       refined_files: [],
-      hid: "",
-      library_thumbnail: "https://api.sablekh.com/thumbnails/default.jpg",
-      likes: 0,
       is_liked: false,
       downloading: false,
       progress: 0,
@@ -106,7 +98,6 @@ export default {
       changing: false,
       token: "",
       authenticated: false,
-      downloads: 0,
       is_in_user_library: false,
       user_libraries: [],
       loader_on: false,
@@ -117,15 +108,44 @@ export default {
       not_found: false
     };
   },
-
+    head() {
+      return {
+        title: "Sablekh: "+this.data.library_name,
+        meta: [
+          {
+            hid: 'description',
+            name: 'description',
+            content: this.data.library_desc
+          },
+          {
+            hid: 'og:image',
+            property: 'og:image',
+            content: this.data.library_thumbnail
+          },
+          {
+            hid: 'og:type',
+            property: 'og:type',
+            content: 'book'
+          },
+          {
+            hid: 'og:title',
+            property: 'og:title',
+            content: "Sablekh: "+this.data.library_name
+          },
+          {
+            hid: 'og:description',
+            property: 'og:description',
+            content: this.data.library_desc
+          }
+        ]
+      }
+    },
   methods: {
     library_stuffs(){
       // this.loader_on = true
-
       if(window.localStorage.getItem("username") === this.library_username) {
         this.is_in_user_library = true
       }
-
     },
     link_changed(){
       if (this.new_link.length < 3) this.show_error("At least 3 letters required.")
@@ -167,7 +187,7 @@ export default {
           Authorization: "Token " + this.token,
         },
         data: {
-          library: this.hid,
+          library: this.data.hid,
         },
       })
       .then((res) => {
@@ -188,7 +208,7 @@ export default {
         },
       })
         .then((res) => {
-          this.downloads= res.data.downloads;
+          this.data.downloads= res.data.downloads;
         })
         .catch((e) => {
         });
@@ -203,7 +223,7 @@ export default {
         },
       })
         .then((res) => {
-          this.likes = res.data.likes;
+          this.data.likes = res.data.likes;
         })
         .catch((e) => {
           //.log(e);
@@ -241,14 +261,14 @@ export default {
 
     download_all_clicked() {
       
-      if (this.files.length == 0 ) {
+      if (this.data.files.length == 0 ) {
         return null
       }
 
       this.downloading = true;
       this.progress = 0
 
-      let a = this.files.map((e) => e.hid);
+      let a = this.data.files.map((e) => e.hid);
 
       this.download_middle(a.join(","));
 
@@ -286,7 +306,7 @@ export default {
           method: "post",
           data: {
             hids: file_hids,
-            library: this.hid,
+            library: this.data.hid,
           },
           headers: this.implicit_data(),
         })
@@ -324,13 +344,14 @@ export default {
         this.downloading = false
         this.show_success("File/s downloaded.")
       }).catch(error => {
+        this.downloading = false
         this.show_error("Download interrupted. Try again.")
+
       })
-      
     },
 
     clean_title() {
-      this.files.map((each) => {
+      this.data.files.map((each) => {
         let b = each;
         let e = each.title.split(".");
         let a = e[0];
@@ -396,39 +417,7 @@ export default {
     if (this.token){
       this.authenticated = true
     }
-    axios({
-      url: `${this.server_address}/link`,
-      method: "post",
-      data: {
-        link_str: this.$route.params.id,
-      },
-      headers: this.implicit_data(),
-    })
-      .then((res) => {
-        console.log(res.data)
-        this.hid = res.data.hid;
-        this.library_name = res.data.title;
-        this.library_desc = res.data.description;
-         this.library_thumbnail = res.data.thumbnail
-         this.library_tags = res.data.tags
-         this.files = res.data.files
-         this.likes = res.data.likes
-         this.downloads = res.data.downloads
-         this.library_username = res.data.username
-         this.username = res.data.username
-        // this.get_like()
-        // this.get_downloads()
-        if (this.token) {
-          this.check_like()
-          this.library_stuffs()
-        }
-      })
-      .catch((e) => {
-        if (e.response.status == 404){
-          this.loader_on = false
-          this.not_found = true
-        }
-      });
+
   },
 };
 </script>

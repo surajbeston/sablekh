@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 import random
 from string import digits
-from .models import Library, File, DownloadLot, Like, Visitor, LibraryGroup
+from .models import Library, File, DownloadLot, Like, Visitor, LibraryGroup, FavouriteLibrary, FavouriteLibraryGroup
 from datetime import datetime
 from hashlib import sha224
 
@@ -18,7 +18,8 @@ class VisitorSerializer(serializers.ModelSerializer):
         }
 
     def create(self, data):
-        return Visitor.objects.create(hid= data["hid"], username = data["username"], email = data["email"], password = make_password(data["password"]))
+        last_user = User.objects.all().last()
+        return Visitor.objects.create(id = last_user.id + 1 ,hid= data["hid"], username = data["username"], email = data["email"], password = make_password(data["password"]))
 
 class LibrarySerializer(serializers.ModelSerializer):
     class Meta:
@@ -62,3 +63,19 @@ class LibraryGroupSerializer(serializers.ModelSerializer):
 
     def create(self, data):
         return LibraryGroup.objects.create(**data)
+
+class FavouriteLibraryGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FavouriteLibraryGroup
+        exclude = ("user",)
+
+    def create(self, data):
+        return FavouriteLibraryGroup.objects.create(**data)
+
+class FavouriteLibrarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FavouriteLibrary
+        exclude = ("user",)
+
+    def create(self, data):
+        return FavouriteLibrary.objects.create(**data)

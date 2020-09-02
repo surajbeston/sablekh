@@ -16,9 +16,11 @@ from pytz import timezone
 import time
 
 User._meta.get_field('email')._unique = True
+User._meta.get_field('username')._primary = True
 
 class Visitor(User):
     hid = models.CharField(max_length = 56, primary_key= True)
+
 
 class Library(models.Model):
     hid = models.CharField(max_length = 56, primary_key= True)
@@ -50,6 +52,23 @@ class LibraryGroup(models.Model):
 
     class Meta:
         order_with_respect_to = 'datetime'
+
+class FavouriteLibrary(models.Model):
+    user =  models.ForeignKey(Visitor, on_delete= models.CASCADE)
+    library = models.ForeignKey(Library, on_delete= models.CASCADE)
+    datetime = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        order_with_respect_to = 'datetime'
+
+class FavouriteLibraryGroup(models.Model):
+    user =  models.ForeignKey(Visitor, on_delete= models.CASCADE)
+    library_group = models.ForeignKey(LibraryGroup, on_delete= models.CASCADE)
+    datetime = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        order_with_respect_to = 'datetime'
+
 
 class File(models.Model):
     hid = models.CharField(max_length = 56, primary_key= True)
@@ -133,16 +152,28 @@ def update_index(sender, instance, created, **kwargs):
                 writer.add_document(hid = instance.hid, title=instance.title, description=instance.description, tags=str_tags)
                 writer.commit()
             else:
-                str_tags = ",".join([tag for tag in tags])
+                str_tags = ",".join([tag for tag in instance.tags])
                 writer.update_document(hid = instance.hid, title=instance.title, description=instance.description, tags=str_tags)
                 writer.commit()
         else:
             ix.delete_by_term("hid", instance.hid)
 
-signals.post_save.connect(update_index, sender=Library)
+def update_id(instance, sender, **kwargs):
+    last_instance = sender.objects.all().last()
+    if last_instance is not None:
+        instance.id = last_instance.id + 1
+
+signals.post_save.connect(update_index, sender = Library)
+
+signals.pre_save.connect(update_id, sender = Tag)
+signals.pre_save.connect(update_id, sender = DownloadLot)
+signals.pre_save.connect(update_id, sender = Like)
+signals.pre_save.connect(update_id, sender = FavouriteLibrary)
+signals.pre_save.connect(update_id, sender = FavouriteLibraryGroup)
 
 def longer_token(sender, *args, **kwargs):
     if sender.__name__ == "Token":
         sender._meta.get_field("key").max_length = 70
 
 class_prepared.connect(longer_token)
+

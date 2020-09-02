@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .serializers import VisitorSerializer, LibrarySerializer, FileSerializer, LikeSerializer, LibraryGroupSerializer
+from .serializers import VisitorSerializer, LibrarySerializer, FileSerializer, LikeSerializer, LibraryGroupSerializer, FavouriteLibraryGroupSerializer, FavouriteLibrarySerializer
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework import generics
@@ -11,7 +11,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes 
 from rest_framework.exceptions import ParseError 
 from rest_framework.parsers import FileUploadParser
-from .models import Library, File, DownloadLot, Like, Visitor, Tag, PwResetToken, LibraryGroup
+from .models import Library, File, DownloadLot, Like, Visitor, Tag, PwResetToken, LibraryGroup, FavouriteLibrary, FavouriteLibraryGroup
 import hashlib
 from datetime import datetime
 import mimetypes
@@ -229,7 +229,7 @@ class LibraryGroupView(APIView):
             return Response(serializer.data, status = status.HTTP_201_CREATED)
         return Response(serializer.errors, status = status.HTTP_303_SEE_OTHER)
 
-    def patch(self, request):
+    def put(self, request):
         data = request.data
         try:
             library_group = LibraryGroup.objects.get(hid = data["hid"])
@@ -263,6 +263,121 @@ class LibraryGroupView(APIView):
         library_group.delete()
         data_to_send["deleted"] = True
         return Response(data_to_send, status = status.HTTP_200_OK)
+
+class FavouriteLibraryView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        try:
+            page = request.data["page"]
+        except KeyError:
+            page = 1
+        user = Visitor.objects.get(email=request.user.email)
+        all_favourites = FavouriteLibrary.objects.filter(user = user)[(page-1)*10:page*10]
+        total_page = math.ceil(len(all_favourites)/10)
+        data = []
+        for favourite in all_favourites:
+            library_serializer = LibrarySerializer(favourite.library)
+            favourite_serializer = FavouriteLibrarySerializer(favourite)
+            each = favourite_serializer.data
+            each["library_group"] = library_serializer.data
+            data.append(each)
+        response = {"data": data,"page": page,"total_page": total_page, "number": len(data)}
+        return Response(response, status = status.HTTP_200_OK)
+
+    def put(self, request):
+        data = request.data 
+        try:
+            library = Library.objects.get(hid = data["hid"])
+        except Library.DoesNotExist:
+            return Response({"error":"library group not found"}, status = status.HTTP_404_NOT_FOUND)
+        user = Visitor.objects.get(email=request.user.email)
+        all_favourites = FavouriteLibrary.objects.filter(user = user)
+        all_favourite_libraries = [favourite.library for favourite in all_favourites]
+        if library not in all_favourite_libraries:
+            favourite = FavouriteLibrary(user = user, library= library)
+            favourite.save()
+        else:
+            favourite = FavouriteLibrary.objects.get(user = user, library = library)
+        serializer = FavouriteLibrarySerializer(favourite)
+        data = serializer.data
+        data["created"] = True
+        return Response(data, status = status.HTTP_201_CREATED)
+
+    def delete(self, request):
+        data = request.data
+        try:
+            library = Library.objects.get(hid = data["hid"])
+        except Library.DoesNotExist:
+            return Response({"error":"library not found"}, status = status.HTTP_404_NOT_FOUND)
+        user = Visitor.objects.get(email=request.user.email)
+        try:
+            favourite = FavouriteLibrary.objects.get(user = user, library = library)
+        except FavouriteLibrary.DoesNotExist:
+            return Response({"error": "favourite library not found"}, status = status.HTTP_404_NOT_FOUND)
+        serializer = FavouriteLibrarySerializer(favourite)
+        data = serializer.data
+        favourite.delete()
+        data["deleted"] = True
+        return Response(data, status = status.HTTP_200_OK)
+
+class FavouriteLibraryGroupView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        try:
+            page = request.data["page"]
+        except KeyError:
+            page = 1
+        user = Visitor.objects.get(email=request.user.email)
+        all_favourites = FavouriteLibraryGroup.objects.filter(user = user)[(page-1)*10:page*10]
+        total_page = math.ceil(len(all_favourites)/10)
+        data = []
+        for favourite in all_favourites:
+            library_serializer = LibraryGroupSerializer(favourite.library_group)
+            favourite_serializer = FavouriteLibraryGroupSerializer(favourite)
+            each = favourite_serializer.data
+            each["library_group"] = library_serializer.data
+            data.append(each)
+        response = {"data": data,"page": page,"total_page": total_page, "number": len(data)}
+        return Response(response, status = status.HTTP_200_OK)
+
+    def put(self, request):
+        data = request.data 
+        try:
+            library_group = LibraryGroup.objects.get(hid = data["hid"])
+        except LibraryGroup.DoesNotExist:
+            return Response({"error":"library not found"}, status = status.HTTP_404_NOT_FOUND)
+        user = Visitor.objects.get(email=request.user.email)
+        all_favourites = FavouriteLibraryGroup.objects.filter(user = user)
+        all_favourite_library_groups = [favourite.library_group for favourite in all_favourites]
+        if library_group not in all_favourite_library_groups:
+            favourite = FavouriteLibraryGroup(user = user, library_group= library_group)
+            favourite.save()
+        else:
+            favourite = FavouriteLibraryGroup.objects.get(user = user, library_group = library_group)
+        serializer = FavouriteLibraryGroupSerializer(favourite)
+        data = serializer.data
+        data["created"] = True
+        return Response(data, status = status.HTTP_201_CREATED)
+
+    def delete(self, request):
+        data = request.data
+        try:
+            library_group = LibraryGroup.objects.get(hid = data["hid"])
+        except LibraryGroup.DoesNotExist:
+            return Response({"error":"library group not found"}, status = status.HTTP_404_NOT_FOUND)
+        user = Visitor.objects.get(email=request.user.email)
+        try:
+            favourite = FavouriteLibraryGroup.objects.get(user = user, library_group = library_group)
+        except FavouriteLibraryGroup.DoesNotExist:
+            return Response({"error": "favourite library group not found"}, status = status.HTTP_404_NOT_FOUND)
+        serializer = FavouriteLibraryGroupSerializer(favourite)
+        data = serializer.data
+        favourite.delete()
+        data["deleted"] = True
+        return Response(data, status = status.HTTP_200_OK)
+
 
 @api_view(['GET', 'POST']) 
 def get_library(request):
@@ -337,9 +452,9 @@ def all_library_groups(request):
                 library_obj = Library.objects.get(hid = library)
                 serializer = LibrarySerializer(library_obj)
                 library_data = serializer.data
-                likes_objs = Like.objects.filter(library = data["hid"])
-                downloads = DownloadLot.objects.filter(library = data["hid"])
-                library_data["likes"], library_data["downloads"] = len(likes_objs), len(download)
+                likes_objs = Like.objects.filter(library = library_data["hid"])
+                downloads = DownloadLot.objects.filter(library = library_data["hid"])
+                library_data["likes"], library_data["downloads"] = len(likes_objs), len(downloads)
                 libraries.append(library_data)
             except Library.DoesNotExist:
                 pass
@@ -364,7 +479,7 @@ def get_library_group(request):
             library_data = serializer.data 
             likes_objs = Like.objects.filter(library = library_data["hid"])
             downloads = DownloadLot.objects.filter(library = library_data["hid"])
-            library_data["likes"], library_data["downloads"] = len(likes_objs), len(download)
+            library_data["likes"], library_data["downloads"] = len(likes_objs), len(downloads)
             libraries.append(library_data)
         except Library.DoesNotExist:
             pass 

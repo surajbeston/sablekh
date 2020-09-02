@@ -31,6 +31,19 @@ export default {
 
         }
     },
+
+    head(){
+        return {
+            title: "Sablekh: About",
+            meta: [
+                {
+                    hid: "description",
+                    name: "description",
+                    content: "Sablekh is a platform to share small files with the world."
+                }
+            ]
+        }
+    },
     methods: {
         mouse_anim(){
             this.which_book = !this.which_book
