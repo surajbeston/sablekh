@@ -84,6 +84,9 @@ export default {
         if (!this.id) { 
             window.location.replace("/login") 
         }
+
+        window.localStorage.removeItem('group-data')
+
         this.time = new Date().getTime()
         this.loader_on = true
         if (window.localStorage.getItem("email")) this.email = window.localStorage.getItem("email")

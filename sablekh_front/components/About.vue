@@ -145,5 +145,30 @@ export default {
 
 }
 
+@media screen and (max-width:900px){
+    /* .about-wrapper1 {
+        flex-direction: column;
+    } */
+    .about-info {
+        width: 100%;
+    }
+    .about-animations {
+        display: none;
+    }
+}
+
+
+@media screen and (max-width:500px) {
+    .about-info {
+        padding: 5px 0 0 5px;
+    }
+    .about-info > h2 {
+        font-size: 100%;
+    }
+    .about-info > p {
+        font-size: 80%;
+        line-height: 25px;
+    }
+}
 
 </style>
