@@ -20,7 +20,7 @@
 
             <div v-show="check_len" class="results-section">
                <div :key="lib.hid" v-for="lib in selected_libs" class="each-lib">
-                   <div class="each1">
+                   <div class="each1" @click="lib_clicked(lib)">
                        <img class="lib-img"  src="@/assets/search/book2.png" alt="book image">
                        <div class="lib-info">
                            <span class="lib-name">{{lib.title}}</span>
@@ -100,6 +100,12 @@ export default {
     },
 
     methods: {
+
+        lib_clicked(lib){
+            var all_data = JSON.stringify({name: this.name, description: this.description, checked_libs: this.checked_libs})
+            window.localStorage.setItem("group-data", all_data)
+            window.location.href = "/library/" + lib.link_str;
+        },
 
         no_button(){
             this.is_deleting = false;
@@ -238,6 +244,16 @@ export default {
             window.location.href = "/login"
         }
         this.username = window.localStorage.getItem("username")
+
+        var prev_data = window.localStorage.getItem('group-data')
+
+        if (prev_data) {
+            prev_data = JSON.parse(prev_data)
+            this.name = prev_data.name
+            this.description = prev_data.description
+            this.checked_libs = prev_data.checked_libs
+            console.log(prev_data)
+        }
 
         axios({
             url: this.url + "all-libraries",
@@ -431,6 +447,7 @@ export default {
     padding: 10px;
     display: flex;
     flex-direction: row;
+    cursor: pointer;
 }
 
 .each-lib {

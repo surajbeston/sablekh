@@ -63,7 +63,7 @@
                     <button style="margin-top: 10px;" class="btn" @click = "final_finish">{{finish}}</button>
                     <button v-show="is_owner && lib_str" class="btn delete-btn" @click="delete_button">Delete</button>
                 </div>                
-                <img src="@/assets/logo1.png" alt="loading image" class="upload13">
+                <!-- <img src="@/assets/logo1.png" alt="loading image" class="upload13"> -->
             </div>
             <div v-show="is_owner && wants_to_delete && lib_str" class="alert-wrapper">
                 <div  class="alert-box">
@@ -578,7 +578,7 @@ export default {
     .searchable {
         font-family: 'Rajdhani', sans-serif;
         font-size: 140%;
-       text-align: center;
+       /* text-align: center; */
        margin: 2vh 0;
     }
     .searchable > input {
@@ -992,7 +992,7 @@ export default {
         }
         .upload11 {
             position: absolute;
-            top: 100px;
+            top: 10px;
             height: 150px;
             width: 150px;
             /* display: none; */
@@ -1007,7 +1007,7 @@ export default {
         .upload12 {
             width: 100%;
             margin: 5px;
-            margin-top: 250px;
+            margin-top: 150px;
         }
         .description{
             padding-right: 0;
