@@ -12,6 +12,14 @@
           <h1>Library not found 404</h1>
         </div>
         <div v-else class="library-wrapper1">
+          <div @click="fav_clicked" @mouseenter="fav_in" @mouseleave="fav_out" v-show="authenticated" class="fav">
+            <!-- here to add star -->
+            <img v-show="!is_fav" src="@/assets/star1.png" alt="fav" class="star1">
+            <img v-show="is_fav" src="@/assets/star2.png" alt="fav" class="star2">
+          </div>
+          <div v-show="show_fav_desc" class="fav-desc">
+            <span>{{fav_desc_text}}</span>
+          </div>
           <img class="book-img" :src="data.library_thumbnail" alt="book" />
           <span class="username"><b>From: </b>{{data.username}}</span>
           <h1 class="library-title">{{data.library_name}}</h1>
@@ -88,9 +96,7 @@ export default {
       server_address: "http://104.248.39.254",
       library_image_link: "https://pngimg.com/uploads/book/book_PNG51074.png",
       library_tags: [],
-      contents: [],
       selected_file: [],
-      refined_files: [],
       is_liked: false,
       downloading: false,
       progress: 0,
@@ -105,7 +111,10 @@ export default {
       success: "This is success",
       error: "This is error",
       hasError: false,
-      not_found: false
+      not_found: false,
+      is_fav: false,
+      show_fav_desc: false,
+
     };
   },
     head() {
@@ -141,6 +150,55 @@ export default {
       }
     },
   methods: {
+
+
+    check_if_fav(){
+        axios({
+            method: 'post',
+            url: this.server_address + "/check-favourite-library",
+            headers: {
+            ...this.implicit_data(),
+            Authorization: "Token " + this.token
+            },
+            data: {
+            "hid": this.data.hid
+            }
+        })
+        .then(res => {
+          // console.log(res.data)
+            this.is_fav = res.data.exists;
+        })
+        },
+
+
+    fav_in(){
+      this.show_fav_desc = true
+    },
+    fav_out(){
+      this.show_fav_desc = false
+    },
+
+    fav_clicked(){
+      
+      axios({
+        method: this.get_method,
+        url: this.server_address + "/favourite-library",
+        headers: {
+          ...this.implicit_data(),
+          Authorization: "Token " + this.token
+        },
+        data: {
+          "hid": this.data.hid
+        }
+      })
+      .then(res => {
+        console.log(res)
+        this.is_fav = !this.is_fav
+      })
+      
+
+    },
+
     library_stuffs(){
       // this.loader_on = true
       if(window.localStorage.getItem("username") === this.library_username) {
@@ -179,24 +237,28 @@ export default {
         window.localStorage.setItem("link_str", this.$route.params.id)
         window.location.href = "/login";
       }
-      axios({
-        url: this.server_address + "/like",
-        method: "post",
-        headers: {
-          ...this.implicit_data(),
-          Authorization: "Token " + this.token,
-        },
-        data: {
-          library: this.data.hid,
-        },
-      })
-      .then((res) => {
-        this.get_like()
-        this.is_liked = true;
-      }) 
-      .catch((e) => {
-        console.log(e.response)
-      });
+      if (!this.is_liked) {
+
+        axios({
+          url: this.server_address + "/like",
+          method: "post",
+          headers: {
+            ...this.implicit_data(),
+            Authorization: "Token " + this.token,
+          },
+          data: {
+            library: this.data.hid,
+          },
+        })
+        .then((res) => {
+          this.data.likes++;
+          this.is_liked = true;
+        }) 
+        .catch((e) => {
+          console.log(e.response)
+        });
+      }
+
     },
     get_downloads() {
       axios({
@@ -213,22 +275,22 @@ export default {
         .catch((e) => {
         });
     },
-    get_like() {
-      axios({
-        url: this.server_address + "/all-likes",
-        method: "post",
-        headers: this.implicit_data(),
-        data: {
-          library: this.hid,
-        },
-      })
-        .then((res) => {
-          this.data.likes = res.data.likes;
-        })
-        .catch((e) => {
-          //.log(e);
-        });
-    },
+    // get_like() {
+    //   axios({
+    //     url: this.server_address + "/all-likes",
+    //     method: "post",
+    //     headers: this.implicit_data(),
+    //     data: {
+    //       library: this.data.hid,
+    //     },
+    //   })
+    //     .then((res) => {
+    //       this.data.likes = res.data.likes;
+    //     })
+    //     .catch((e) => {
+    //       //.log(e);
+    //     });
+    // },
     check_like() {
       axios({
         url: this.server_address + "/check-like",
@@ -238,7 +300,7 @@ export default {
           Authorization: "Token " + this.token
         },
         data: {
-          library: this.hid,
+          library: this.data.hid,
         },
       })
         .then((res) => {
@@ -247,7 +309,7 @@ export default {
           }
         })
         .catch((e) => {
-          //.log(e);
+          console.log(e.response)
         });
     },
     checkbox_clicked(id) {
@@ -350,18 +412,6 @@ export default {
       })
     },
 
-    clean_title() {
-      this.data.files.map((each) => {
-        let b = each;
-        let e = each.title.split(".");
-        let a = e[0];
-        let lent = a.length;
-        let title = `${a.substring(0, a.length > 5 ? 5 : a.length)}.${e[1]}`;
-        b.title = title;
-        this.contents.push(title);
-        this.refined_files.push(b);
-      });
-    },
     implicit_data(){
     var session_key = window.localStorage.getItem('session_key')
         if (!session_key){
@@ -401,12 +451,33 @@ export default {
       return {
         width: `${this.progress}%`
       }
+    },
+
+    get_method(){
+      return (this.is_fav) ? 'delete' : 'put';
+    },
+
+    fav_desc_text(){
+      return (this.is_fav) ? "Remove from Favourites" : "Add to Favourites";
     }
+
+
+    // fav_desc(){
+
+    //   var fav = document.querySelector(".fav")
+    //   let pos = fav.getBoundingClientRect();
+    //   let top = pos.top;
+    //   let left = pos.left;
+
+    //   console.log(top, left)
+    //   return {
+
+    //   }
+    // }
 
   },
 
   mounted() {
-    console.log("wallah")
     window.localStorage.removeItem("link_str")
     this.time = new Date().getTime();
 
@@ -417,12 +488,42 @@ export default {
     if (this.token){
       this.authenticated = true
     }
+    this.check_like()
+    this.check_if_fav()
+
+
 
   },
 };
 </script>
 
 <style scoped>
+
+.fav {
+  margin-left: auto;
+  width: 50px;
+}
+
+.fav-desc {
+  background-color: rgb(241, 241, 241);
+  padding: 10px 20px;
+  border-radius: 5px;
+  position: absolute;
+  right: 0;
+  top: 90px;
+  font-size: 80%;
+  font-family: 'Comfortaa', cursive;
+}
+
+.star1,
+.star2 {
+  width: 100%;
+  cursor: pointer;
+  /* box-shadow: 0 5px 10px black; */
+}
+
+
+
 
 .username {
   margin-top: 2vh;
@@ -599,6 +700,7 @@ export default {
   width: 130px;
 }
 .library-wrapper1 {
+  position: relative;
   width: 50%;
   margin: 100px auto 50px auto;
   display: flex;
@@ -723,6 +825,9 @@ export default {
 
 
 @media screen and (max-width: 1300px) {
+  .fav-desc {
+    top: 70px;
+  }
   .library-wrapper1 {
     width: 80%;
   }
@@ -761,6 +866,20 @@ export default {
 }
 
 @media screen and (max-width: 700px) {
+
+  .fav {
+    width: 30px;
+  }
+
+  .fav-desc {
+    margin-bottom: 20px;
+    padding: 5px 10px;
+    font-size: 60%;
+    top: 50px;
+  }
+
+
+
 
 .username {
         font-size: 100%;

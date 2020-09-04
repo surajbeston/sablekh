@@ -17,9 +17,9 @@
                <img src="@/assets/search/search.png" alt="icon" class="search-icon" @click="search_clicked">
            </div>
 
-            <span v-show="check_len" class="av-lib">Available Libraries</span>
+            <span v-show="!check_len" class="av-lib">Available Libraries</span>
 
-            <div v-show="check_len" class="results-section">
+            <div v-show="!check_len" class="results-section">
                <div :key="lib.hid" v-for="lib in selected_libs" class="each-lib">
                    <div class="each1" @click="lib_clicked(lib)">
                        <img class="lib-img"  src="@/assets/search/book2.png" alt="book image">
@@ -138,7 +138,7 @@ export default {
         },
         create_clicked(){
             if (this.check_len) this.displayError("Please add some library to create a group.")
-            else if (!this.check_name_des) this.displayError("Please add name and description to create a group.")
+            else if (this.check_name_des) this.displayError("Please add name and description to create a group.")
             else{
                 axios({
                     url: this.url + "library-group",
@@ -239,10 +239,10 @@ export default {
             return "post"
         },
         check_len() {
-            return this.available_libs.length > 0
+            return this.available_libs.length <= 0
         },
         check_name_des(){
-            return this.name.length > 0 && this.description.length > 0
+            return this.name.length <= 0 && this.description.length <= 0
         }
     },
 
