@@ -28,6 +28,10 @@
                             <h1 >{{group.title}}</h1>
                             <p>{{group.description}}</p>
                         </div>
+                        <div class="group-libs">
+                            <img src="@/assets/book.png" alt="book">
+                            <span ><b>{{group.no_libraries}}</b></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -161,6 +165,24 @@ export default {
 </script>
 
 <style scoped>
+
+
+ .group-libs {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .group-libs > img {
+        width: 60%;
+        margin-bottom: 5px;
+    }
+
+    .group-libs > span {
+        font-size: 150%;
+    }
+
 .btn-fav {
        font-family: 'Comfortaa', cursive;
         font-size: 20px;
@@ -256,7 +278,7 @@ export default {
         padding: 1%;
         border-radius: 10px;
         display: grid;
-        grid-template-columns: 2fr 10fr;
+        grid-template-columns: 2fr 10fr 1fr;
         align-items: center;
         position: relative;
     }
@@ -434,6 +456,12 @@ export default {
     .create-btn{
         font-size: 15px;
         padding: 10px 10px;
+    }
+    .group-libs > span {
+        font-size: 100%;
+    }
+    .group-libs > img {
+        width: 70%;
     }
     
 }
