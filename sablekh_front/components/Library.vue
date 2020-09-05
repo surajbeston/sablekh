@@ -237,39 +237,7 @@ export default {
         window.localStorage.setItem("link_str", this.$route.params.id)
         window.location.href = "/login";
       }
-<<<<<<< HEAD
-      axios({
-        url: this.server_address + "/like",
-        method: "post",
-        headers: {
-          ...this.implicit_data(),
-          Authorization: "Token " + this.token,
-        },
-        data: {
-          library: this.data.hid,
-        },
-      })
-      .then((res) => {
-        // this.get_like()
-        this.data.likes += 1
-        this.is_liked = true;
-      }) 
-      .catch((e) => {
-        console.log(e.response)
-      });
-    },
-    get_downloads() {
-      axios({
-        url: this.server_address + "/all-downloads",
-        method: "post",
-        headers: this.implicit_data(),
-        data: {
-          library: this.hid,
-        },
-      })
-        .then((res) => {
-          this.data.downloads= res.data.downloads;
-=======
+
       if (!this.is_liked) {
 
         axios({
@@ -282,7 +250,6 @@ export default {
           data: {
             library: this.data.hid,
           },
->>>>>>> a8e83e4b0184693644d84e53028dabde65d004d5
         })
         .then((res) => {
           this.data.likes++;
@@ -294,12 +261,8 @@ export default {
       }
 
     },
-<<<<<<< HEAD
-    get_like() {
-      console.log("right here")
-=======
+
     get_downloads() {
->>>>>>> a8e83e4b0184693644d84e53028dabde65d004d5
       axios({
         url: this.server_address + "/all-downloads",
         method: "post",
@@ -312,10 +275,7 @@ export default {
           this.data.downloads= res.data.downloads;
         })
         .catch((e) => {
-<<<<<<< HEAD
-          console.log("dfjh")
-=======
->>>>>>> a8e83e4b0184693644d84e53028dabde65d004d5
+
         });
     },
     // get_like() {
@@ -531,14 +491,10 @@ export default {
     if (this.token){
       this.authenticated = true
     }
-<<<<<<< HEAD
-=======
+
     this.check_like()
     this.check_if_fav()
 
-
-
->>>>>>> a8e83e4b0184693644d84e53028dabde65d004d5
   },
 };
 </script>
