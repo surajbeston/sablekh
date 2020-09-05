@@ -191,7 +191,8 @@ export default {
         },
       })
       .then((res) => {
-        this.get_like()
+        // this.get_like()
+        this.data.likes += 1
         this.is_liked = true;
       }) 
       .catch((e) => {
@@ -214,6 +215,7 @@ export default {
         });
     },
     get_like() {
+      console.log("right here")
       axios({
         url: this.server_address + "/all-likes",
         method: "post",
@@ -226,7 +228,7 @@ export default {
           this.data.likes = res.data.likes;
         })
         .catch((e) => {
-          //.log(e);
+          console.log("dfjh")
         });
     },
     check_like() {
@@ -417,7 +419,6 @@ export default {
     if (this.token){
       this.authenticated = true
     }
-
   },
 };
 </script>

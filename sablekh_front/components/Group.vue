@@ -137,7 +137,7 @@ export default {
             this.is_deleting = true;
         },
         create_clicked(){
-            if (this.check_len) this.displayError("Please add some library to create a group.")
+            if (this.checked_libs.length == 0) this.displayError("Please add some library to create a group.")
             else if (!this.check_name_des) this.displayError("Please add name and description to create a group.")
             else{
                 axios({
