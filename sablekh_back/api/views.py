@@ -280,7 +280,7 @@ class FavouriteLibraryView(APIView):
             library_serializer = LibrarySerializer(favourite.library)
             favourite_serializer = FavouriteLibrarySerializer(favourite)
             each = favourite_serializer.data
-            each["library_group"] = library_serializer.data
+            each["library"] = library_serializer.data
             data.append(each)
         response = {"data": data,"page": page,"total_page": total_page, "number": len(data)}
         return Response(response, status = status.HTTP_200_OK)
@@ -485,6 +485,43 @@ def get_library_group(request):
             pass 
     data["libraries"] = libraries
     return Response(data, status = status.HTTP_200_OK)
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def check_favourite_library(request):
+    data = request.data
+    try:
+        library = Library.objects.get(hid = data["hid"])
+    except Library.DoesNotExist:
+        return Response({"error": "library does not exists"}, status = status.HTTP_404_NOT_FOUND)
+    try:
+        user = Visitor.objects.get(email = request.user.email)
+        favourite = FavouriteLibrary.objects.get(user = user, library=library)
+        serializer = LibrarySerializer(favourite.library)
+        data = serializer.data
+        data["exists"] = True
+    except FavouriteLibrary.DoesNotExist:
+        data = {"exists": False}
+    return Response(data, status = status.HTTP_200_OK)
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def check_favourite_library_group(request):
+    data = request.data
+    try:
+        library_group = LibraryGroup.objects.get(hid = data["hid"])
+    except LibraryGroup.DoesNotExist:
+        return Response({"error": "library group does not exists"}, status = status.HTTP_404_NOT_FOUND)
+    try:
+        user = Visitor.objects.get(email = request.user.email)
+        favourite = FavouriteLibraryGroup.objects.get(user = user, library_group=library_group)
+        serializer = LibraryGroupSerializer(favourite.library_group)
+        data = serializer.data
+        data["exists"] = True
+    except FavouriteLibraryGroup.DoesNotExist:
+        data = {"exists": False}
+    return Response(data, status = status.HTTP_200_OK)
+
 
 @api_view(['GET', 'POST'])
 def all_files(request):

@@ -237,6 +237,7 @@ export default {
         window.localStorage.setItem("link_str", this.$route.params.id)
         window.location.href = "/login";
       }
+
       if (!this.is_liked) {
 
         axios({
@@ -260,6 +261,7 @@ export default {
       }
 
     },
+
     get_downloads() {
       axios({
         url: this.server_address + "/all-downloads",
@@ -273,6 +275,7 @@ export default {
           this.data.downloads= res.data.downloads;
         })
         .catch((e) => {
+
         });
     },
     // get_like() {
@@ -488,10 +491,9 @@ export default {
     if (this.token){
       this.authenticated = true
     }
+
     this.check_like()
     this.check_if_fav()
-
-
 
   },
 };
