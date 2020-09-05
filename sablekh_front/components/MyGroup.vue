@@ -10,6 +10,11 @@
             <p class="email">
                 {{email}}
             </p>
+
+            <button class="btn btn-fav" @click="fav_clicked">
+                Favourites
+            </button>
+
             <span class="loader" v-show="loader_on"></span>
             <div v-show="!loader_on">
                 <h2  v-show="no_library" class = "no_library">{{ err_content }}</h2>
@@ -51,6 +56,9 @@ export default {
     },
 
     methods: {
+        fav_clicked(){
+            window.location.href = '/group/favourite'
+        },
         create_clicked(){
             window.location.href = "/create-group"
         },
@@ -153,6 +161,19 @@ export default {
 </script>
 
 <style scoped>
+.btn-fav {
+       font-family: 'Comfortaa', cursive;
+        font-size: 20px;
+        border-radius: 5px;
+        padding: 10px 30px;
+        margin-top: 5vh;
+        background-color: transparent; 
+        cursor: pointer;
+        border: 2px solid rgb(228, 129, 0);
+    }
+    .btn-fav:hover{
+        background-color: rgba(255, 145, 0, 0.068);
+    }
 
     .create-btn {
         font-family: 'Comfortaa', cursive;
@@ -414,6 +435,7 @@ export default {
         font-size: 15px;
         padding: 10px 10px;
     }
+    
 }
 
 @media screen and (max-width: 500px){
@@ -464,6 +486,11 @@ export default {
     .create-btn {
         font-size: 12px;
         padding: 5px 10px;
+    }
+    .btn-fav {
+        padding: 10px 10px;
+        font-size: 15px;
+        margin-bottom: 5vh;
     }
 
 }

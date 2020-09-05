@@ -11,7 +11,7 @@
                     <span class="lib-name">{{lib.title}}</span>
                     <span class="lib-desc">{{lib.description}}</span>
                 </div>
-                <!-- <div class="likes-div">
+                <div class="likes-div">
                     <div class="likes">
                         <span>{{lib.likes}}</span>
                         <img src="@/assets/like.png" alt="like-img">
@@ -20,7 +20,7 @@
                         <span>{{lib.downloads}}</span>
                         <img src="@/assets/download1.png" alt="download img">
                     </div>
-                </div> -->
+                </div>
             </div>
 
         </div>
@@ -56,7 +56,13 @@ export default {
         },
 
         return_libs(raw_data){
-            return raw_data.map(e => e.library)
+            return raw_data.map(e => {
+                return {
+                    ...e.library,
+                    likes: e.likes,
+                    downloads: e.downloads
+                }
+            })
         },
 
         implicit_data(){
@@ -121,6 +127,28 @@ export default {
 </script>
 
 <style scoped>
+
+.likes > img,
+.downloads > img {
+    height: 50%;
+    margin-left: auto;
+}
+
+.likes,
+.downloads {
+    width: 30%;
+    display: flex;
+    flex-direction: row;
+    height: 30px;
+}
+
+.likes-div {
+    width: 20%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
 
     .lib-name {
         font-size: 170%;
@@ -187,20 +215,16 @@ export default {
     .each-libs {
         width: 100%;
     }
-
-    /* .likes,
+    .likes,
     .downloads {
         width: 40%;
-    } */
-    /* .tags {
-        width: 90%;
-    } */
+    }
 }
 
 @media screen and (max-width: 500px) {
-    /* .likes-div {
+    .likes-div {
         width: 50%;
-    } */
+    }
     h1  {
         font-size: 150%;
     }

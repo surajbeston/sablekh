@@ -146,14 +146,26 @@ export default {
 }
 
 @media screen and (max-width:900px){
-    /* .about-wrapper1 {
+    .about-wrapper1 {
         flex-direction: column;
-    } */
+        align-items: center;
+    }
     .about-info {
         width: 100%;
     }
     .about-animations {
-        display: none;
+        /* min-height: 80vh; */
+        height: 650px;
+        width: 650px;
+        
+    }
+}
+
+@media screen  and (max-width: 700px){
+    .about-animations {
+        height: 450px;
+        width: 450px;
+        
     }
 }
 
@@ -168,6 +180,19 @@ export default {
     .about-info > p {
         font-size: 80%;
         line-height: 25px;
+    }
+    .about-animations {
+        height: 300px;
+        width: 300px;
+        
+    }
+}
+
+@media screen and (max-width: 350px){
+    .about-animations {
+        height: 250px;
+        width: 250px;
+        
     }
 }
 

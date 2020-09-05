@@ -2,6 +2,7 @@
     <div class="my-library-component mxw-100-mnh-100" :class = "{invisible : !authenticate}">
         <Header />
         <div class="my-library-wrapper1">
+            <button @click="create_clicked" class="btn create-btn">New</button>
             <img class="top-img" src="@/assets/library/library-top.png" alt="vector img">
             <h1 class="your-library">
                 Your Library
@@ -9,6 +10,11 @@
             <p class="email">
                 {{email}}
             </p>
+
+            <button class="btn btn-fav" @click="fav_clicked">
+                Favourites
+            </button>
+
             <span class="loader" v-show="loader_on"></span>
             <div v-show="!loader_on">
                 <h2  v-show="no_library" class = "no_library">No libraries found, please upload to find it here.</h2>
@@ -55,6 +61,13 @@ export default {
     },
 
     methods: {
+        fav_clicked(){
+            window.location.href = '/library/favourite'
+        },
+        create_clicked(){
+            window.location.href = "/upload"
+        },
+
         edit_clicked(lib) {
             window.location.href = "upload/" + lib.link_str
         },
@@ -153,6 +166,33 @@ export default {
 </script>
 
 <style scoped>
+
+    .btn-fav {
+       font-family: 'Comfortaa', cursive;
+        font-size: 20px;
+        border-radius: 5px;
+        padding: 10px 30px;
+        margin-top: 5vh;
+        background-color: transparent; 
+        cursor: pointer;
+        border: 2px solid rgb(228, 129, 0);
+    }
+    .btn-fav:hover{
+        background-color: rgba(255, 145, 0, 0.068);
+    }
+
+    .create-btn {
+        font-family: 'Comfortaa', cursive;
+        font-size: 20px;
+        border-radius: 5px;
+        padding: 10px 30px;
+        margin-top: 2vh;
+        background-color: rgb(255, 178, 78);
+        cursor: pointer;
+        position: absolute;
+        right: 10px;
+    }
+
     .my-library-component {
         background-color: rgb(255, 228, 197);
         display: flex;
@@ -393,6 +433,10 @@ export default {
     .no_library{
         font-size: 100%;
     }
+    .create-btn{
+        font-size: 15px;
+        padding: 10px 10px;
+    }
 }
 
 @media screen and (max-width: 500px){
@@ -439,6 +483,15 @@ export default {
         cursor: pointer;
         width: 90%;
         height: 120%;
+    }
+    .create-btn {
+        font-size: 12px;
+        padding: 5px 10px;
+    }
+    .btn-fav {
+        padding: 10px 10px;
+        font-size: 15px;
+        margin-bottom: 5vh;
     }
 
 }

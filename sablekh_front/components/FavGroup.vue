@@ -7,10 +7,14 @@
             <h1>Favourite Groups</h1>
 
             <div class="each-library" :key="group.hid" v-for="group in groups" @click="group_clicked(group)">
-                <img @click="heading_clicked(group)" :src="group.thumbnail" alt="loading image" class="book-img">
-                <div @click="heading_clicked(group)" class="library-info">
+                <img :src="group.thumbnail" alt="loading image" class="book-img">
+                <div class="library-info">
                     <h1 >{{group.title}}</h1>
                     <p>{{group.description}}</p>
+                </div>
+                <div class="group-libs">
+                    <img src="@/assets/book.png" alt="book">
+                    <span ><b>{{group.no_libraries}}</b></span>
                 </div>
             </div>
 
@@ -117,9 +121,25 @@ export default {
 
 <style scoped>
 
+    .group-libs {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .group-libs > img {
+        width: 80%;
+        margin-bottom: 5px;
+    }
+
+    .group-libs > span {
+        font-size: 150%;
+    }
+
     .book-img {
         cursor: pointer;
-        width: 80%;
+        width: 100%;
     }
     .library-info {
         cursor: pointer;
@@ -148,8 +168,9 @@ export default {
         padding: 1%;
         border-radius: 10px;
         display: grid;
-        grid-template-columns: 2fr 10fr;
+        grid-template-columns: 2fr 10fr 1fr;
         align-items: center;
+        box-shadow: 0 5px 10px rgb(228, 213, 193);
     }
 
     h1 {
@@ -186,9 +207,11 @@ export default {
 }
 
 @media screen and (max-width: 700px) {
-    
+    .group-libs > span {
+        font-size: 100%;
+    }
     .each-library {
-        padding: 5% 1%;
+        padding: 5% 3%;
         width: 95%;
         min-height: 100px;
         margin-bottom: 3%;
@@ -220,6 +243,9 @@ export default {
         cursor: pointer;
         width: 90%;
         height: 120%;
+    }
+    h1  {
+        font-size: 150%;
     }
 
 }
