@@ -194,6 +194,8 @@ export default {
         window.location.replace("/")
       }
 
+      this.link = window.localStorage.getItem("link_str")
+
       this.time = new Date().getTime()
   },
 

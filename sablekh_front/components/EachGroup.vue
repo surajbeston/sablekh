@@ -2,6 +2,16 @@
     <div class="wrapper mxw-100-mnh-100">
         <Header />
         <div class="libs">
+            
+            <div @click="fav_clicked" @mouseenter="fav_in" @mouseleave="fav_out" v-show="authenticated" class="fav">
+                <!-- here to add star -->
+                <img v-show="!is_fav" src="@/assets/star1.png" alt="fav" class="star1">
+                <img v-show="is_fav" src="@/assets/star2.png" alt="fav" class="star2">
+            </div>
+            <div v-show="show_fav_desc" class="fav-desc">
+                <span>{{fav_desc_text}}</span>
+            </div>
+
             <span class="title">
                 {{group.title}}
             </span>
@@ -46,10 +56,64 @@ export default {
     data() {
         return {
             server_address: "http://104.248.39.254",
-            group: {}
+            group: {},
+            show_fav_desc: false,
+            is_fav: false,
+            authenticated: false,
         }
     },
     methods: {
+
+        check_if_fav(){
+            axios({
+                method: 'post',
+                url: this.server_address + "/check-favourite-library-group",
+                headers: {
+                ...this.implicit_data(),
+                Authorization: "Token " + this.token
+                },
+                data: {
+                "hid": this.group.hid
+                }
+            })
+            .then(res => {
+                console.log(res.data)
+                this.is_fav = res.data.exists;
+            })
+            .catch(e => {
+                console.log(e.response)
+            })
+        },
+
+        fav_in(){
+        this.show_fav_desc = true
+        },
+        fav_out(){
+        this.show_fav_desc = false
+        },
+
+        fav_clicked(){
+        
+        axios({
+            method: this.get_method,
+            url: this.server_address + "/favourite-library-group",
+            headers: {
+            ...this.implicit_data(),
+            Authorization: "Token " + this.token
+            },
+            data: {
+            "hid": this.group.hid
+            }
+        })
+        .then(res => {
+            console.log(res)
+            this.is_fav = !this.is_fav
+        })
+        
+
+        },
+
+
         lib_clicked(lib){
             window.location.href = '/library/' + lib.link_str;
         },
@@ -58,13 +122,16 @@ export default {
         }
     },
 
-    computed: {
-    },
-
     mounted() {
 
+        this.token = window.localStorage.getItem("token")
+        if(this.token) {
+            this.authenticated = true
+        }
+
+
         axios({
-           url: this.server_address + '/get-library-group',
+            url: this.server_address + '/get-library-group',
            method: 'post',
            headers: this.implicit_data(),
            data: {
@@ -74,12 +141,25 @@ export default {
         })
         .then(res => {
             this.group = res.data
+            this.check_if_fav()
+
         })
         .catch(err => {
             console.log(err)
         })
 
 
+
+    },
+    computed: {
+
+        get_method(){
+            return (this.is_fav) ? "delete"  : "put";
+        },
+
+        fav_desc_text(){
+            return (this.is_fav) ? "Remove from Favourites" : "Add to Favourites";
+        }
     }
 
 
@@ -88,6 +168,31 @@ export default {
 </script>
 
 <style scoped>
+
+
+    .fav {
+        margin-left: auto;
+        width: 50px;
+    }
+
+    .fav-desc {
+        background-color: rgb(241, 241, 241);
+        padding: 10px 20px;
+        border-radius: 5px;
+        position: absolute;
+        right: 5vw;
+        top: 10vh;
+        font-size: 80%;
+        font-family: 'Comfortaa', cursive;
+    }
+
+    .star1,
+    .star2 {
+        width: 100%;
+        cursor: pointer;
+    }
+
+
     .wrapper {
         background-color: rgb(255, 231, 199);
     }
@@ -97,7 +202,8 @@ export default {
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 5vh 0;
+        padding: 5vh 5vw;
+        position: relative;
     }
 
     .title {
@@ -161,7 +267,7 @@ export default {
 }
 
 .likes-div {
-    width: 15%;
+    width: 20%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -195,13 +301,13 @@ export default {
 
 @media screen and (max-width: 1200px){
     .each-libs {
-        width: 70%;
+        width: 80%;
     }
 }
 
 @media screen and (max-width: 900px){
     .each-libs {
-        width: 90%;
+        width: 100%;
     }
 
     .likes,
@@ -213,12 +319,35 @@ export default {
     }
 }
 
+@media screen and (max-width: 700px){
+    .fav {
+        width: 30px;
+    }
+
+    .fav-desc {
+        /* margin-bottom: 20px; */
+        padding: 5px 10px;
+        font-size: 60%;
+        top: 9vh;
+    }
+}
+
 @media screen and (max-width: 500px) {
+    .likes-div {
+        width: 50%;
+    }
+    .lib-name {
+        font-size: 100%;
+    }
+    .lib-desc {
+        font-size: 80%;
+    }
     .lib-info {
         width: 85%;
     }
     .lib-img {
-        display: none;
+        /* display: none; */
+        height: 70px;
     }
     .title {
         font-size: 200%;
