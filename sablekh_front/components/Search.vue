@@ -87,7 +87,6 @@ export default {
             search_books: [],
             likes: [],
             downloads: [],
-            libraries: [],
             loaded: false,
             loader_on: false,
             holder: [],
@@ -148,7 +147,6 @@ export default {
             this.tags.splice(i, 1)
         },
         search_button() {
-            this.libraries = [] 
             if (this.search != "") {
                 this.loader_on = true
                 axios({
@@ -161,13 +159,10 @@ export default {
                     headers: this.implicit_data()
                 })
                 .then(res => {
-                    this.add_to_localstorage("search", res.data)
-                    this.no_search = res.data.length > 0 ? false: true
-                    //.log(this.no_search)
-                    this.search_books = res.data
-                    this.libraries = []
+                    this.add_to_localstorage("search", res.data.data)
+                    this.no_search = res.data.data.length > 0 ? false: true
+                    this.search_books = res.data.data
                     this.hids = []
-                    // this.fill_extra()
 
                     this.loaded = false
                     this.loader_on = false 
@@ -182,43 +177,43 @@ export default {
         async fill_extra(){
             return await this.get_likes_downloads()
         },
-        get_likes_downloads(){
-            if (this.search_books.length > 0){
-                this.search_books.map(lib => {
-                    axios({
-                        url: this.server_address + "/all-likes",
-                        method: 'post',
-                        headers: this.implicit_data(),
-                        data: {
-                            library: lib.hid
-                        }
-                        })    
-                        .then(res => {
-                            lib.likes = res.data.likes
-                            axios({
-                                url: this.server_address + "/all-downloads",
-                                method: 'post',
-                                headers: this.implicit_data(),
-                                data: {library: lib.hid}
-                            })
-                            .then(res => {
-                                lib.downloads = res.data.downloads
-                                if (!this.hids.includes(lib.hid)){
-                                    this.hids.push(lib.hid)
-                                    this.libraries.push(lib)
-                                }
-                            })
-                            .catch(e => {
-                                lib.downloads = 0
-                            })
-                        })
-                        .catch(e => {
-                            lib.likes = 0
-                        })
+        // get_likes_downloads(){
+        //     if (this.search_books.length > 0){
+        //         this.search_books.map(lib => {
+        //             axios({
+        //                 url: this.server_address + "/all-likes",
+        //                 method: 'post',
+        //                 headers: this.implicit_data(),
+        //                 data: {
+        //                     library: lib.hid
+        //                 }
+        //                 })    
+        //                 .then(res => {
+        //                     lib.likes = res.data.likes
+        //                     axios({
+        //                         url: this.server_address + "/all-downloads",
+        //                         method: 'post',
+        //                         headers: this.implicit_data(),
+        //                         data: {library: lib.hid}
+        //                     })
+        //                     .then(res => {
+        //                         lib.downloads = res.data.downloads
+        //                         if (!this.hids.includes(lib.hid)){
+        //                             this.hids.push(lib.hid)
+        //                             this.libraries.push(lib)
+        //                         }
+        //                     })
+        //                     .catch(e => {
+        //                         lib.downloads = 0
+        //                     })
+        //                 })
+        //                 .catch(e => {
+        //                     lib.likes = 0
+        //                 })
 
-                    })
-                }
-        },
+        //             })
+        //         }
+        // },
     implicit_data(){
         var session_key = window.localStorage.getItem('session_key')
         if (!session_key){
@@ -299,6 +294,7 @@ export default {
         this.search_books = []
 
         var libs = this.previous_libraries;
+        console.log(libs)
         for (var previous_library of this.previous_libraries){
             axios({
                 url: `${this.server_address}/get-library`,
@@ -308,7 +304,6 @@ export default {
             }).then(res => {
                 this.loaded = false
                 this.search_books.push(res.data)
-                // this.fill_extra()
                 this.loader_on = false
             })
             .catch(err => {
