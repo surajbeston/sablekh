@@ -66,7 +66,7 @@ import Fuse from "fuse.js";
 export default {
     data() {
         return{
-            url: "http://104.248.39.254/",
+            url: "https://api.sablekh.com/",
             username: "",
             name: "",
             description: "",
@@ -129,7 +129,7 @@ export default {
             .then(res => {
                 window.location.href = "/"
             })
-            .catch(e => console.log(e))
+            .catch(e => {});
         },
 
         delete_clicked() {
@@ -159,9 +159,9 @@ export default {
                 .then(res => {
                     window.location.href = "/create-group/" + res.data.link_str;
                 })
-                .catch(e => console.log(e))
+                .catch(e => {})
            }
-        },
+        },//.log(e))
         checkbox_clicked(id) {
             var filter_list = this.checked_libs.filter(e => e === id)
             if (filter_list.length === 0) {
@@ -200,7 +200,7 @@ export default {
                     }
                 })
                 .then(res => {
-                    // console.log(res)
+                    // //.log(res)
                     this.name = res.data.title
                     this.description = res.data.description
                     this.checked_libs = res.data.libraries.map(lib => lib.hid)
@@ -260,7 +260,7 @@ export default {
             this.name = prev_data.name
             this.description = prev_data.description
             this.checked_libs = prev_data.checked_libs
-            console.log(prev_data)
+            //.log(prev_data)
         }
 
         axios({
@@ -283,7 +283,7 @@ export default {
             this.check_lib()
 
         })
-        .catch(err => console.log(err))
+        .catch(err => {})
 
 
         window.addEventListener("scroll" ,(e) => {
@@ -319,8 +319,8 @@ export default {
             }
         })
 
-
     }
+    
     
 }
 </script>

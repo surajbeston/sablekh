@@ -41,7 +41,7 @@ export default {
 
   data() {
     return {
-      server_address: "http://104.248.39.254",
+      server_address: "https://api.sablekh.com",
       email: "",
       password: "",
       remember: false,
@@ -79,7 +79,7 @@ export default {
             data: {"email": this.email, "password": this.password}
           })
           .then(res => {
-            console.log(res.data)
+            //.log(res.data)
             this.sending = true
             this.btn_txt = "Sending"
             var token = res.data.token

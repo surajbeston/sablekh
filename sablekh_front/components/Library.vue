@@ -93,7 +93,7 @@ export default {
 
   data() {
     return {
-      server_address: "http://104.248.39.254",
+      server_address: "https://api.sablekh.com",
       library_image_link: "https://pngimg.com/uploads/book/book_PNG51074.png",
       library_tags: [],
       selected_file: [],
@@ -119,17 +119,17 @@ export default {
   },
     head() {
       return {
-        title: "Sablekh: "+this.data.library_name,
+        title: "Sablekh: "+this.data.loaded ? this.data.library_name: "",
         meta: [
           {
             hid: 'description',
             name: 'description',
-            content: this.data.library_desc
+            content: this.data.loaded ? this.data.library_desc: ""
           },
           {
             hid: 'og:image',
             property: 'og:image',
-            content: this.data.library_thumbnail
+            content: this.data.loaded ? this.data.library_thumbnail: ""
           },
           {
             hid: 'og:type',
@@ -139,12 +139,12 @@ export default {
           {
             hid: 'og:title',
             property: 'og:title',
-            content: "Sablekh: "+this.data.library_name
+            content: "Sablekh: "+this.data.loaded ? this.data.library_name: ""
           },
           {
             hid: 'og:description',
             property: 'og:description',
-            content: this.data.library_desc
+            content: this.data.loaded ? this.data.library_desc: ""
           }
         ]
       }
@@ -165,7 +165,7 @@ export default {
             }
         })
         .then(res => {
-          // console.log(res.data)
+          // //.log(res.data)
             this.is_fav = res.data.exists;
         })
         },
@@ -192,7 +192,7 @@ export default {
         }
       })
       .then(res => {
-        console.log(res)
+        //.log(res)
         this.is_fav = !this.is_fav
       })
       
@@ -256,7 +256,7 @@ export default {
           this.is_liked = true;
         }) 
         .catch((e) => {
-          console.log(e.response)
+          //.log(e.response)
         });
       }
 
@@ -312,7 +312,7 @@ export default {
           }
         })
         .catch((e) => {
-          console.log(e.response)
+          //.log(e.response)
         });
     },
     checkbox_clicked(id) {
@@ -377,7 +377,7 @@ export default {
         })
           .then((res) => {
             // //.log(res)
-            console.log(res.data.filename)
+            //.log(res.data.filename)
             this.download(res.data.filename)
           })
           .catch((e) => {
@@ -425,7 +425,7 @@ export default {
             }
             window.localStorage.setItem("session_key", session_key)
         }
-        console.log(session_key)
+        //.log(session_key)
         if (process.server) return {"site":  "---"+session_key, "link": "", "timetaken": new Date().getTime() -this.time }
         else return {"site": document.referrer+ "---"+session_key, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
         },
@@ -472,7 +472,7 @@ export default {
     //   let top = pos.top;
     //   let left = pos.left;
 
-    //   console.log(top, left)
+    //   //.log(top, left)
     //   return {
 
     //   }
@@ -491,6 +491,42 @@ export default {
     if (this.token){
       this.authenticated = true
     }
+
+
+    if (!this.data.loaded){
+      axios({
+        url: "https://api.sablekh.com" + "/link",
+        method: "post",
+        headers: {site: "", referrer: "", timetaken : new Date().getTime(), link: ""},
+        data: {link_str: this.lib_id}
+      }).then(res =>{
+
+
+        var files = res.data.files
+
+      files = files.map(e => {
+        let each = e.title.split(".");
+        let a = each[0];
+        let lent = a.length;
+        e.title = `${a.substring(0, a.length > 5 ? 5 : a.length)}.${each[1]}`;
+        return e
+      });
+
+        this.data = {
+          hid: res.data.hid,
+          library_name: res.data.title,
+          library_desc: res.data.description,
+          library_thumbnail: res.data.thumbnail,
+          library_tags: res.data.tags,
+          files,
+          likes: res.data.likes,
+          downloads: res.data.downloads,
+          username: res.data.username,
+          loaded: true
+        }
+      })
+    }
+
 
     this.check_like()
     this.check_if_fav()

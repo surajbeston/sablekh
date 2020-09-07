@@ -75,7 +75,7 @@ import {setCookie} from "@/extras/cookie";
 export default {
     data() {
         return {
-            server_address: "http://104.248.39.254",
+            server_address: "https://api.sablekh.com",
             image_address: "https://pngimg.com/uploads/book/book_PNG51083.png",
             show_suggessions: true,
             off_width: 0,
@@ -166,7 +166,7 @@ export default {
 
                     this.loaded = false
                     this.loader_on = false 
-                    console.log(res)
+                    //.log(res)
                 }) 
             }
         },
@@ -294,7 +294,7 @@ export default {
         this.search_books = []
 
         var libs = this.previous_libraries;
-        console.log(libs)
+        //.log(libs)
         for (var previous_library of this.previous_libraries){
             axios({
                 url: `${this.server_address}/get-library`,
@@ -314,7 +314,7 @@ export default {
             method: "get",
             headers: this.implicit_data()
         }).then(res => {
-            console.log(res)
+            //.log(res)
             this.all_tags = res.data.tags
             this.fuse = new Fuse(this.all_tags, {}) 
         })

@@ -30,7 +30,7 @@
             <span class="avai-libs">Libraries</span>
             
             <div :key="lib.id" v-for="lib in group.libraries" @click="lib_clicked(lib)" class="each-libs">
-                <img class="lib-img"  src="@/assets/search/book2.png" alt="book image">
+                <img class="lib-img"  :src="lib.thumbnail" alt="book image">
                 <div class="lib-info">
                     <span class="lib-name">{{lib.title}}</span>
                     <span class="lib-desc">{{lib.description}}</span>
@@ -58,7 +58,7 @@ export default {
     
     data() {
         return {
-            server_address: "http://104.248.39.254",
+            server_address: "https://api.sablekh.com",
             group: {},
             show_fav_desc: false,
             is_fav: false,
@@ -95,11 +95,11 @@ export default {
                 }
             })
             .then(res => {
-                console.log(res.data)
+               //(res.data)
                 this.is_fav = res.data.exists;
             })
             .catch(e => {
-                console.log(e.response)
+               //(e.response)
             })
         },
 
@@ -129,7 +129,7 @@ export default {
             }
         })
         .then(res => {
-            console.log(res)
+           //(res)
             this.is_fav = !this.is_fav
         })
         
@@ -168,7 +168,7 @@ export default {
 
         })
         .catch(err => {
-            console.log(err)
+           //(err)
         })
 
 

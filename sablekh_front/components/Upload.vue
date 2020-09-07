@@ -94,7 +94,7 @@ export default {
             description: "",
             // files: [{"name": "something.pdf", "filename": "/filenames/pdf.png", "uploadedsize": "12", "totalsize": "25"}, {"name": "something.txt", "filename": "/filenames/text.png", "uploadedsize": "12", "totalsize": "25"}],
             files: [],
-            url: "http://104.248.39.254/",
+            url: "https://api.sablekh.com/",
             library: "",
             auth_token: "",
             last_title: "",
@@ -191,7 +191,7 @@ export default {
                     this.send_files(files)
                 })
                 .catch(err => {
-                    console.log(err)
+                    //.log(err)
                     this.displayError("Problem uploading file, please try again.")
                 })
             }
@@ -279,7 +279,7 @@ export default {
             get_filename(fileType){
                     //.log(fileType)
                     var filename;
-                    console.log(fileType)
+                    //.log(fileType)
                     if (!fileType) return "/filenames/text.png"
                     var category = fileType.split("/")[0]
                     var extension = fileType.split("/")[1]
@@ -491,14 +491,14 @@ export default {
         },
         computed_files(){
             var files = []
-            console.log(this.files)
+            //.log(this.files)
             var altered
                 for (var file of this.files){
                     altered = file
                     altered.title = altered.title.length <= 17 ? altered.title:altered.title.slice(0, 14)+ "..."
                     files.push(altered) 
             }
-            console.log(files)
+            //.log(files)
             return files 
         }    
     },
@@ -566,7 +566,7 @@ export default {
         headers: this.implicit_data()
         }).then(res => {
             this.to_search = res.data.tags
-            console.log(this.to_search)
+            //.log(this.to_search)
     })
     }
 }

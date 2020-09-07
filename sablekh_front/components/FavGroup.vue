@@ -32,7 +32,7 @@ import axios from "axios";
 export default {
     data(){
         return{
-            server_address: "http://104.248.39.254",
+            server_address: "https://api.sablekh.com",
             groups: [],
             page: 0,
             total_page: 0,
@@ -79,7 +79,7 @@ export default {
 
         })
         .then(res => {
-            console.log(res.data)
+            // console.log(res.data)
             this.page = res.data.page
             this.total_page = res.data.total_page
             this.groups = this.return_groups(res.data.data)

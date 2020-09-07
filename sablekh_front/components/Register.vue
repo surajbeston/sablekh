@@ -40,7 +40,7 @@ import {getCookie} from "@/extras/cookie"
 export default {
   data() {
     return {
-        server_address: "http://104.248.39.254",
+        server_address: "https://api.sablekh.com",
         email: "",
         password1: "",
         password2: "",
@@ -84,7 +84,7 @@ export default {
             .then(res => {
                 this.sending = true
                 this.btn_txt = "Create"
-                console.log("reached here")
+                //.log("reached here")
                 axios({
                     url: this.server_address + "/token",
                     method: "post",
@@ -129,7 +129,7 @@ export default {
                     })
                     .catch(err => {
                         var data = err.response
-                        console.log(data)
+                        //.log(data)
                         this.sending = false
                         this.btn_txt = "Create"
                         if (data.status == 303) this.show_error("User with this email already exists.")
