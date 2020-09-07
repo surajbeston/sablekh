@@ -222,6 +222,7 @@ export default {
         width: 100px;
         display: flex;
         flex-direction: row;
+        align-items: center;
     }
 
     .fav-desc {
@@ -230,7 +231,7 @@ export default {
         border-radius: 5px;
         position: absolute;
         right: 5vw;
-        top: 10vh;
+        top: 100px;
         font-size: 80%;
         font-family: 'Comfortaa', cursive;
     }
@@ -381,7 +382,7 @@ export default {
         /* margin-bottom: 20px; */
         padding: 5px 10px;
         font-size: 60%;
-        top: 9vh;
+        /* top: 9vh; */
     }
 }
 
@@ -391,16 +392,19 @@ export default {
     padding: 2%;
   }
     .fav {
-        width: 60px;
+        width: 80px;
     }
+    /* .fav-desc {
+        top: 0px;
+    } */
     .star1,
     .star2 {
-        width: 30px;
-        height: 30px;
+        width: 40px;
+        height: 38px;
     }
     .copy-img {
-        width: 28px;
-        height: 30px;
+        width: 35px;
+        height: 35px;
     }
 
     .likes-div {
