@@ -13,9 +13,9 @@
             <div class="each-footer1 footer12">
                 <img src="@/assets/sablekh.png" alt="logo" class="bottom-logo">
                 <div class="icons">
-                    <a target="blank" href = "https://www.facebook.com/groups/598216594197165"><img src="@/assets/footer/FACEBOOK.png" alt="icon" class="sm-icon"></a>
-                    <a target="blank" href = "https://www.instagram.com/amoebatech/"> <img src="@/assets/footer/INSTA.png" alt="icon" class="sm-icon"></a>
-                    <a target="blank" href = "https://www.linkedin.com/in/anil-kumar-panta/" ><img src="@/assets/footer/LINKEDIN.png" alt="icon" class="sm-icon"></a>
+                    <a target="_blank" href = "https://www.facebook.com/groups/598216594197165"><img src="@/assets/footer/FACEBOOK.png" alt="icon" class="sm-icon"></a>
+                    <a target="_blank" href = "https://www.instagram.com/amoebatech/"> <img src="@/assets/footer/INSTA.png" alt="icon" class="sm-icon"></a>
+                    <a target="_blank" href = "https://www.linkedin.com/in/anil-kumar-panta/" ><img src="@/assets/footer/LINKEDIN.png" alt="icon" class="sm-icon"></a>
                 </div>
                 <div class="weamoeba-stuffs">
                     <p>
