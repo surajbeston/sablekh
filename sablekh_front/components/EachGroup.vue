@@ -3,14 +3,17 @@
         <Header />
         <div class="libs">
             
-            <div @click="fav_clicked" @mouseenter="fav_in" @mouseleave="fav_out" v-show="authenticated" class="fav">
+            <div class="fav">
                 <!-- here to add star -->
-                <img v-show="!is_fav" src="@/assets/star1.png" alt="fav" class="star1">
-                <img v-show="is_fav" src="@/assets/star2.png" alt="fav" class="star2">
+                <img @click="fav_clicked" @mouseenter="fav_in" @mouseleave="fav_out" v-show="!is_fav" src="@/assets/star1.png" alt="fav" class="star1">
+                <img @click="fav_clicked" @mouseenter="fav_in" @mouseleave="fav_out" v-show="is_fav" src="@/assets/star2.png" alt="fav" class="star2">
+                <img @click="copy" id="copy" @mouseenter="fav_in" @mouseleave="fav_out" src="@/assets/copy1.png" alt="copy" class="copy-img">
             </div>
             <div v-show="show_fav_desc" class="fav-desc">
                 <span>{{fav_desc_text}}</span>
             </div>
+
+          <div id = "successBox" v-show="hasSuccess" ><p id = "successTxt"> {{success}}<img src = "@/assets/cancel.png" @click="hasSuccess =!hasSuccess" class = "cancelSuccess"></p></div>
 
             <span class="title">
                 {{group.title}}
@@ -60,9 +63,24 @@ export default {
             show_fav_desc: false,
             is_fav: false,
             authenticated: false,
+            is_copy: false,
+            hasSuccess: false,
+            success: "",
         }
     },
     methods: {
+
+        async copy() {
+            await navigator.clipboard.writeText(window.location.href);
+            this.show_success("Link Copied. Share it now!")
+        },
+
+        show_success(successTxt){     
+            this.hasSuccess = true
+            this.success = successTxt
+            document.body.scrollTop = 0
+            document.documentElement.scrollTop = 0
+        },
 
         check_if_fav(){
             axios({
@@ -85,11 +103,16 @@ export default {
             })
         },
 
-        fav_in(){
-        this.show_fav_desc = true
+        fav_in(e){
+            if(e.target.id === 'copy') {
+                this.is_copy = true
+            }
+            this.show_fav_desc = true
         },
         fav_out(){
-        this.show_fav_desc = false
+            this.is_copy = false
+            this.show_fav_desc = false
+
         },
 
         fav_clicked(){
@@ -158,7 +181,8 @@ export default {
         },
 
         fav_desc_text(){
-            return (this.is_fav) ? "Remove from Favourites" : "Add to Favourites";
+            if(this.is_copy) return "Copy Link";
+            else return (this.is_fav) ? "Remove from Favourites" : "Add to Favourites";
         }
     }
 
@@ -169,10 +193,35 @@ export default {
 
 <style scoped>
 
+    #successBox{
+      background-color: rgba(134, 190, 87, 0.4);
+      color: rgb(51, 47, 43);
+      border: 1px black solid;
+      border-radius: 5px;
+      padding : 1%;
+      font-size: 110%;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 200;
+      animation-name: fadein;
+      animation: fadein 1s;
+      width: 50%;
+      animation-name: fadein;
+      animation: fadein 1s;
+    }
+    .cancelSuccess{
+      cursor: pointer;
+      float: right;
+  }
+    @keyframes fadein {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
 
     .fav {
         margin-left: auto;
-        width: 50px;
+        width: 100px;
+        display: flex;
+        flex-direction: row;
     }
 
     .fav-desc {
@@ -186,9 +235,13 @@ export default {
         font-family: 'Comfortaa', cursive;
     }
 
+    .copy-img {
+        width: 40px;
+        height: 42px;
+    }
     .star1,
     .star2 {
-        width: 100%;
+        width: 50px;
         cursor: pointer;
     }
 
@@ -320,10 +373,10 @@ export default {
 }
 
 @media screen and (max-width: 700px){
-    .fav {
-        width: 30px;
-    }
-
+#successBox{
+    width: 85%;
+    padding: 2%;
+  }
     .fav-desc {
         /* margin-bottom: 20px; */
         padding: 5px 10px;
@@ -333,6 +386,23 @@ export default {
 }
 
 @media screen and (max-width: 500px) {
+    #successBox{
+    width: 95%;
+    padding: 2%;
+  }
+    .fav {
+        width: 60px;
+    }
+    .star1,
+    .star2 {
+        width: 30px;
+        height: 30px;
+    }
+    .copy-img {
+        width: 28px;
+        height: 30px;
+    }
+
     .likes-div {
         width: 50%;
     }
