@@ -280,7 +280,9 @@ class FavouriteLibraryView(APIView):
             library_serializer = LibrarySerializer(favourite.library)
             favourite_serializer = FavouriteLibrarySerializer(favourite)
             each = favourite_serializer.data
-            each["library"] = library_serializer.data
+            likes_objs = Like.objects.filter(library = favourite.library)
+            downloads = DownloadLot.objects.filter(library = favourite.library)
+            each["library"], each["likes"], each["downloads"] = library_serializer.data, len(likes_objs), len(downloads)
             data.append(each)
         response = {"data": data,"page": page,"total_page": total_page, "number": len(data)}
         return Response(response, status = status.HTTP_200_OK)
@@ -622,17 +624,20 @@ def search(request):
     total_page = math.ceil(len_results/10)
     results = results[(page-1)*10:page*10]
     data = []
+    hids = []
     for result in results:
-        try:
-            library = Library.objects.get(hid = result["hid"])
-            serializer = LibrarySerializer(library)
-            library_data = serializer.data
-            likes_objs = Like.objects.filter(library = library)
-            downloads = DownloadLot.objects.filter(library = library)
-            library_data["likes"], library_data["downloads"] = len(likes_objs), len(downloads)
-            data.append(library_data)
-        except Library.DoesNotExist:
-            pass
+        if result["hid"] not in hids:
+            try:
+                library = Library.objects.get(hid = result["hid"])
+                serializer = LibrarySerializer(library)
+                library_data = serializer.data
+                likes_objs = Like.objects.filter(library = library)
+                downloads = DownloadLot.objects.filter(library = library)
+                library_data["likes"], library_data["downloads"] = len(likes_objs), len(downloads)
+                data.append(library_data)
+                hids.append(result["hid"])
+            except Library.DoesNotExist:
+                pass
     response = {"data": data, "page": page, "total_page": total_page, "number": len(data)}
     return Response(response, status = status.HTTP_200_OK)
 

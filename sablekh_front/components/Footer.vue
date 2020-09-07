@@ -13,15 +13,15 @@
             <div class="each-footer1 footer12">
                 <img src="@/assets/sablekh.png" alt="logo" class="bottom-logo">
                 <div class="icons">
-                    <img src="@/assets/footer/FACEBOOK.png" alt="icon" class="sm-icon">
-                    <img src="@/assets/footer/INSTA.png" alt="icon" class="sm-icon">
-                    <img src="@/assets/footer/LINKEDIN.png" alt="icon" class="sm-icon">
+                    <a href = "https://www.facebook.com/groups/598216594197165"><img src="@/assets/footer/FACEBOOK.png" alt="icon" class="sm-icon"></a>
+                    <a href = "https://www.instagram.com/amoebatech/"> <img src="@/assets/footer/INSTA.png" alt="icon" class="sm-icon"></a>
+                    <a href = "https://www.linkedin.com/in/anil-kumar-panta/" ><img src="@/assets/footer/LINKEDIN.png" alt="icon" class="sm-icon"></a>
                 </div>
                 <div class="weamoeba-stuffs">
                     <p>
                         POWERED BY
                     </p>
-                    <img src="@/assets/footer/bottom-logo.png" alt="logo" class="weamoeba-logo">
+                    <a href = "https://weamoeba.com" target="_blank"> <img src="@/assets/footer/bottom-logo.png" alt="logo" class="weamoeba-logo"></a>
                 </div>
 
             </div>

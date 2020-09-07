@@ -6,8 +6,22 @@
         <div class="about-info">
             <h2>About Us</h2>
             <p>
-               Lorem ipsum dolor sit amet consectetur adipisicing elit. Non dolore accusantium necessitatibus eos ipsum praesentium aut consequatur at officiis minima. Lorem, ipsum dolor sit amet consectetur adipisicing elit. Minus illum pariatur doloremque dolore. Eveniet dolores consectetur maxime esse! Fuga temporibus et minus voluptatem, ducimus enim? Sint quas eos eius veniam magnam voluptate eveniet molestias unde mollitia quae omnis numquam exercitationem quod delectus autem, veritatis, debitis reiciendis suscipit qui deleniti asperiores. Lorem ipsum dolor, sit amet consectetur adipisicing elit. At, labore. Incidunt, sit ullam! Reiciendis doloremque dolorum nemo commodi odit excepturi nulla eaque corrupti! Doloremque animi dolorem velit facere culpa eveniet voluptatibus esse beatae consectetur dolore, dicta cupiditate quas quidem hic voluptatem similique tempora voluptate assumenda ipsum recusandae sint accusamus minima?
+               Content collection and sharing is the first step to digital education. It can be achieved soon if the medium to collect and share content is kept open and free. We aim to make educational materials easily accessible and free for everyone. 
             </p>
+            <p>
+                The main problem of students and the learners is difficulty to find their files when wanted. It is because of the unmanaged storing of data in their device. Anyone can upload their documents and files here and access whenever wanted. 
+            </p>
+            <p>
+                We strongly believe this platform will play the lifesaver role for those who are going through different struggles like:
+            </p>
+            <ul>
+                <li>Difficult finding educational notes</li>
+                <li>Unmanaged files</li>
+                <li>Lack of storage</li>
+                <li>Sharing files</li>
+                <li>Getting recognition</li>
+                <li>And mainly the contribution to the digital and free education</li>
+            </ul>
         </div>
         <div class="about-animations" ref="anim" @mouseenter="mouse_anim" @mouseleave="mouse_anim">
             <transition name="fade">
@@ -96,13 +110,18 @@ export default {
     position: relative;
 }
 
-.about-info > p {
+.about-info > ul {
+    margin-left: 10%;
+}
+
+.about-info > p, .about-info > ul {
     padding: 2vh 2vw;
     font-size: 150%;
     font-family: 'Comfortaa', cursive;
     line-height: 40px;
     text-align: justify;
 }
+
 
 .about-info > h2 {
     padding: 20px;
@@ -129,7 +148,7 @@ export default {
 
 @media screen and (max-width: 1500px){
     
-    .about-info > p {
+    .about-info > p, .about-info > ul {
         font-size: 120%;
         line-height: 35px;
     }
@@ -138,7 +157,7 @@ export default {
 
 @media screen and (max-width: 1200px){
 
-    .about-info > p{
+    .about-info > p, .about-info > ul{
         font-size: 100%;
         line-height: 30px;
     }
@@ -177,7 +196,7 @@ export default {
     .about-info > h2 {
         font-size: 100%;
     }
-    .about-info > p {
+    .about-info > p, .about-info > ul {
         font-size: 80%;
         line-height: 25px;
     }
