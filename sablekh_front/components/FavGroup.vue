@@ -4,6 +4,8 @@
 
         <div class="favgroup-wrapper">
 
+            <img src="@/assets/ill2.png" alt="vector" class="top-img">
+
             <h1>Favourite Groups</h1>
 
             <div class="each-library" :key="group.hid" v-for="group in groups" @click="group_clicked(group)">
@@ -121,6 +123,10 @@ export default {
 
 <style scoped>
 
+    .top-img {
+        margin: 5vh;
+    }
+
     .group-libs {
         display: flex;
         flex-direction: column;
@@ -232,6 +238,11 @@ export default {
 }
 
 @media screen and (max-width: 500px){
+
+    .top-img {
+        width: 70%;
+    }
+
     .library-info > h1 {
         margin-bottom: 5px;
     }

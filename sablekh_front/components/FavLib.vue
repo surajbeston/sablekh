@@ -3,6 +3,8 @@
         <Header />
         <div class="favlib-wrapper">
 
+            <img src="@/assets/ill2.png" alt="vector" class="top-img">
+
             <h1>Favourite Libraries</h1>
 
             <div :key="lib.id" v-for="lib in libraries" @click="lib_clicked(lib)" class="each-libs">
@@ -128,6 +130,10 @@ export default {
 
 <style scoped>
 
+.top-img {
+    margin: 5vh 0;
+}
+
 .likes > img,
 .downloads > img {
     height: 50%;
@@ -222,6 +228,9 @@ export default {
 }
 
 @media screen and (max-width: 500px) {
+    .top-img {
+        width: 70%;
+    }
     .likes-div {
         width: 50%;
     }

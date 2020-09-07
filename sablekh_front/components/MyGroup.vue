@@ -3,7 +3,7 @@
         <Header />
         <div class="my-library-wrapper1">
             <button @click="create_clicked" class="btn create-btn">New</button>
-            <img class="top-img" src="@/assets/library/library-top.png" alt="vector img">
+            <img class="top-img" src="@/assets/ill1.png" alt="vector img">
             <h1 class="your-library">
                 Your Groups
             </h1>
