@@ -8,9 +8,10 @@
 
             <h1>Favourite Groups</h1>
 
-            <div class="each-library" :key="group.hid" v-for="group in groups" @click="group_clicked(group)">
-                <img :src="group.thumbnail" alt="loading image" class="book-img">
-                <div class="library-info">
+            <div class="each-library" :key="group.hid" v-for="group in groups" >
+                <button @click="remove_clicked(group)" class="remove">Remove</button>
+                <img @click="group_clicked(group)" :src="group.thumbnail" alt="loading image" class="book-img">
+                <div @click="group_clicked(group)" class="library-info">
                     <h1 >{{group.title}}</h1>
                     <p>{{group.description}}</p>
                 </div>
@@ -41,6 +42,23 @@ export default {
         }
     },
     methods: {
+        remove_clicked(lib){
+            axios({
+                method: 'delete',
+                url: this.server_address + "/favourite-library-group",
+                headers: {
+                ...this.implicit_data()
+                },
+                data: {
+                "hid": lib.hid
+                }
+            })
+            .then(res => {
+                // console.log(res)
+                // this.is_fav = !this.is_fav
+                window.location.reload()
+            })
+        },
 
         group_clicked({link_str}) {
             window.location.href = "/group/" + link_str
@@ -123,6 +141,17 @@ export default {
 
 <style scoped>
 
+.remove {
+    border: none;
+    outline: none;
+    position: absolute;
+    padding: 5px 10px;
+    cursor: pointer;
+    right: 0;
+    top: 0;
+    background-color: rgb(255, 158, 32);
+}
+
     .top-img {
         margin: 5vh;
     }
@@ -177,6 +206,7 @@ export default {
         grid-template-columns: 2fr 10fr 1fr;
         align-items: center;
         box-shadow: 0 5px 10px rgb(228, 213, 193);
+        position: relative;
     }
 
     h1 {
