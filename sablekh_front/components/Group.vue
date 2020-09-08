@@ -22,7 +22,7 @@
             <div v-show="!check_len" class="results-section">
                <div :key="lib.hid" v-for="lib in up_libraries" class="each-lib">
                    <div class="each1" @click="lib_clicked(lib)">
-                       <img class="lib-img"  src="@/assets/search/book2.png" alt="book image">
+                       <img class="lib-img"  :src="lib.thumbnail" alt="book image">
                        <div class="lib-info">
                            <span class="lib-name">{{lib.title}}</span>
                            <span class="lib-desc">{{lib.description}}</span>
@@ -101,7 +101,6 @@ export default {
             error: "Aejhg kj kug"
         }
     },
-
     methods: {
 
         lib_clicked(lib){
@@ -137,7 +136,8 @@ export default {
             this.is_deleting = true;
         },
         create_clicked(){
-            if (this.check_len) this.displayError("Please add some library to create a group.")
+            //.log(this.checked_libs)
+            if (this.checked_libs.length == 0) this.displayError("Please add some library to create a group.")
             else if (this.check_name_des) this.displayError("Please add name and description to create a group.")
             else{
                 axios({
@@ -268,7 +268,7 @@ export default {
             this.name = prev_data.name
             this.description = prev_data.description
             this.checked_libs = prev_data.checked_libs
-            // console.log(prev_data)
+            // //.log(prev_data)
         }
 
         axios({
@@ -552,6 +552,7 @@ export default {
     outline: none;
     border: 1px solid rgb(161, 134, 97);
     letter-spacing: 1px;
+    font-family: 'Ubuntu', sans-serif;
 }
 
 label {

@@ -37,7 +37,7 @@ def migrate_data(records):
         cursor.executemany("""INSERT INTO api_tag VALUES (%(id)s, %(tag)s, %(datetime)s)""", formatted_tags)
         cursor.executemany(""" INSERT INTO api_downloadlot VALUES (%(id)s, %(zipname)s, %(datetime)s, %(files)s, %(downloads)s, %(library_id)s, %(visitor_id)s) """, formatted_downloadlot)
         cursor.executemany(""" INSERT INTO api_file VALUES (%(hid)s, %(title)s, %(_file)s, %(size)s, %(library)s)""", formatted_file)
-        cursor.executemany(""" INSERT INTO api_library VALUES (%(hid)s, %(title)s,%(description)s, %(thumbnail)s, %(link_str)s, %(tags)s, %(finished)s, %(datetime)s,%(no_files)s,%(user_id)s,%(searchable)s, %(_order)s)""", formatted_library)
+        cursor.executemany(""" INSERT INTO api_library VALUES (%(hid)s, %(title)s,%(description)s, %(thumbnail)s, %(link_str)s, %(tags)s, %(finished)s,%(searchable)s, %(datetime)s,%(no_files)s,%(user_id)s, %(_order)s)""", formatted_library)
         cursor.executemany(""" INSERT INTO api_like VALUES (%(id)s, %(datetime)s, %(library_id)s,%(user_id)s)""", formatted_like)
         cursor.executemany(""" INSERT INTO api_visitor VALUES (%(id)s,%(hid)s)""", formatted_visitor)
         cursor.executemany(""" INSERT INTO auth_user VALUES (%(id)s, %(password)s, %(last_login)s, %(is_superuser)s, %(username)s, %(first_name)s, %(last_name)s, %(email)s, %(is_staff)s, %(is_active)s, %(date_joined)s)""", formatted_user)

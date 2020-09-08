@@ -58,7 +58,7 @@ export default {
                 }
             })
             .then(res => {
-                // console.log(res)
+                // //.log(res)
                 // this.is_fav = !this.is_fav
                 window.location.reload()
             })
@@ -101,7 +101,7 @@ export default {
 
         })
         .then(res => {
-            // console.log(res.data)
+            // //.log(res.data)
             this.page = res.data.page
             this.total_page = res.data.total_page
             this.libraries = this.return_libs(res.data.data)
@@ -157,6 +157,7 @@ export default {
     right: 0;
     top: 0;
     background-color: rgb(255, 158, 32);
+    border-top-right-radius: 10px;
 }
 
 .top-img {
@@ -186,9 +187,10 @@ export default {
 }
 
     .lib-name {
-        font-size: 170%;
-        font-family: 'Staatliches', cursive;
+        font-size:  180%;
+        font-family: 'Rajdhani', sans-serif;
         letter-spacing: 1px;
+        font-weight: 500;
     }
 
     .lib-desc {

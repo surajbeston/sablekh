@@ -50,24 +50,18 @@ class LibraryGroup(models.Model):
     datetime = models.DateTimeField(auto_now=True)
     no_libraries = models.IntegerField(default = 0)
 
-    class Meta:
-        order_with_respect_to = 'datetime'
 
 class FavouriteLibrary(models.Model):
     user =  models.ForeignKey(Visitor, on_delete= models.CASCADE)
     library = models.ForeignKey(Library, on_delete= models.CASCADE)
     datetime = models.DateTimeField(auto_now=True)
 
-    class Meta:
-        order_with_respect_to = 'datetime'
+
 
 class FavouriteLibraryGroup(models.Model):
     user =  models.ForeignKey(Visitor, on_delete= models.CASCADE)
     library_group = models.ForeignKey(LibraryGroup, on_delete= models.CASCADE)
     datetime = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        order_with_respect_to = 'datetime'
 
 
 class File(models.Model):

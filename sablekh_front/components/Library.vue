@@ -7,7 +7,7 @@
       <span class="tooltip-text">{{tooltip_text}}</span>
     </div>
       <!-- <img src="@/assets/logo1.png" alt="loading image" class="logo-img" /> -->
-      <div v-if = "loader_on">
+      <div v-if = "!data.loaded">
         <span class="loader"></span>
       </div>
       <div v-else>
@@ -24,7 +24,7 @@
             <span>{{fav_desc_text}}</span>
           </div>
           <img class="book-img" :src="data.library_thumbnail" alt="book" />
-          <span class="username"><b>From: </b>{{data.username}}</span>
+          <span class="username"><b>Contributor: </b>{{data.username}}</span>
           <h1 class="library-title">{{data.library_name}}</h1>
           <p class="library-desc">{{data.library_desc}}</p>
           <div class="lib-tags" v-bind:key="tag" v-for="tag in data.library_tags">
@@ -141,7 +141,7 @@ export default {
   },
     head() {
       return {
-        title: "Sablekh: "+this.data.loaded ? this.data.library_name: "",
+        title: this.data.loaded ? this.data.library_name + this.tag_to_string()+ ": Sablekh": "",
         meta: [
           {
             hid: 'description',
@@ -151,7 +151,7 @@ export default {
           {
             hid: 'og:image',
             property: 'og:image',
-            content: this.data.loaded ? this.data.library_thumbnail: ""
+            content: this.data.loaded ? this.data.library_thumbnail : ""
           },
           {
             hid: 'og:type',
@@ -161,7 +161,7 @@ export default {
           {
             hid: 'og:title',
             property: 'og:title',
-            content: "Sablekh: "+this.data.loaded ? this.data.library_name: ""
+            content: this.data.loaded ? this.data.library_name:"" 
           },
           {
             hid: 'og:description',
@@ -238,13 +238,19 @@ export default {
         }
       })
       .then(res => {
-        // console.log(res)
+        // //.log(res)
         this.is_fav = !this.is_fav
       })
       
 
     },
 
+    tag_to_string(){
+      var tag_string = " for "
+      var tags =  (this.data.library_tags.length > 2) ? this.data.library_tags.slice(0, 2): this.data.library_tags
+      for (var tag of tags) tag_string += tag + ", "
+      return tag_string.slice(0, tag_string.length - 2)
+    },
     library_stuffs(){
       // this.loader_on = true
       if(window.localStorage.getItem("username") === this.data.username) {
@@ -302,7 +308,7 @@ export default {
           this.is_liked = true;
         }) 
         .catch((e) => {
-          // console.log(e.response)
+          // //.log(e.response)
         });
       }
 
@@ -358,7 +364,7 @@ export default {
           }
         })
         .catch((e) => {
-          // console.log(e.response)
+          // //.log(e.response)
         });
     },
     checkbox_clicked(id) {
@@ -423,7 +429,7 @@ export default {
         })
           .then((res) => {
             // //.log(res)
-            // console.log(res.data.filename)
+            // //.log(res.data.filename)
             this.download(res.data.filename)
           })
           .catch((e) => {
@@ -471,7 +477,7 @@ export default {
             }
             window.localStorage.setItem("session_key", session_key)
         }
-        // console.log(session_key)
+        // //.log(session_key)
         if (process.server) return {"site":  "---"+session_key, "link": "", "timetaken": new Date().getTime() -this.time }
         else return {"site": document.referrer+ "---"+session_key, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
         },
@@ -502,7 +508,7 @@ export default {
       let top = this.top + 'px'
       let left = this.left + 'px'
 
-      console.log(top, left)
+      //.log(top, left)
 
       return {
         top,
@@ -549,47 +555,14 @@ export default {
     if (!this.lib_id) {
       window.location.replace("/");
     }
+    else{
+      if (!this.data || !this.data.loaded) window.location.replace(`https://sablekh.com/library/${this.lib_id}`)
+    }
     this.token = window.localStorage.getItem("token");
     if (this.token){
       this.authenticated = true
       this.library_stuffs()
     }
-
-
-    if (!this.data.loaded){
-      axios({
-        url: "https://api.sablekh.com" + "/link",
-        method: "post",
-        headers: {site: "", referrer: "", timetaken : new Date().getTime(), link: ""},
-        data: {link_str: this.lib_id}
-      }).then(res =>{
-
-
-        var files = res.data.files
-
-      files = files.map(e => {
-        let each = e.title.split(".");
-        let a = each[0];
-        let lent = a.length;
-        e.title = `${a.substring(0, a.length > 5 ? 5 : a.length)}.${each[1]}`;
-        return e
-      });
-
-        this.data = {
-          hid: res.data.hid,
-          library_name: res.data.title,
-          library_desc: res.data.description,
-          library_thumbnail: res.data.thumbnail,
-          library_tags: res.data.tags,
-          files,
-          likes: res.data.likes,
-          downloads: res.data.downloads,
-          username: res.data.username,
-          loaded: true
-        }
-      })
-    }
-
 
     this.check_like()
     this.check_if_fav()
