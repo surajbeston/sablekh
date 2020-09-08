@@ -79,7 +79,7 @@ export default {
 
         })
         .then(res => {
-            console.log(res.data)
+            // console.log(res.data)
             this.page = res.data.page
             this.total_page = res.data.total_page
             this.groups = this.return_groups(res.data.data)

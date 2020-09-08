@@ -84,7 +84,7 @@ export default {
             .then(res => {
                 this.sending = true
                 this.btn_txt = "Create"
-                console.log("reached here")
+                // console.log("reached here")
                 axios({
                     url: this.server_address + "/token",
                     method: "post",
@@ -129,7 +129,7 @@ export default {
                     })
                     .catch(err => {
                         var data = err.response
-                        console.log(data)
+                        // console.log(data)
                         this.sending = false
                         this.btn_txt = "Create"
                         if (data.status == 303) this.show_error("User with this email already exists.")

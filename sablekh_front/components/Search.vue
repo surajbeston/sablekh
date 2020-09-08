@@ -166,7 +166,7 @@ export default {
 
                     this.loaded = false
                     this.loader_on = false 
-                    console.log(res)
+                    // console.log(res)
                 }) 
             }
         },
@@ -294,7 +294,7 @@ export default {
         this.search_books = []
 
         var libs = this.previous_libraries;
-        console.log(libs)
+        // console.log(libs)
         for (var previous_library of this.previous_libraries){
             axios({
                 url: `${this.server_address}/get-library`,
@@ -314,7 +314,7 @@ export default {
             method: "get",
             headers: this.implicit_data()
         }).then(res => {
-            console.log(res)
+            // console.log(res)
             this.all_tags = res.data.tags
             this.fuse = new Fuse(this.all_tags, {}) 
         })

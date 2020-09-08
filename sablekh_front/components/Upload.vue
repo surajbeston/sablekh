@@ -49,13 +49,13 @@
                             </div>
                         </div>
                     </div>
-                    <div v-show="is_owner && wants_to_delete && lib_str" class="alert-box">
+                    <!-- <div v-show="is_owner && wants_to_delete && lib_str" class="alert-box">
                         <h3>Delete this library?</h3>
                         <div class="buttons">
                             <button class="btn yes-btn" @click="yes_button">Yes</button>
                             <button class="btn no-btn" @click="no_button">No</button>
                         </div>
-                    </div>
+                    </div> -->
                     <div class="searchable">
                         <input type="checkbox" v-model="searchable" id="searchable">
                         <label for="searchable">Make it searchable</label>
@@ -123,6 +123,8 @@ export default {
     methods: {
 
         delete_button() {
+            document.body.scrollTop = 0
+            document.documentElement.scrollTop = 0
             this.wants_to_delete = true;
         },
         yes_button() {
@@ -144,26 +146,9 @@ export default {
             this.wants_to_delete = false;
         },
         library_stuffs() {
-            axios({
-                url: this.url + "all-libraries",
-                method: 'post',
-                headers: {
-                    ...this.implicit_data(),
-                    Authorization: 'Token ' + this.auth_token
-                },
-            })
-            .then(res => {
-                var data = res.data;
-
-                if (data.filter(e => e.hid === this.library).length > 0) {
-                    this.is_owner = true;
-                }
-                else {
-                    window.location.href = "/"
-                }
-            })
-            .catch(e => {
-            })
+            if(window.localStorage.getItem("username") === this.username) {
+                this.is_owner = true
+            }
 
         },
 
@@ -545,6 +530,7 @@ export default {
                 headers: this.implicit_data()
             })
             .then(res => {
+                this.username = res.data.username
                 this.title = res.data.title,
                 this.description = res.data.description
                 this.library = res.data.hid

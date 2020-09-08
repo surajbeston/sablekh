@@ -79,7 +79,7 @@ export default {
             data: {"email": this.email, "password": this.password}
           })
           .then(res => {
-            console.log(res.data)
+            // console.log(res.data)
             this.sending = true
             this.btn_txt = "Sending"
             var token = res.data.token
