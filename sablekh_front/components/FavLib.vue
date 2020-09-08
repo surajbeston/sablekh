@@ -83,7 +83,7 @@ export default {
 
         })
         .then(res => {
-            //.log(res.data)
+            // console.log(res.data)
             this.page = res.data.page
             this.total_page = res.data.total_page
             this.libraries = this.return_libs(res.data.data)

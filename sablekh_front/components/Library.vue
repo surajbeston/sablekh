@@ -192,7 +192,7 @@ export default {
         }
       })
       .then(res => {
-        //.log(res)
+        // console.log(res)
         this.is_fav = !this.is_fav
       })
       
@@ -201,7 +201,7 @@ export default {
 
     library_stuffs(){
       // this.loader_on = true
-      if(window.localStorage.getItem("username") === this.library_username) {
+      if(window.localStorage.getItem("username") === this.data.username) {
         this.is_in_user_library = true
       }
     },
@@ -256,7 +256,7 @@ export default {
           this.is_liked = true;
         }) 
         .catch((e) => {
-          //.log(e.response)
+          // console.log(e.response)
         });
       }
 
@@ -312,7 +312,7 @@ export default {
           }
         })
         .catch((e) => {
-          //.log(e.response)
+          // console.log(e.response)
         });
     },
     checkbox_clicked(id) {
@@ -377,7 +377,7 @@ export default {
         })
           .then((res) => {
             // //.log(res)
-            //.log(res.data.filename)
+            // console.log(res.data.filename)
             this.download(res.data.filename)
           })
           .catch((e) => {
@@ -425,7 +425,7 @@ export default {
             }
             window.localStorage.setItem("session_key", session_key)
         }
-        //.log(session_key)
+        // console.log(session_key)
         if (process.server) return {"site":  "---"+session_key, "link": "", "timetaken": new Date().getTime() -this.time }
         else return {"site": document.referrer+ "---"+session_key, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
         },
@@ -493,6 +493,7 @@ export default {
     this.token = window.localStorage.getItem("token");
     if (this.token){
       this.authenticated = true
+      this.library_stuffs()
     }
 
     this.check_like()

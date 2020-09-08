@@ -29,8 +29,8 @@
 
             <span class="avai-libs">Libraries</span>
             
-            <div :key="lib.id" v-for="lib in group.libraries" @click="lib_clicked(lib)" class="each-libs">
-                <img class="lib-img"  :src="lib.thumbnail" alt="book image">
+            <div :key="lib.id" v-for="lib in up_libraries" @click="lib_clicked(lib)" class="each-libs">
+                <img class="lib-img"  src="@/assets/search/book2.png" alt="book image">
                 <div class="lib-info">
                     <span class="lib-name">{{lib.title}}</span>
                     <span class="lib-desc">{{lib.description}}</span>
@@ -66,6 +66,7 @@ export default {
             is_copy: false,
             hasSuccess: false,
             success: "",
+            libs: [],
         }
     },
     methods: {
@@ -95,11 +96,11 @@ export default {
                 }
             })
             .then(res => {
-               //(res.data)
+                // console.log(res.data)
                 this.is_fav = res.data.exists;
             })
             .catch(e => {
-               //(e.response)
+                // console.log(e.response)
             })
         },
 
@@ -129,7 +130,7 @@ export default {
             }
         })
         .then(res => {
-           //(res)
+            // console.log(res)
             this.is_fav = !this.is_fav
         })
         
@@ -148,7 +149,7 @@ export default {
     mounted() {
 
         this.token = window.localStorage.getItem("token")
-        if(this.token) {
+        if(this.token) {S
             this.authenticated = true
         }
 
@@ -164,17 +165,26 @@ export default {
         })
         .then(res => {
             this.group = res.data
+            this.libs = res.data.libraries
             this.check_if_fav()
 
         })
         .catch(err => {
-           //(err)
+            // console.log(err)
         })
 
 
 
     },
     computed: {
+        up_libraries(){
+            var libraries =  Object.values(this.libs)
+            for (var library of libraries){
+                if (library.title.length > 50) library.title = library.title.slice(0, 47) + "..."
+                if (library.description.length > 70) library.description = library.description.slice(0, 67) + "..."
+            }
+            return libraries
+        },
 
         get_method(){
             return (this.is_fav) ? "delete"  : "put";
@@ -270,6 +280,8 @@ export default {
         font-size: 120%;
         margin-bottom: 5vh;
         font-family: 'Comfortaa', cursive;
+    text-align: justify;
+
     }
 
     .tags {

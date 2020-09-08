@@ -20,7 +20,7 @@
             <span v-show="!check_len" class="av-lib">Available Libraries</span>
 
             <div v-show="!check_len" class="results-section">
-               <div :key="lib.hid" v-for="lib in selected_libs" class="each-lib">
+               <div :key="lib.hid" v-for="lib in up_libraries" class="each-lib">
                    <div class="each1" @click="lib_clicked(lib)">
                        <img class="lib-img"  :src="lib.thumbnail" alt="book image">
                        <div class="lib-info">
@@ -127,7 +127,7 @@ export default {
                 }
             })
             .then(res => {
-                window.location.href = "/"
+                window.location.href = "/group"
             })
             .catch(e => {});
         },
@@ -157,7 +157,7 @@ export default {
                     }
                 })
                 .then(res => {
-                    window.location.href = "/create-group/" + res.data.link_str;
+                    window.location.href = "/group/" + res.data.link_str;
                 })
                 .catch(e => {})
            }
@@ -226,6 +226,14 @@ export default {
     },
 
     computed: {
+        up_libraries(){
+            var libraries =  Object.values(this.selected_libs)
+            for (var library of libraries){
+                if (library.title.length > 50) library.title = library.title.slice(0, 47) + "..."
+                if (library.description.length > 70) library.description = library.description.slice(0, 67) + "..."
+            }
+            return libraries
+        },
         create_or_update(){
             return (this.show_delete) ? "Update" : "Create";
         },
@@ -260,7 +268,7 @@ export default {
             this.name = prev_data.name
             this.description = prev_data.description
             this.checked_libs = prev_data.checked_libs
-            //.log(prev_data)
+            // console.log(prev_data)
         }
 
         axios({
@@ -479,7 +487,7 @@ export default {
 .each1 {
     background-color: white;
     margin-top: 1vh;
-    margin-bottom: 1vh;
+    margin-bottom: 2vh;
     border-radius: 10px;
     padding: 10px;
     display: flex;
