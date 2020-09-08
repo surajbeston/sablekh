@@ -494,37 +494,41 @@ export default {
 
 
     if (!this.data.loaded){
-      axios({
-        url: "https://api.sablekh.com" + "/link",
-        method: "post",
-        headers: {site: "", referrer: "", timetaken : new Date().getTime(), link: ""},
-        data: {link_str: this.lib_id}
-      }).then(res =>{
+
+      location.replace("https://sablekh.com/library/"+this.lib_id)
 
 
-        var files = res.data.files
+      // axios({
+      //   url: "https://api.sablekh.com" + "/link",
+      //   method: "post",
+      //   headers: {site: "", referrer: "", timetaken : new Date().getTime(), link: ""},
+      //   data: {link_str: this.lib_id}
+      // }).then(res =>{
 
-      files = files.map(e => {
-        let each = e.title.split(".");
-        let a = each[0];
-        let lent = a.length;
-        e.title = `${a.substring(0, a.length > 5 ? 5 : a.length)}.${each[1]}`;
-        return e
-      });
 
-        this.data = {
-          hid: res.data.hid,
-          library_name: res.data.title,
-          library_desc: res.data.description,
-          library_thumbnail: res.data.thumbnail,
-          library_tags: res.data.tags,
-          files,
-          likes: res.data.likes,
-          downloads: res.data.downloads,
-          username: res.data.username,
-          loaded: true
-        }
-      })
+      //   var files = res.data.files
+
+      // files = files.map(e => {
+      //   let each = e.title.split(".");
+      //   let a = each[0];
+      //   let lent = a.length;
+      //   e.title = `${a.substring(0, a.length > 5 ? 5 : a.length)}.${each[1]}`;
+      //   return e
+      // });
+
+      //   this.data = {
+      //     hid: res.data.hid,
+      //     library_name: res.data.title,
+      //     library_desc: res.data.description,
+      //     library_thumbnail: res.data.thumbnail,
+      //     library_tags: res.data.tags,
+      //     files,
+      //     likes: res.data.likes,
+      //     downloads: res.data.downloads,
+      //     username: res.data.username,
+      //     loaded: true
+      //   }
+      // })
     }
 
 
