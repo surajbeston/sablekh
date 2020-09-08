@@ -119,7 +119,7 @@ export default {
   },
     head() {
       return {
-        title: "Sablekh: "+this.data.loaded ? this.data.library_name: "",
+        title: this.data.loaded ? this.data.library_name + this.tag_to_string()+ " : Sablekh": "",
         meta: [
           {
             hid: 'description',
@@ -129,7 +129,7 @@ export default {
           {
             hid: 'og:image',
             property: 'og:image',
-            content: this.data.loaded ? this.data.library_thumbnail: ""
+            content: this.data.loaded ? this.data.library_thumbnail : ""
           },
           {
             hid: 'og:type',
@@ -139,7 +139,7 @@ export default {
           {
             hid: 'og:title',
             property: 'og:title',
-            content: "Sablekh: "+this.data.loaded ? this.data.library_name: ""
+            content: this.data.loaded ? this.data.library_name + this.tag_to_string()+ " : Sablekh": "",
           },
           {
             hid: 'og:description',
@@ -199,6 +199,12 @@ export default {
 
     },
 
+    tag_to_string(){
+      var tag_string = " for "
+      var tags =  (this.data.library_tags.length > 2) ? this.data.library_tags.slice(0, 2): this.data.library_tags
+      for (var tag of tags) tag_string += tag + ", "
+      return tag_string.slice(0, tag_string.length - 2)
+    },
     library_stuffs(){
       // this.loader_on = true
       if(window.localStorage.getItem("username") === this.data.username) {

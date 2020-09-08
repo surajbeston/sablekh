@@ -18,6 +18,7 @@
             <span class="title">
                 {{group.title}}
             </span>
+
             <span class="desc">
                 {{group.description}}
             </span>
@@ -30,7 +31,7 @@
             <span class="avai-libs">Libraries</span>
             
             <div :key="lib.id" v-for="lib in up_libraries" @click="lib_clicked(lib)" class="each-libs">
-                <img class="lib-img"  src="@/assets/search/book2.png" alt="book image">
+                <img class="lib-img"  :src="lib.thumbnail" alt="book image">
                 <div class="lib-info">
                     <span class="lib-name">{{lib.title}}</span>
                     <span class="lib-desc">{{lib.description}}</span>
@@ -55,11 +56,13 @@
 import axios from "axios";
 
 export default {
+
+    props: ["data"],
     
     data() {
         return {
             server_address: "https://api.sablekh.com",
-            group: {},
+            group: {title: "", description: ""},
             show_fav_desc: false,
             is_fav: false,
             authenticated: false,
@@ -67,6 +70,38 @@ export default {
             hasSuccess: false,
             success: "",
             libs: [],
+        }
+    },
+    head(){
+        return{
+             title: this.data.loaded ? this.data.title: "",
+            meta: [
+          {
+            hid: 'description',
+            name: 'description',
+            content: this.data.loaded ? this.data.description: ""
+          },
+          {
+            hid: 'og:type',
+            property: 'og:type',
+            content: 'book'
+          },
+          {
+            hid: 'og:image',
+            property: 'og:image',
+            content: "https://api.sablekh.com/thumbnails/default.jpg"
+          },
+          {
+            hid: 'og:title',
+            property: 'og:title',
+            content: this.data.loaded ? this.data.title : "",
+          },
+          {
+            hid: 'og:description',
+            property: 'og:description',
+            content: this.data.loaded ? this.data.description: ""
+          }
+        ]
         }
     },
     methods: {
@@ -149,9 +184,17 @@ export default {
     mounted() {
 
         this.token = window.localStorage.getItem("token")
-        if(this.token) {S
+        if(this.token) {
             this.authenticated = true
         }
+
+        // if (this.loaded){
+        //     this.check_if_fav()
+        // }
+        // else{
+        //     window.location.replace(`/group/${this.$route.params.id}`)
+        // }
+
 
 
         axios({

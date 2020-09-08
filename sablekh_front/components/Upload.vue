@@ -9,6 +9,7 @@
                         <h1 class = "head1">Upload</h1>
                         <p class = "description">Create your small library and share it with the world. You can add upto 10 files, each not exceeding 50MB in size.</p>
                         <div class="input-section" v-bind:class="{alternative: activate}">
+                            <div id = "successBox" v-show="hasSuccess" ><p id = "successTxt"> {{success}}<img src = "@/assets/cancel.png" @click="hasSuccess =!hasSuccess" class = "cancelError"></p></div>
                             <div id = "errorBox" v-show="hasError" ><p id = "errorTxt"> {{error}}<img src = "@/assets/cancel.png" @click="hasError =!hasError" class = "cancelError"></p></div>
                             <label for="title">Title {{letters_title}}/150</label>
                             <input class="input-box" type="text" v-model="title" id="title" autofocus >
@@ -102,6 +103,8 @@ export default {
             headers: "",
             hasError: false,
             error: "This is error.",
+            hasSuccess: false,
+            success: "This is shit!",
             onDrag: true,
             fileLabel: "Drag & drop/click to add file",
             activate: false,
@@ -366,11 +369,20 @@ export default {
                 }
             },
             displayError(errorText){
+                this.hasSuccess = false
                 this.hasError = true
                 this.error = errorText
                 document.body.scrollTop = 0
                 document.documentElement.scrollTop = 0
             },
+
+            show_success(successTxt){
+                this.hasError = false
+                this.hasSuccess = true
+                this.success = successTxt
+                document.body.scrollTop = 0
+                document.documentElement.scrollTop = 0
+                },
         cancelUpload(random_id, plugout = false){
             //.log(random_id)
             for (var i in this.files){
@@ -554,6 +566,11 @@ export default {
             this.to_search = res.data.tags
             //.log(this.to_search)
     })
+
+    this.show_success("Add appropriate tags to make it more web visible!")
+
+
+
     }
 }
 </script>
@@ -730,6 +747,24 @@ export default {
 
     #errorBox{
         background-color: rgba(255, 0, 0, 0.4);
+        color: rgb(51, 47, 43);
+        border: 1px black solid;
+        border-radius: 5px;
+        padding : 2%;
+        font-size: 110%;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: bolder;
+        animation-name: fadein;
+        animation: fadein 1s;
+    }
+
+    @keyframes fadein {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+
+        #successBox{
+      background-color: rgba(134, 190, 87, 0.4);
         color: rgb(51, 47, 43);
         border: 1px black solid;
         border-radius: 5px;

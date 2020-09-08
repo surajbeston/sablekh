@@ -101,7 +101,6 @@ export default {
             error: "Aejhg kj kug"
         }
     },
-
     methods: {
 
         lib_clicked(lib){
@@ -137,7 +136,8 @@ export default {
             this.is_deleting = true;
         },
         create_clicked(){
-            if (this.check_len) this.displayError("Please add some library to create a group.")
+            console.log(this.checked_libs)
+            if (this.checked_libs.length == 0) this.displayError("Please add some library to create a group.")
             else if (this.check_name_des) this.displayError("Please add name and description to create a group.")
             else{
                 axios({
@@ -552,6 +552,7 @@ export default {
     outline: none;
     border: 1px solid rgb(161, 134, 97);
     letter-spacing: 1px;
+    font-family: 'Ubuntu', sans-serif;
 }
 
 label {
