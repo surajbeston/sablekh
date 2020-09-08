@@ -11,9 +11,9 @@ import axios from "axios"
 
 export default {
   async asyncData({params}){
-    console.log("this")
+
     var data =  axios({
-      url: "http://104.248.39.254" + "/link",
+      url: "https://api.sablekh.com" + "/link",
       method: "post",
       headers: {site: "", referrer: "", timetaken : new Date().getTime(), link: ""},
       data: {link_str: params.id}
@@ -39,7 +39,8 @@ export default {
           files,
           likes: res.data.likes,
           downloads: res.data.downloads,
-          username: res.data.username
+          username: res.data.username,
+          loaded: true
           }
       }
     }).catch(res => {
@@ -49,7 +50,7 @@ export default {
   },
   data(){
       return {
-          data: {"sdf": "sd"}
+          data: {"loaded": false}
       }
   },
 

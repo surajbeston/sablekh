@@ -8,7 +8,7 @@
             <h1>Favourite Libraries</h1>
 
             <div :key="lib.id" v-for="lib in libraries" @click="lib_clicked(lib)" class="each-libs">
-                <img class="lib-img"  src="@/assets/search/book2.png" alt="book image">
+                <img class="lib-img"  :src="lib.thumbnail" alt="book image">
                 <div class="lib-info">
                     <span class="lib-name">{{lib.title}}</span>
                     <span class="lib-desc">{{lib.description}}</span>
@@ -37,7 +37,7 @@ export default {
 
     data(){
         return{
-            server_address: "http://104.248.39.254",
+            server_address: "https://api.sablekh.com",
             libraries: [],
             page: 0,
             total_page: 0,

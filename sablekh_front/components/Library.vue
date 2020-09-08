@@ -93,7 +93,7 @@ export default {
 
   data() {
     return {
-      server_address: "http://104.248.39.254",
+      server_address: "https://api.sablekh.com",
       library_image_link: "https://pngimg.com/uploads/book/book_PNG51074.png",
       library_tags: [],
       selected_file: [],
@@ -119,17 +119,17 @@ export default {
   },
     head() {
       return {
-        title: "Sablekh: "+this.data.library_name,
+        title: "Sablekh: "+this.data.loaded ? this.data.library_name: "",
         meta: [
           {
             hid: 'description',
             name: 'description',
-            content: this.data.library_desc
+            content: this.data.loaded ? this.data.library_desc: ""
           },
           {
             hid: 'og:image',
             property: 'og:image',
-            content: this.data.library_thumbnail
+            content: this.data.loaded ? this.data.library_thumbnail: ""
           },
           {
             hid: 'og:type',
@@ -139,12 +139,12 @@ export default {
           {
             hid: 'og:title',
             property: 'og:title',
-            content: "Sablekh: "+this.data.library_name
+            content: "Sablekh: "+this.data.loaded ? this.data.library_name: ""
           },
           {
             hid: 'og:description',
             property: 'og:description',
-            content: this.data.library_desc
+            content: this.data.loaded ? this.data.library_desc: ""
           }
         ]
       }
@@ -165,7 +165,7 @@ export default {
             }
         })
         .then(res => {
-          // console.log(res.data)
+          // //.log(res.data)
             this.is_fav = res.data.exists;
         })
         },
@@ -472,7 +472,7 @@ export default {
     //   let top = pos.top;
     //   let left = pos.left;
 
-    //   console.log(top, left)
+    //   //.log(top, left)
     //   return {
 
     //   }
@@ -492,6 +492,42 @@ export default {
       this.authenticated = true
       this.library_stuffs()
     }
+
+
+    if (!this.data.loaded){
+      axios({
+        url: "https://api.sablekh.com" + "/link",
+        method: "post",
+        headers: {site: "", referrer: "", timetaken : new Date().getTime(), link: ""},
+        data: {link_str: this.lib_id}
+      }).then(res =>{
+
+
+        var files = res.data.files
+
+      files = files.map(e => {
+        let each = e.title.split(".");
+        let a = each[0];
+        let lent = a.length;
+        e.title = `${a.substring(0, a.length > 5 ? 5 : a.length)}.${each[1]}`;
+        return e
+      });
+
+        this.data = {
+          hid: res.data.hid,
+          library_name: res.data.title,
+          library_desc: res.data.description,
+          library_thumbnail: res.data.thumbnail,
+          library_tags: res.data.tags,
+          files,
+          likes: res.data.likes,
+          downloads: res.data.downloads,
+          username: res.data.username,
+          loaded: true
+        }
+      })
+    }
+
 
     this.check_like()
     this.check_if_fav()

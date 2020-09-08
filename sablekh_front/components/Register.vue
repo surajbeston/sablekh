@@ -40,7 +40,7 @@ import {getCookie} from "@/extras/cookie"
 export default {
   data() {
     return {
-        server_address: "http://104.248.39.254",
+        server_address: "https://api.sablekh.com",
         email: "",
         password1: "",
         password2: "",

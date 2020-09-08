@@ -58,7 +58,7 @@ export default {
     
     data() {
         return {
-            server_address: "http://104.248.39.254",
+            server_address: "https://api.sablekh.com",
             group: {},
             show_fav_desc: false,
             is_fav: false,
@@ -149,7 +149,7 @@ export default {
     mounted() {
 
         this.token = window.localStorage.getItem("token")
-        if(this.token) {
+        if(this.token) {S
             this.authenticated = true
         }
 
