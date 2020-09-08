@@ -22,7 +22,7 @@
             <div v-show="!check_len" class="results-section">
                <div :key="lib.hid" v-for="lib in selected_libs" class="each-lib">
                    <div class="each1" @click="lib_clicked(lib)">
-                       <img class="lib-img"  src="@/assets/search/book2.png" alt="book image">
+                       <img class="lib-img"  :src="lib.thumbnail" alt="book image">
                        <div class="lib-info">
                            <span class="lib-name">{{lib.title}}</span>
                            <span class="lib-desc">{{lib.description}}</span>

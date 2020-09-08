@@ -4,7 +4,7 @@
     <div class="library-component mxw-100-mnh-100" >
       <Header />
       <!-- <img src="@/assets/logo1.png" alt="loading image" class="logo-img" /> -->
-      <div v-if = "loader_on">
+      <div v-if = "!data.loaded">
         <span class="loader"></span>
       </div>
       <div v-else>
@@ -21,7 +21,7 @@
             <span>{{fav_desc_text}}</span>
           </div>
           <img class="book-img" :src="data.library_thumbnail" alt="book" />
-          <span class="username"><b>From: </b>{{data.username}}</span>
+          <span class="username"><b>Contributor: </b>{{data.username}}</span>
           <h1 class="library-title">{{data.library_name}}</h1>
           <p class="library-desc">{{data.library_desc}}</p>
           <div class="lib-tags" v-bind:key="tag" v-for="tag in data.library_tags">
@@ -487,50 +487,13 @@ export default {
     if (!this.lib_id) {
       window.location.replace("/");
     }
+    else{
+      if (!this.data || !this.data.loaded) window.location.replace(`https://sablekh.com/library/${this.lib_id}`)
+    }
     this.token = window.localStorage.getItem("token");
     if (this.token){
       this.authenticated = true
     }
-
-
-    if (!this.data.loaded){
-
-      location.replace("https://sablekh.com/library/"+this.lib_id)
-
-
-      // axios({
-      //   url: "https://api.sablekh.com" + "/link",
-      //   method: "post",
-      //   headers: {site: "", referrer: "", timetaken : new Date().getTime(), link: ""},
-      //   data: {link_str: this.lib_id}
-      // }).then(res =>{
-
-
-      //   var files = res.data.files
-
-      // files = files.map(e => {
-      //   let each = e.title.split(".");
-      //   let a = each[0];
-      //   let lent = a.length;
-      //   e.title = `${a.substring(0, a.length > 5 ? 5 : a.length)}.${each[1]}`;
-      //   return e
-      // });
-
-      //   this.data = {
-      //     hid: res.data.hid,
-      //     library_name: res.data.title,
-      //     library_desc: res.data.description,
-      //     library_thumbnail: res.data.thumbnail,
-      //     library_tags: res.data.tags,
-      //     files,
-      //     likes: res.data.likes,
-      //     downloads: res.data.downloads,
-      //     username: res.data.username,
-      //     loaded: true
-      //   }
-      // })
-    }
-
 
     this.check_like()
     this.check_if_fav()

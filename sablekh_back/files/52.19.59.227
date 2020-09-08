@@ -1,4 +1,0 @@
-# Nmap 7.70 scan initiated Wed Jun 17 13:13:51 2020 as: nmap -v -oN 52.19.59.227
-Read data files from: /usr/bin/../share/nmap
-WARNING: No targets were specified, so 0 hosts scanned.
-# Nmap done at Wed Jun 17 13:13:51 2020 -- 0 IP addresses (0 hosts up) scanned in 0.10 seconds
