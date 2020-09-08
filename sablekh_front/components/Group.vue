@@ -136,7 +136,7 @@ export default {
             this.is_deleting = true;
         },
         create_clicked(){
-            console.log(this.checked_libs)
+            //.log(this.checked_libs)
             if (this.checked_libs.length == 0) this.displayError("Please add some library to create a group.")
             else if (this.check_name_des) this.displayError("Please add name and description to create a group.")
             else{
@@ -268,7 +268,7 @@ export default {
             this.name = prev_data.name
             this.description = prev_data.description
             this.checked_libs = prev_data.checked_libs
-            // console.log(prev_data)
+            // //.log(prev_data)
         }
 
         axios({

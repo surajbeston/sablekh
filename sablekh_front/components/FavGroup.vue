@@ -54,7 +54,7 @@ export default {
                 }
             })
             .then(res => {
-                // console.log(res)
+                // //.log(res)
                 // this.is_fav = !this.is_fav
                 window.location.reload()
             })
@@ -97,7 +97,7 @@ export default {
 
         })
         .then(res => {
-            // console.log(res.data)
+            // //.log(res.data)
             this.page = res.data.page
             this.total_page = res.data.total_page
             this.groups = this.return_groups(res.data.data)
@@ -150,6 +150,7 @@ export default {
     right: 0;
     top: 0;
     background-color: rgb(255, 158, 32);
+    border-top-right-radius: 10px;
 }
 
     .top-img {

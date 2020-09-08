@@ -131,11 +131,11 @@ export default {
                 }
             })
             .then(res => {
-                // console.log(res.data)
+                // //.log(res.data)
                 this.is_fav = res.data.exists;
             })
             .catch(e => {
-                // console.log(e.response)
+                // //.log(e.response)
             })
         },
 
@@ -165,7 +165,7 @@ export default {
             }
         })
         .then(res => {
-            // console.log(res)
+            // //.log(res)
             this.is_fav = !this.is_fav
         })
         
@@ -213,7 +213,7 @@ export default {
 
         })
         .catch(err => {
-            // console.log(err)
+            // //.log(err)
         })
 
 

@@ -265,7 +265,7 @@ export default {
                 }
             },
             get_filename(fileType){
-                    //.log(fileType)
+                    //.log(fileType).log(
                     var filename;
                     //.log(fileType)
                     if (!fileType) return "/filenames/text.png"
@@ -549,8 +549,8 @@ export default {
                 this.tags = res.data.tags
                 this.files = res.data.files
                 for (var file of this.files){
-                    file.totalsize = file.size
-                    file.uploadedsize = file.size
+                    file.totalsize = (file.size/1024).toFixed(2)
+                    file.uploadedsize = (file.size/1024).toFixed(2)
                     file.uploaded = true
                     file.progress = "100%"
                     file.filename = this.get_filename(Mime.lookup(file.title))

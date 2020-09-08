@@ -141,7 +141,7 @@ export default {
   },
     head() {
       return {
-        title: this.data.loaded ? this.data.library_name + this.tag_to_string()+ " : Sablekh": "",
+        title: this.data.loaded ? this.data.library_name + this.tag_to_string()+ ": Sablekh": "",
         meta: [
           {
             hid: 'description',
@@ -161,7 +161,7 @@ export default {
           {
             hid: 'og:title',
             property: 'og:title',
-            content: this.data.loaded ? this.data.library_name + this.tag_to_string()+ " : Sablekh": "",
+            content: this.data.loaded ? this.data.library_name:"" 
           },
           {
             hid: 'og:description',
@@ -238,7 +238,7 @@ export default {
         }
       })
       .then(res => {
-        // console.log(res)
+        // //.log(res)
         this.is_fav = !this.is_fav
       })
       
@@ -308,7 +308,7 @@ export default {
           this.is_liked = true;
         }) 
         .catch((e) => {
-          // console.log(e.response)
+          // //.log(e.response)
         });
       }
 
@@ -364,7 +364,7 @@ export default {
           }
         })
         .catch((e) => {
-          // console.log(e.response)
+          // //.log(e.response)
         });
     },
     checkbox_clicked(id) {
@@ -429,7 +429,7 @@ export default {
         })
           .then((res) => {
             // //.log(res)
-            // console.log(res.data.filename)
+            // //.log(res.data.filename)
             this.download(res.data.filename)
           })
           .catch((e) => {
@@ -477,7 +477,7 @@ export default {
             }
             window.localStorage.setItem("session_key", session_key)
         }
-        // console.log(session_key)
+        // //.log(session_key)
         if (process.server) return {"site":  "---"+session_key, "link": "", "timetaken": new Date().getTime() -this.time }
         else return {"site": document.referrer+ "---"+session_key, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
         },
@@ -508,7 +508,7 @@ export default {
       let top = this.top + 'px'
       let left = this.left + 'px'
 
-      console.log(top, left)
+      //.log(top, left)
 
       return {
         top,
