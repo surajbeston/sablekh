@@ -279,7 +279,8 @@ export default {
     }
 
     .fav-desc {
-        background-color: rgb(241, 241, 241);
+        background-color: rgb(0, 0, 0);
+        color: white;
         padding: 10px 20px;
         border-radius: 5px;
         position: absolute;

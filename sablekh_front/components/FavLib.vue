@@ -7,9 +7,10 @@
 
             <h1>Favourite Libraries</h1>
 
-            <div :key="lib.id" v-for="lib in libraries" @click="lib_clicked(lib)" class="each-libs">
-                <img class="lib-img"  :src="lib.thumbnail" alt="book image">
-                <div class="lib-info">
+            <div :key="lib.id" v-for="lib in libraries" class="each-libs">
+                <button @click="remove_clicked(lib)" class="remove">Remove</button>
+                <img class="lib-img" @click="lib_clicked(lib)"  :src="lib.thumbnail" alt="book image">
+                <div class="lib-info" @click="lib_clicked(lib)" >
                     <span class="lib-name">{{lib.title}}</span>
                     <span class="lib-desc">{{lib.description}}</span>
                 </div>
@@ -45,6 +46,23 @@ export default {
         }
     },
     methods: {
+        remove_clicked(lib){
+            axios({
+                method: 'delete',
+                url: this.server_address + "/favourite-library",
+                headers: {
+                ...this.implicit_data()
+                },
+                data: {
+                "hid": lib.hid
+                }
+            })
+            .then(res => {
+                // console.log(res)
+                // this.is_fav = !this.is_fav
+                window.location.reload()
+            })
+        },
 
         lib_clicked({link_str}){
             window.location.href = '/library/' + link_str
@@ -130,6 +148,17 @@ export default {
 
 <style scoped>
 
+.remove {
+    border: none;
+    outline: none;
+    position: absolute;
+    padding: 5px 10px;
+    cursor: pointer;
+    right: 0;
+    top: 0;
+    background-color: rgb(255, 158, 32);
+}
+
 .top-img {
     margin: 5vh 0;
 }
@@ -191,6 +220,7 @@ export default {
         flex-direction: row;
         width: 50%;
         cursor: pointer;
+        position: relative;
     }
 
     h1 {
@@ -232,6 +262,7 @@ export default {
         width: 70%;
     }
     .likes-div {
+        padding-top: 20px;
         width: 50%;
     }
     h1  {

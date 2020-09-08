@@ -174,7 +174,7 @@ export default {
     }
     .menu-icon,
     .cancel-icon {
-        width: 15px;
+        width: 20px;
     }  
     .logo {
         width: 50px;

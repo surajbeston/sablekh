@@ -3,6 +3,9 @@
     <!-- <pre>{{data}}</pre> -->
     <div class="library-component mxw-100-mnh-100" >
       <Header />
+      <div v-show="show_tooltip" class="tooltip" :style="tooltip_class">
+      <span class="tooltip-text">{{tooltip_text}}</span>
+    </div>
       <!-- <img src="@/assets/logo1.png" alt="loading image" class="logo-img" /> -->
       <div v-if = "!data.loaded">
         <span class="loader"></span>
@@ -30,23 +33,39 @@
           <div id = "successBox" v-show="hasSuccess" ><p id = "successTxt"> {{success}}<img src = "@/assets/cancel.png" @click="hasSuccess =!hasSuccess" class = "cancelSuccess"></p></div>
               <div id = "errorBox" v-show="hasError" ><p id = "errorTxt"> {{error}}<img src = "@/assets/cancel.png" @click="hasError =!hasError" class = "cancelError"></p></div>
           <div class="like-div">
-            <div class="like1">
+            <div class="like1" >
               <span class="like-span">{{data.likes}}</span>
               <img
+                id="like"
+                @mouseenter="tooltip" 
+                @mouseleave="show_tooltip=false"
                 @click="like_clicked"
                 v-show="!is_liked"
                 src="@/assets/like.png"
                 alt="like"
                 class="blk-like"
               />
-              <img v-show="is_liked" src="@/assets/like1.png" alt="like" class="blu-like" />
+              <img
+                id="unlike"
+                @mouseenter="tooltip" 
+                @mouseleave="show_tooltip=false"
+                 v-show="is_liked" src="@/assets/like1.png" alt="like" class="blu-like" />
             </div>
             <div class="like2">
               <span class="like-span">{{data.downloads}}</span>
-              <img src="@/assets/download1.png" alt="download img" class="download-img">
+              <img 
+                id='download'
+                @mouseenter="tooltip" 
+                @mouseleave="show_tooltip=false"
+                v-show="!is_liked"
+                src="@/assets/download1.png" alt="download img" class="download-img">
             </div>
             <div class="like3" @click = "copy(data.library_name)">
-                <img src="@/assets/copy.png" alt="share img" class="copy-img">
+                <img 
+                  id="copy"
+                  @mouseenter="tooltip" 
+                  @mouseleave="show_tooltip=false"
+                  src="@/assets/copy.png" alt="share img" class="copy-img">
             </div> 
           </div>
           <div class="files-wrapper" v-show = "!loader_on">
@@ -114,7 +133,10 @@ export default {
       not_found: false,
       is_fav: false,
       show_fav_desc: false,
-
+      show_tooltip: false,
+      tooltip_text: "",
+      top: 0,
+      left: 0,
     };
   },
     head() {
@@ -150,6 +172,30 @@ export default {
       }
     },
   methods: {
+
+    tooltip(e) {
+      this.top = e.screenY
+      this.left = e.screenX
+      switch (e.target.id) {
+        case 'like':
+          this.show_tooltip = true;
+          this.tooltip_text = "Like";
+          break;
+        case 'unlike':
+          this.show_tooltip = true;
+          this.tooltip_text = "Unlike";
+          break;
+        case 'copy':
+          this.show_tooltip = true;
+          this.tooltip_text = "Copy";
+          break;
+        case 'download':
+          this.show_tooltip = true;
+          this.tooltip_text = "Downloads";
+          break;
+          
+      }
+    },
 
 
     check_if_fav(){
@@ -456,6 +502,22 @@ export default {
   },
 
   computed: {
+
+    tooltip_class(){
+
+      let top = this.top + 'px'
+      let left = this.left + 'px'
+
+      console.log(top, left)
+
+      return {
+        top,
+        left
+      }
+
+    },
+
+
     progress_bar_style() {
       return {
         width: `${this.progress}%`
@@ -511,13 +573,23 @@ export default {
 
 <style scoped>
 
+  .tooltip {
+    position: absolute;
+    background-color: black;
+    color: white;
+    padding: 10px 20px;
+    z-index: 1;
+  }
+
+
 .fav {
   margin-left: auto;
   width: 50px;
 }
 
 .fav-desc {
-  background-color: rgb(241, 241, 241);
+  background-color: black;
+  color: white;
   padding: 10px 20px;
   border-radius: 5px;
   position: absolute;
@@ -952,6 +1024,12 @@ export default {
 }
 
 @media screen and (max-width: 500px) {
+
+  .tooltip {
+    font-size: 100%;
+    padding: 5px 10px;
+  }
+
   .like-div {
     margin-top: 1vh;
     margin-bottom: 2vh;
