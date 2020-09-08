@@ -13,6 +13,8 @@
                 <span>{{fav_desc_text}}</span>
             </div>
 
+            <img src="@/assets/ill1.png" alt="vector" class="top-img">
+
           <div id = "successBox" v-show="hasSuccess" ><p id = "successTxt"> {{success}}<img src = "@/assets/cancel.png" @click="hasSuccess =!hasSuccess" class = "cancelSuccess"></p></div>
 
             <span class="title">
@@ -203,6 +205,11 @@ export default {
 
 <style scoped>
 
+    .top-img {
+        width: 25%;
+        margin-bottom: 5vh;
+    }
+
     #successBox{
       background-color: rgba(134, 190, 87, 0.4);
       color: rgb(51, 47, 43);
@@ -373,6 +380,9 @@ export default {
 }
 
 @media screen and (max-width: 900px){
+    .top-img {
+        width: 40%;
+    }
     .each-libs {
         width: 100%;
     }
@@ -400,6 +410,12 @@ export default {
 }
 
 @media screen and (max-width: 500px) {
+    .top-img {
+        width: 60%;
+    }
+    .desc {
+        font-size: 100%;
+    }
     #successBox{
     width: 95%;
     padding: 2%;
