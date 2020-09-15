@@ -40,6 +40,7 @@ export default {
           likes: res.data.likes,
           downloads: res.data.downloads,
           username: res.data.username,
+          link_str: res.data.link_str,
           loaded: true
           }
       }

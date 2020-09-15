@@ -556,14 +556,13 @@ export default {
       window.location.replace("/");
     }
     else{
-      if (!this.data || !this.data.loaded) window.location.replace(`https://sablekh.com/library/${this.lib_id}`)
+      if (!this.data || !this.data.loaded || this.data.link_str != this.lib_id) window.location.replace(`https://sablekh.com/library/${this.lib_id}`)
     }
     this.token = window.localStorage.getItem("token");
     if (this.token){
       this.authenticated = true
       this.library_stuffs()
     }
-
     this.check_like()
     this.check_if_fav()
 
