@@ -57,7 +57,6 @@
                 id='download'
                 @mouseenter="tooltip" 
                 @mouseleave="show_tooltip=false"
-                v-show="!is_liked"
                 src="@/assets/download1.png" alt="download img" class="download-img">
             </div>
             <div class="like3" @click = "copy(data.library_name)">
@@ -174,8 +173,9 @@ export default {
   methods: {
 
     tooltip(e) {
-      this.top = e.screenY
-      this.left = e.screenX
+      // console.log(e.screenX, e.screenY, e.pageX, e.pageY, e.offsetX, e.offsetY)
+      this.top = e.pageY + 5
+      this.left = e.pageX + 5
       switch (e.target.id) {
         case 'like':
           this.show_tooltip = true;
@@ -505,6 +505,8 @@ export default {
 
     tooltip_class(){
 
+
+
       let top = this.top + 'px'
       let left = this.left + 'px'
 
@@ -556,7 +558,7 @@ export default {
       window.location.replace("/");
     }
     else{
-      if (!this.data || !this.data.loaded || this.data.link_str != this.lib_id) window.location.replace(`https://sablekh.com/library/${this.lib_id}`)
+      if (!this.data || !this.data.loaded || this.data.link_str != this.lib_id) window.location.replace(`/library/${this.lib_id}`)
     }
     this.token = window.localStorage.getItem("token");
     if (this.token){
