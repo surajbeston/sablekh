@@ -21,7 +21,10 @@
             <span class="remember-me">Remember me</span>
           </div>
         </div>
-        <button @click="login_button" class="btn login-button">{{btn_txt}}</button>
+        <div class="loginbtn-wrapper">
+          <button @click="login_button" class="btn login-button">{{btn_txt}}</button>
+          <GoogleLogin class="google-signin" :params="params" :renderParams="renderParams" :onSuccess="onSuccess" :onFailure="onFailure">Login</GoogleLogin>
+        </div>
         <div class="dont-have-account">
           <NuxtLink to="/register">Don't have an Account</NuxtLink>
         </div>
@@ -34,6 +37,7 @@
 import axios from "axios";
 import CryptoJS from "crypto-js";
 import { v4 as uuidv4 } from "uuid";
+import GoogleLogin from "vue-google-login"
 
 import { setCookie, getCookie } from "@/extras/cookie";
 
@@ -41,7 +45,7 @@ export default {
 
   data() {
     return {
-      server_address: "https://api.sablekh.com",
+      server_address: "http://143.110.182.10",
       email: "",
       password: "",
       remember: false,
@@ -51,10 +55,63 @@ export default {
       btn_txt: "Log in",
       time: 0,
       link: "",
+      params: {
+        client_id: "886662944835-islfqia69h4jtsqp060n533h8pkepu9u.apps.googleusercontent.com"
+      },
+      renderParams: {
+                    width:250,
+                    height: 45,
+                    longtitle: true,
+                }
     }
   },
 
+  components: {
+    GoogleLogin
+  },
+
   methods: {
+    onFailure(error){
+      console.log(error)
+    },
+
+    onSuccess(googleUser) {
+
+
+      var profile = googleUser.getBasicProfile();
+      var google_token = googleUser.wc.id_token;
+      window.localStorage.setItem("email", profile.$t)
+      
+
+      axios({
+        url: this.server_address + "/google-token-exchange",
+        method: 'post',
+        headers: {
+          ...this.implicit_data()
+        },
+        data: {
+          token: google_token
+        }
+      })
+      .then(res => {
+        
+        window.localStorage.setItem("token", res.data.token)
+        if (this.remember) {
+              this.cookie_setter(token)
+            }
+        if (this.link) {
+                window.location.replace("/library/" + this.link)
+              }
+              else {
+                window.location.replace("/login")
+              }
+      })
+      .catch(err => {
+        console.log(err.message)
+      })
+
+    },
+
     login_button() {
 
       if (this.sending){
@@ -199,6 +256,17 @@ export default {
 
 <style scoped>
 
+.google-signin {
+  margin-left: auto;
+}
+
+.loginbtn-wrapper {
+  display: flex;
+  flex-direction: row;
+  padding: 5vh 0;
+  width: 100%;
+}
+
 .login-component {
   min-height: 100vh;
   max-width: 100vw;
@@ -253,7 +321,7 @@ export default {
   background: none;
 }
 
-.login-button{
+/* .login-button{
   cursor: pointer;
   font-size: 150%;
   letter-spacing: .8px;
@@ -261,8 +329,7 @@ export default {
   color: rgb(255, 239, 223);
   border-radius: 5px;
   margin-top: 5vh;
-  font-family: 'Rajdhani', sans-serif;
-}
+} */
 
 .forget-password {
   text-align: right;
@@ -292,12 +359,13 @@ export default {
 }
 
 .login-button {
+  cursor: pointer;
   font-size: 18px;
   letter-spacing: 0.8px;
   background-color: rgb(40, 43, 42);
   color: rgb(255, 239, 223);
   border-radius: 5px;
-  margin-top: 5vh;
+  font-family: 'Rajdhani', sans-serif;
 }
 
 #errorBox{
@@ -333,8 +401,19 @@ export default {
 
   }
 
-  @media screen {
-    
+  @media screen and (max-width: 500px) {
+    .loginbtn-wrapper {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .login-button {
+      width: 250px;
+    }
+
+    .google-signin {
+      margin: 2vh 0;
+    }
   }
 
 </style>

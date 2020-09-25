@@ -52,6 +52,9 @@ export default {
     } 
   },
   methods: {
+
+      
+
       create_button() {
         this.same_password = false
         this.small_password = false

@@ -1,5 +1,6 @@
 <template>
     <div class="footer">
+        <GoogleLogin id="logoutbtn" style="display:none;" :params="params" :logoutButton="true">Logout</GoogleLogin>
         <div class="footer1">
             <div class="each-footer1 footer11">
                 <hr class="hr-top">
@@ -42,24 +43,38 @@
 
 <script>
 
-import {setCookie} from "@/extras/cookie"
+import {setCookie} from "@/extras/cookie";
+import GoogleLogin from "vue-google-login"
 
 export default {
     data() {
         return {
             authenticated: false,
+            params: {
+                client_id: "886662944835-islfqia69h4jtsqp060n533h8pkepu9u.apps.googleusercontent.com"
+            },
         }
     },
+
+    components: {
+        GoogleLogin
+    },
+
     methods: {
         logout(){
             if (process.browser){
                 setCookie("ikmrfs", "", -1)
                 window.localStorage.removeItem("token");
+                var btn = document.querySelector("#logoutbtn");
+                btn.click();
                 window.location.reload()
             }
         },
     },
     mounted() {
+
+        
+
 
         if (window.localStorage.getItem("token")){
             this.authenticated = true
