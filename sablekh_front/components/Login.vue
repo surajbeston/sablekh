@@ -23,7 +23,7 @@
         </div>
         <div class="loginbtn-wrapper">
           <button @click="login_button" class="btn login-button">{{btn_txt}}</button>
-          <GoogleLogin class="google-signin" :params="params" :renderParams="renderParams" :onSuccess="onSuccess" :onFailure="onFailure">Login</GoogleLogin>
+          <GoogleLogin class="btn google-signin" :params="params" :onSuccess="onSuccess" :onFailure="onFailure">Login with Google</GoogleLogin>
         </div>
         <div class="dont-have-account">
           <NuxtLink to="/register">Don't have an Account</NuxtLink>
@@ -58,11 +58,6 @@ export default {
       params: {
         client_id: "886662944835-islfqia69h4jtsqp060n533h8pkepu9u.apps.googleusercontent.com"
       },
-      renderParams: {
-                    width:250,
-                    height: 45,
-                    longtitle: true,
-                }
     }
   },
 
@@ -258,6 +253,13 @@ export default {
 
 .google-signin {
   margin-left: auto;
+  cursor: pointer;
+  font-size: 18px;
+  letter-spacing: 0.8px;
+  background-color: rgb(40, 43, 42);
+  color: rgb(255, 239, 223);
+  border-radius: 5px;
+  font-family: 'Rajdhani', sans-serif;
 }
 
 .loginbtn-wrapper {
@@ -407,7 +409,8 @@ export default {
       align-items: center;
     }
 
-    .login-button {
+    .login-button,
+    .google-signin {
       width: 250px;
     }
 
