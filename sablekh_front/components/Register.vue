@@ -22,7 +22,10 @@
 
                 <p class="privacy-stuff">*By signing up you accept all our <a href = "/terms-and-conditions">Terms & Conditions</a> and <a href = "/privacy-policy">Privacy Policy.</a></p>
 
-                <button @click="create_button" class="btn create-button">{{btn_txt}}</button>
+                <div class="btn-wrapper">
+                    <button @click="create_button" class="btn create-button">{{btn_txt}}</button>
+                    <GoogleLogin class="btn google-signin" :params="params" :onSuccess="onSuccess" :onFailure="onFailure">Signup with Google</GoogleLogin>
+                </div>
                 <div class="already-have-account">
                     <NuxtLink to="/login">Already have an account?</NuxtLink>
                 </div>
@@ -34,13 +37,14 @@
 <script>
 
 import axios  from "axios";
+import GoogleLogin from 'vue-google-login'
 
 import {getCookie} from "@/extras/cookie"
 
 export default {
   data() {
     return {
-        server_address: "https://api.sablekh.com",
+        server_address: "http://143.110.182.10",
         email: "",
         password1: "",
         password2: "",
@@ -48,12 +52,57 @@ export default {
         error: "this is error.",
         btn_txt: "Create",
         sending: false,
-        time: 0
+        time: 0,
+        params: {
+        client_id: "886662944835-islfqia69h4jtsqp060n533h8pkepu9u.apps.googleusercontent.com"
+      },
     } 
+  },
+  components: {
+      GoogleLogin
   },
   methods: {
 
+        onFailure(error){
+      console.log(error)
+    },
+
+    onSuccess(googleUser) {
+
+
+      var profile = googleUser.getBasicProfile();
+      var google_token = googleUser.wc.id_token;
+      window.localStorage.setItem("email", profile.$t)
       
+
+      axios({
+        url: this.server_address + "/google-token-exchange",
+        method: 'post',
+        headers: {
+          ...this.implicit_data()
+        },
+        data: {
+          token: google_token
+        }
+      })
+      .then(res => {
+        
+        window.localStorage.setItem("token", res.data.token)
+        if (this.remember) {
+              this.cookie_setter(token)
+            }
+        if (this.link) {
+                window.location.replace("/library/" + this.link)
+              }
+              else {
+                window.location.replace("/login")
+              }
+      })
+      .catch(err => {
+        console.log(err.message)
+      })
+
+    },      
 
       create_button() {
         this.same_password = false
@@ -209,6 +258,25 @@ export default {
 </script>
 
 <style scoped>
+
+    .btn-wrapper {
+        display: flex;
+        flex-direction: row;
+        margin: 5vh 0;
+    }
+
+    .google-signin {
+        margin-left: auto;
+        cursor: pointer;
+        font-size: 18px;
+        letter-spacing: 0.8px;
+        background-color: rgb(40, 43, 42);
+        color: rgb(255, 239, 223);
+        border-radius: 5px;
+        font-family: 'Rajdhani', sans-serif;
+    }
+
+
     .register-component {
         background-color: rgb(254.0, 227, 200);
         color: rgb(82, 71, 62);
@@ -258,7 +326,6 @@ export default {
         background-color: rgb(40, 43, 42);
         color: rgb(255, 239, 223);
         border-radius: 5px;
-        margin-top: 5vh;
         font-family: 'Rajdhani', sans-serif;
         cursor: pointer;
     }
@@ -360,6 +427,23 @@ export default {
             margin-bottom: 5%;
             width: 20%;
         }
+    }
+
+    @media screen and (max-width: 500px){
+
+        .btn-wrapper {
+            flex-direction: column;
+            align-items: center;
+        }
+        .create-button {
+            margin-bottom: 2vh;
+        }
+        .create-button,.google-signin {
+            width: 250px;
+            margin-left: 0;
+            text-align: center;
+        }
+
     }
     
 
