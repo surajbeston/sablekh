@@ -95,7 +95,7 @@ export default {
             description: "",
             // files: [{"name": "something.pdf", "filename": "/filenames/pdf.png", "uploadedsize": "12", "totalsize": "25"}, {"name": "something.txt", "filename": "/filenames/text.png", "uploadedsize": "12", "totalsize": "25"}],
             files: [],
-            url: "https://api.sablekh.com/",
+            url: "http://18.141.160.193/",
             library: "",
             auth_token: "",
             last_title: "",

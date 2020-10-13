@@ -47,7 +47,7 @@ import {getCookie} from "@/extras/cookie"
 export default {
   data() {
     return {
-        server_address: "http://143.110.182.10",
+        server_address: "http://18.141.160.193",
         email: "",
         password1: "",
         password2: "",
@@ -166,6 +166,7 @@ export default {
                         }
                     })
                     .then(res => {
+                        console.log(res)
                     window.localStorage.setItem("username", res.data.username)
                     if (this.link) {
                         window.location.replace("/library/" + this.link)

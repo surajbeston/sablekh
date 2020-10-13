@@ -5,6 +5,9 @@
                 <img src="@/assets/logo1.png" alt="log0" class="logo-img">
             </div> -->
             <Header />
+            <div class="messages" v-for="msg in messages" v-bind:key="msg">
+                <p class="each-message" >{{msg}}</p>
+            </div>
             <div class="search11">
                 <img src="@/assets/search/top.png" alt="loading image">
             </div>
@@ -75,7 +78,7 @@ import {setCookie} from "@/extras/cookie";
 export default {
     data() {
         return {
-            server_address: "https://api.sablekh.com",
+            server_address: "http://18.141.160.193",
             image_address: "https://pngimg.com/uploads/book/book_PNG51083.png",
             show_suggessions: true,
             off_width: 0,
@@ -92,7 +95,10 @@ export default {
             holder: [],
             previous_libraries: [],
             hids: [],
-            no_search: false
+            no_search: false,
+            messages: [
+                
+            ],
         }
     },
 
@@ -159,6 +165,7 @@ export default {
                     headers: this.implicit_data()
                 })
                 .then(res => {
+                    console.log(res)
                     this.add_to_localstorage("search", res.data.data)
                     this.no_search = res.data.data.length > 0 ? false: true
                     this.search_books = res.data.data
@@ -226,7 +233,16 @@ export default {
         }
         return {"site": document.referrer+"---"+session_key, "link": window.location.href.toString().split(window.location.host)[1], "timetaken": new Date().getTime() -this.time }
         }
+
         ,
+
+        clear_message() {
+            setTimeout(() => {
+                this.messages = []
+            }, 5000);
+        }
+
+
         // async fill_extra(){
         //     return await this.get_likes_downloads()
         // },
@@ -293,6 +309,26 @@ export default {
         this.previous_libraries = this.retrive_from_localstorage("search")
         this.search_books = []
 
+        this.token = window.localStorage.getItem("token")
+
+        if (this.token) {
+            axios({
+                url: this.server_address + "/users",
+                method: 'get',
+                headers: {
+                    ...this.implicit_data(),
+                    Authorization: "Token " + this.token
+                }
+            })
+            .then(res => {
+                if (!res.data.email_verified) {
+                    this.messages = ["Email Not Verified! Please check your Email"]
+                    this.clear_message();
+                }
+            })
+        }
+
+
         var libs = this.previous_libraries;
         // console.log(libs)
         for (var previous_library of this.previous_libraries){
@@ -324,6 +360,25 @@ export default {
 </script>
 
 <style scoped>
+    .messages {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 2vh;
+    }
+
+    .each-message {
+        font-family: 'Comfortaa', cursive;
+        padding: 10px 20px;
+        border: 1px solid green;
+        border-radius: 5px;
+        font-size: 20px;
+        /* font-weight: bold; */
+        letter-spacing: .8px;
+        background-color: rgba(0, 128, 0, 0.178);
+    }
+
     a {
         text-decoration: none;
     }
@@ -630,6 +685,9 @@ export default {
         }
     }
     @media screen and (max-width: 900px) {
+        .each-message {
+            font-size: 16px;
+        }
           .input-options {
               width: 300px;
           }
@@ -722,6 +780,12 @@ export default {
 
 
     @media screen and (max-width: 500px) {
+        .messages {
+            padding: 10px 10px;
+        }
+        .each-message {
+            font-size: 12px;
+        }
         .header{
             height: 12vh;
         }
