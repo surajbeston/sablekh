@@ -46,7 +46,7 @@
 export default {
     data() {
         return {
-            server_address: "https://api.sablekh.com",
+            server_address: "http://18.141.160.193",
             groups: [],
             email: "dummy@sablekh.com",
             id: "",

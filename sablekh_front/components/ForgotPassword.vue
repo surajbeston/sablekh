@@ -6,7 +6,7 @@
                     <!-- <img src="@/assets/forgot_pw/left.png" alt="loading img" class="left-img">
                     <img src="@/assets/forgot_pw/right.png" alt="loading img" class="right-img"> -->
                     <div class="main12">
-                        <img src="@/assets/forgot_pw/logo.png" alt="logo" class="main121">
+                        <img src="@/assets/logo1.png" alt="logo" class="main121">
                         <img src="@/assets/forgot_pw/top.png" alt="loading image" class="main122">
                         <div class="main123">
                              <h1>PASSWORD RESET</h1>                             
@@ -30,7 +30,7 @@ import axios from "axios";
 export default {
     data() {
         return {
-          server_address: "https://api.sablekh.com",
+          server_address: "http://18.141.160.193",
             email: "",
             email_sent: false,
             hasSuccess: false,

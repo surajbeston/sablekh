@@ -23,7 +23,10 @@
         </div>
         <div class="loginbtn-wrapper">
           <button @click="login_button" class="btn login-button">{{btn_txt}}</button>
-          <GoogleLogin class="btn google-signin" :params="params" :onSuccess="onSuccess" :onFailure="onFailure">Login with Google</GoogleLogin>
+          <GoogleLogin class="btn google-signin" :params="params" :onSuccess="onSuccess" :onFailure="onFailure">
+            <img class="google-png" src="@/assets/google.png" alt="google">
+            Login with Google   
+          </GoogleLogin>
         </div>
         <div class="dont-have-account">
           <NuxtLink to="/register">Don't have an Account</NuxtLink>
@@ -45,7 +48,7 @@ export default {
 
   data() {
     return {
-      server_address: "http://143.110.182.10",
+      server_address: "http://18.141.160.193",
       email: "",
       password: "",
       remember: false,
@@ -251,6 +254,11 @@ export default {
 
 <style scoped>
 
+.google-png {
+  width: 18px;
+  margin-right: 10px;
+}
+
 .google-signin {
   margin-left: auto;
   cursor: pointer;
@@ -260,6 +268,9 @@ export default {
   color: rgb(255, 239, 223);
   border-radius: 5px;
   font-family: 'Rajdhani', sans-serif;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 .loginbtn-wrapper {

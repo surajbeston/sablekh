@@ -33,7 +33,7 @@ import axios from "axios";
 export default {
     data(){
         return{
-            server_address: "https://api.sablekh.com",
+            server_address: "http://18.141.160.193",
             groups: [],
             page: 0,
             total_page: 0,

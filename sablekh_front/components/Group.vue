@@ -66,7 +66,7 @@ import Fuse from "fuse.js";
 export default {
     data() {
         return{
-            url: "https://api.sablekh.com/",
+            url: "http://18.141.160.193/",
             username: "",
             name: "",
             description: "",
