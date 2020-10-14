@@ -21,9 +21,9 @@ def generate_thumbnail(choosen_file):
                 elif file_type.split("/")[0] == "audio":
                     return "thumbnails/default_audio.jpg"
                 elif file_type.split("/")[0] == "image":
-                    return "thumbnails/default_image.jpg":
+                    return "thumbnails/default_image.jpg"
                 else:
-                return False
+                    return False
             except IndexError:
                 return False
         return compress_image(thumbnail_name)

@@ -5,7 +5,7 @@ export default {
   ** See https://nuxtjs.org/api/configuration-mode
   */
  server: {
-  port: 8001, // default: 3000
+  port: 8000, // default: 3000
   host: 'localhost' // default: localhost
 },
   mode: 'universal',

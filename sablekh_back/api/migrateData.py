@@ -12,13 +12,13 @@ def migrate_data(records):
         formatted_file.append({"hid": record[0], "title":record[1], "_file": record[2], "size": record[3], "library":record[4]})
 
     for record in records["library"]:
-        formatted_library.append({"hid": record[0],"title": record[1],"description": record[2], "thumbnail":record[3], "link_str": record[4],"tags": record[5],"finished": record[6],"datetime": record[7],"no_files": record[8],"user_id":record[9],"searchable": True, "_order": 1})
+        formatted_library.append({"hid": record[0],"title": record[1],"description": record[2], "thumbnail":record[3], "link_str": record[4],"tags": record[5],"finished": record[6], "searchable": record[7],"datetime": record[8],"no_files": record[9],"user_id":record[10], "_order": 1})
 
     for record in records["like"]:
         formatted_like.append({"id": record[0],"datetime": record[1],"library_id": record[2],"user_id": record[3]})
 
     for record in records["visitor"]:
-        formatted_visitor.append({"id": record[0],"hid": record[1]})
+        formatted_visitor.append({"id": record[0],"hid": record[1], "email_verified": False})
 
     for record in records["user"]:
         formatted_user.append({"id": record[0],"password": record[1],"last_login": record[2], "is_superuser": record[3],"username":record[4],"first_name": record[5], "last_name": record[6],"email":record[7],"is_staff": record[8],"is_active": record[9],"date_joined": record[10]})
@@ -39,7 +39,7 @@ def migrate_data(records):
         cursor.executemany(""" INSERT INTO api_file VALUES (%(hid)s, %(title)s, %(_file)s, %(size)s, %(library)s)""", formatted_file)
         cursor.executemany(""" INSERT INTO api_library VALUES (%(hid)s, %(title)s,%(description)s, %(thumbnail)s, %(link_str)s, %(tags)s, %(finished)s,%(searchable)s, %(datetime)s,%(no_files)s,%(user_id)s, %(_order)s)""", formatted_library)
         cursor.executemany(""" INSERT INTO api_like VALUES (%(id)s, %(datetime)s, %(library_id)s,%(user_id)s)""", formatted_like)
-        cursor.executemany(""" INSERT INTO api_visitor VALUES (%(id)s,%(hid)s)""", formatted_visitor)
+        cursor.executemany(""" INSERT INTO api_visitor VALUES (%(id)s,%(hid)s,%(email_verified)s)""", formatted_visitor)
         cursor.executemany(""" INSERT INTO auth_user VALUES (%(id)s, %(password)s, %(last_login)s, %(is_superuser)s, %(username)s, %(first_name)s, %(last_name)s, %(email)s, %(is_staff)s, %(is_active)s, %(date_joined)s)""", formatted_user)
         cursor.executemany(""" INSERT INTO authtoken_token VALUES (%(key)s, %(created)s,%(user_id)s)""", formatted_token)
     finally:

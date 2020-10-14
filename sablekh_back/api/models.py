@@ -20,7 +20,7 @@ User._meta.get_field('username')._primary = True
 
 class Visitor(User):
     hid = models.CharField(max_length = 56, primary_key= True)
-
+    email_verified = models.BooleanField(default = False)
 
 class Library(models.Model):
     hid = models.CharField(max_length = 56, primary_key= True)
@@ -97,6 +97,12 @@ class PwResetToken(models.Model):
     is_used = models.BooleanField(default = True)
     datetime = models.DateTimeField(auto_now=True)    
 
+class EmailVerifyToken(models.Model):
+    token = models.CharField(max_length=150)
+    user = models.ForeignKey(Visitor, on_delete=models.CASCADE)
+    is_used = models.BooleanField(default = False)
+    datetime = models.DateTimeField(auto_now=True)
+
 class ImplicitData(models.Model):
     user = models.ForeignKey(Visitor, on_delete = models.CASCADE, null = True, blank = True)
     session_key = models.CharField(max_length=60)
@@ -120,7 +126,7 @@ class RestrictedIP(models.Model):
     datetime = models.DateTimeField(auto_now= True)
 
 stem_ana = StemmingAnalyzer()
-WHOOSH_SCHEMA = Schema(hid = KEYWORD(stored = True), title=TEXT(analyzer = stem_ana), description=TEXT(analyzer = stem_ana), tags = KEYWORD())
+WHOOSH_SCHEMA = Schema(hid = KEYWORD(stored = True), title=TEXT(analyzer = stem_ana, field_boost=2), description=TEXT(analyzer = stem_ana), tags = KEYWORD(stored = True, field_boost=1.5))
 
 def create_index(sender=None, **kwargs):
     if not os.path.exists(settings.WHOOSH_INDEX):
@@ -142,11 +148,12 @@ def update_index(sender, instance, created, **kwargs):
                 except LockError:
                     time.sleep(0.2)
             if created:
-                str_tags = ",".join([tag for tag in instance.tags])
+                str_tags = " ".join([tag.lower() for tag in instance.tags])
+                print (str_tags)
                 writer.add_document(hid = instance.hid, title=instance.title, description=instance.description, tags=str_tags)
                 writer.commit()
             else:
-                str_tags = ",".join([tag for tag in instance.tags])
+                str_tags = " ".join([tag.lower() for tag in instance.tags])
                 writer.update_document(hid = instance.hid, title=instance.title, description=instance.description, tags=str_tags)
                 writer.commit()
         else:
@@ -164,6 +171,7 @@ signals.pre_save.connect(update_id, sender = DownloadLot)
 signals.pre_save.connect(update_id, sender = Like)
 signals.pre_save.connect(update_id, sender = FavouriteLibrary)
 signals.pre_save.connect(update_id, sender = FavouriteLibraryGroup)
+
 
 def longer_token(sender, *args, **kwargs):
     if sender.__name__ == "Token":

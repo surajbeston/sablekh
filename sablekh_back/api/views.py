@@ -11,7 +11,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes 
 from rest_framework.exceptions import ParseError 
 from rest_framework.parsers import FileUploadParser
-from .models import Library, File, DownloadLot, Like, Visitor, Tag, PwResetToken, LibraryGroup, FavouriteLibrary, FavouriteLibraryGroup
+from .models import Library, File, DownloadLot, Like, Visitor, Tag, PwResetToken, LibraryGroup, FavouriteLibrary, FavouriteLibraryGroup, EmailVerifyToken
 import hashlib
 from datetime import datetime
 import mimetypes
@@ -39,6 +39,8 @@ from bs4 import BeautifulSoup
 from .thumbnail import generate_thumbnail
 from django.contrib.sessions.backends.db import SessionStore
 
+from .verify_email import sendEmail
+
 def home(request):
     return redirect("https://sablekh.com")
 
@@ -49,16 +51,17 @@ class UserView(APIView):
         while True:
             try:
                 user = Visitor.objects.get(username = supposed_username) 
-                supposed_username += random.choice(digits) 
-            except Visitor.DoesNotExist:
-                data["username"] = supposed_username 
+                supposed_username += random.choice(digits)
+            except Visitor.DoesNotExist: 
                 break 
+        data["username"] = supposed_username
         hash_str = data["username"] + str(datetime.now())
         hashed = hashlib.sha224(hash_str.encode())
         data["hid"] = hashed.hexdigest()
         serializer = VisitorSerializer(data = data)
         if serializer.is_valid():
             obj = serializer.save()
+            sendEmail(obj)
         else:
             return Response(serializer.errors, status = status.HTTP_303_SEE_OTHER) 
         return Response(serializer.data, status = status.HTTP_200_OK)
@@ -596,7 +599,7 @@ def download_files(request):
 @api_view(['GET', 'POST'])
 def search(request):
     ix = open_dir("index")
-    query = request.data["query"]
+    query = request.data["query"].lower()
     try:
         page = request.data["page"]
     except KeyError:
@@ -742,17 +745,38 @@ def reset_password(request):
     user = token_obj.user 
     if datetime.now(tz = tz.UTC) - token_obj.datetime > timedelta(days = 1) or token_obj.is_used:
         return Response({"error": "token expired", "email": user.email}, status = status.HTTP_403_FORBIDDEN)
-    if _type == "test":
-        return Response({"message": "token valid", "email": user.email}, status = status.HTTP_200_OK)
-    elif _type == "action-change":
-        password = request.data["password"]
-        user.password = make_password(password)
-        user.save() 
-        token_obj = False
-        token_obj.save()
-        return Response({"message": "password reset", "email": user.email}, status= status.HTTP_205_RESET_CONTENT)
+    if not token_obj.is_used:
+        if _type == "test":
+            return Response({"message": "token valid", "email": user.email}, status = status.HTTP_200_OK)
+        elif _type == "action-change":
+            password = request.data["password"]
+            user.password = make_password(password)
+            user.save() 
+            token_obj.is_used = True
+            token_obj.save()
+            return Response({"message": "password reset", "email": user.email}, status= status.HTTP_205_RESET_CONTENT)
+        else:
+            return Response({"error": "invalid type", "email": user.email}, status = status.HTTP_303_SEE_OTHER)
     else:
-        return Response({"error": "invalid type", "email": user.email}, status = status.HTTP_303_SEE_OTHER)
+        return Response({"error": "token already used", "email": user.email}, status = status.HTTP_403_FORBIDDEN)
+
+
+@api_view(['GET', 'POST'])
+def verify_email(request):
+    token = request.data["token"]
+    try:
+        token_obj = EmailVerifyToken.objects.get(token = token)
+    except EmailVerifyToken.DoesNotExist:
+        return Response({"error": "invalid token"}, status = status.HTTP_404_NOT_FOUND)
+    if token_obj.is_used:
+        return Response({"error": "token already used"}, status = status.HTTP_403_FORBIDDEN)
+    else:
+        token_obj.is_used = True
+        token_obj.save()
+        user = token_obj.user
+        user.email_verified = True
+        user.save()
+        return Response({"message": "email verified", "email": user.email}, status = status.HTTP_200_OK)
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
